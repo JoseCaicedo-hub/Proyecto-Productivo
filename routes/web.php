@@ -12,6 +12,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', [WebController::class, 'index'])->name('web.index');
 Route::get('/producto/{id}', [WebController::class, 'show'])->name('web.show');
@@ -44,6 +45,8 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
+
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 });
 
 Route::middleware('guest')->group(function(){

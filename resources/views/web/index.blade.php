@@ -29,38 +29,54 @@
     </div>
 </form>
 <!-- Section-->
-<section class="py-5">
-    <div class="container px-4 px-lg-5 mt-1">
-        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+<section class="py-5 bg-light cssunique">
+    <div class="container px-4 px-lg-5 mt-1 cssunique">
+        <h2 class="text-center mb-5 fw-bold cssunique">Nuestros Productos</h2>
+        <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-3 row-cols-xl-4 justify-content-center cssunique">
             @foreach($productos as $producto)
-            <div class="col mb-5">
-                <div class="card h-100">
-                    <!-- Product image-->
-                    <img class="card-img-top" src="{{asset('uploads/productos/'. $producto->imagen) }}"
-                        alt="{{$producto->nombre}}" />
-                    <!-- Product details-->
-                    <div class="card-body p-4">
-                        <div class="text-center">
-                            <!-- Product name-->
-                            <h5 class="fw-bolder">{{$producto->nombre}}</h5>
-                            <!-- Product price-->
-                            $ {{number_format($producto->precio, 2)}}
+            <div class="col mb-5 cssunique">
+                <div class="card h-100 border-0 shadow-sm cssunique">
+                    <!-- Imagen del producto -->
+                    <div class="image-wrapper cssunique">
+                        <img class="card-img-top cssunique"
+                             src="{{ asset('uploads/productos/' . $producto->imagen) }}"
+                             alt="{{ $producto->nombre }}">
+                    </div>
+
+                    <!-- Detalles del producto -->
+                    <div class="card-body text-center p-4 cssunique">
+                        <h5 class="fw-bold mb-2 cssunique">{{ $producto->nombre }}</h5>
+                        <p class="text-primary fw-semibold fs-5 cssunique">
+                            $ {{ number_format($producto->precio, 2) }}
+                        </p>
+
+                        <!-- Estrellas -->
+                        <div class="stars d-flex justify-content-center mb-3 cssunique">
+                            <i class="bi bi-star-fill text-warning cssunique"></i>
+                            <i class="bi bi-star-fill text-warning cssunique"></i>
+                            <i class="bi bi-star-fill text-warning cssunique"></i>
+                            <i class="bi bi-star-half text-warning cssunique"></i>
+                            <i class="bi bi-star text-warning cssunique"></i>
                         </div>
                     </div>
-                    <!-- Product actions-->
-                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center"><a class="btn btn-outline-dark mt-auto"
-                                href="{{route('web.show', $producto->id)}}">Ver
-                                producto</a></div>
+
+                    <!-- Botón de acción -->
+                    <div class="card-footer bg-transparent border-0 text-center pb-4 cssunique">
+                        <a href="{{ route('web.show', $producto->id) }}"
+                           class="btn btn-primary rounded-pill px-4 fw-semibold cssunique">
+                            Ver producto
+                        </a>
                     </div>
                 </div>
             </div>
             @endforeach
         </div>
-        <div class="card-footer clearfix">
+
+        <!-- Paginación -->
+        <div class="d-flex justify-content-center mt-4 cssunique">
             {{ $productos->appends(['search' => request('search'), 'sort' => request('sort')])->links() }}
         </div>
     </div>
-    </div>
 </section>
+
 @endsection

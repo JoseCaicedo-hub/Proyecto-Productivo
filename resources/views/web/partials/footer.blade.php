@@ -1,5 +1,45 @@
-<footer class="py-5 bg-dark">
-    <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; ArtCode.com 2025</p>
+<footer class="bg-dark text-light pt-4 mt-5">
+  <div class="container">
+    <div class="row">
+      <!-- Columna 1 -->
+      <div class="col-md-4 mb-3">
+        <h5>StarPlace.com</h5>
+        <p class="small">
+          Tu tienda en línea de confianza. Ofrecemos productos de calidad y un servicio rápido y seguro.
+        </p>
+      </div>
+
+      <!-- Columna 2 -->
+      <div class="col-md-4 mb-3">
+        <h5>Enlaces útiles</h5>
+        <ul class="list-unstyled">
+          <li><a href="/" class="text-light text-decoration-none">Inicio</a></li>
+          <li><a href="#" class="text-light text-decoration-none">Acerca de</a></li>
+          <li><a href="#" class="text-light text-decoration-none">Tienda</a></li>
+          <li><a href="#" class="text-light text-decoration-none">Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 3 -->
+      <div class="col-md-4 mb-3">
+        <h5>Contáctanos</h5>
+        <ul class="list-unstyled small">
+          <li><i class="bi bi-geo-alt-fill"></i> Colombia, Envio internacional</li>
+          <li><i class="bi bi-telephone-fill"></i> +52 123 456 7890</li>
+          <li><i class="bi bi-envelope-fill"></i> soporte@starplace.com</li>
+        </ul>
+        <div class="mt-3">
+          <a href="#" class="text-light me-3"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-light me-3"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="text-light"><i class="bi bi-twitter-x"></i></a>
+        </div>
+      </div>
     </div>
+
+    <hr class="border-light">
+
+    <div class="text-center pb-3 small">
+      ©StarPlace.com — Todos los derechos reservados.
+    </div>
+  </div>
 </footer>

@@ -10,6 +10,8 @@
  * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+ 
+ 
 :root {
   --bs-blue: #0d6efd;
   --bs-indigo: #6610f2;
@@ -10823,4 +10825,91 @@ textarea.form-control-lg {
   .d-print-none {
     display: none !important;
   }
+}
+
+.miclase{
+  
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-item {
+    transition: transform 1s ease, opacity 1s ease;
+}
+
+.carousel-item img {
+    max-width: 90%;
+    border-radius: 20px;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-size: 100%, 100%;
+    width: 3rem;
+    height: 3rem;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+}
+
+@media (max-width: 768px) {
+    .hero-section h2 {
+        font-size: 1.8rem;
+    }
+    .hero-section p {
+        font-size: 0.9rem;
+    }
+}
+
+}
+
+.cssunique{
+  /* --- PRODUCT SECTION --- */
+.image-wrapper.cssunique {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.image-wrapper.cssunique img {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.image-wrapper.cssunique img:hover {
+    transform: scale(1.08);
+}
+
+.card.cssunique {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card.cssunique:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.btn.cssunique {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn.cssunique:hover {
+    background-color: #0b5ed7;
+    transform: scale(1.05);
+}
+
+.stars.cssunique i {
+    font-size: 1.1rem;
+    margin: 0 2px;
+}
+
 }
