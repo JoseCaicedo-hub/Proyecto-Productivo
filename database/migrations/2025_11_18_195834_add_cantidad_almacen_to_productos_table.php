@@ -12,10 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('productos', function (Blueprint $table) {
-            if (!Schema::hasColumn('productos', 'stock')) {
-                $table->integer('stock')->default(0)->after('precio'); 
-                $table->date('fecha_reposicion')->nullable()->after('stock');
-            }
+            $table->integer('cantidad_almacen')->default(0)->after('precio');
         });
     }
 
@@ -25,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('productos', function (Blueprint $table) {
-            $table->dropColumn('stock');
+            $table->dropColumn('cantidad_almacen');
         });
     }
 };

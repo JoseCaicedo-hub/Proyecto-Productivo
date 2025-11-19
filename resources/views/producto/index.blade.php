@@ -40,15 +40,16 @@
                                         <th style="width: 150px">Opciones</th>
                                         <th style="width: 20px">ID</th>
                                         <th>Código</th>
-                                        <th>Nobre</th>
+                                        <th>Nombre</th>
                                         <th>Precio</th>
+                                        <th>Cantidad en almacén</th>
                                         <th>Imagen</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @if(count($registros)<=0)
                                         <tr>
-                                            <td colspan="6">No hay registros que coincidan con la búsqueda</td>
+                                            <td colspan="7">No hay registros que coincidan con la búsqueda</td>
                                         </tr>
                                     @else
                                         @foreach($registros as $reg)
@@ -67,6 +68,7 @@
                                                 <td>{{$reg->codigo}}</td>
                                                 <td>{{$reg->nombre}}</td>
                                                 <td>{{$reg->precio}}</td>
+                                                <td>{{$reg->cantidad_almacen ?? 0}}</td>
                                                 <td>
                                                 @if($reg->imagen)
                                                     <img src="{{ asset('uploads/productos/' . $reg->imagen) }}" alt="{{ $reg->nombre }}" style="max-width: 150px; height: auto;">

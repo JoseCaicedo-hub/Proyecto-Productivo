@@ -42,6 +42,14 @@
                                         <small class="text-danger">{{$message}}</small>
                                      @enderror
                                 </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="cantidad_almacen" class="form-label">Cantidad en almacén</label>
+                                    <input type="number" class="form-control @error('cantidad_almacen') is-invalid @enderror"
+                                     id="cantidad_almacen" name="cantidad_almacen" value="{{old('cantidad_almacen',  $registro->cantidad_almacen ?? 0)}}" min="0" required>
+                                     @error('cantidad_almacen')
+                                        <small class="text-danger">{{$message}}</small>
+                                     @enderror
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-8 mb-3">

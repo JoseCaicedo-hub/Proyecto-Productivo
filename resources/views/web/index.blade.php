@@ -49,6 +49,19 @@
                         <p class="text-primary fw-semibold fs-5 cssunique">
                             $ {{ number_format($producto->precio, 2) }}
                         </p>
+                        
+                        <!-- Cantidad disponible -->
+                        <div class="mb-2 cssunique">
+                            @if(($producto->cantidad_almacen ?? 0) > 0)
+                                <span class="badge bg-success cssunique">
+                                    <i class="bi bi-box-seam"></i> Disponible: {{ $producto->cantidad_almacen }}
+                                </span>
+                            @else
+                                <span class="badge bg-danger cssunique">
+                                    <i class="bi bi-x-circle"></i> Agotado
+                                </span>
+                            @endif
+                        </div>
 
                         <!-- Estrellas -->
                         <div class="stars d-flex justify-content-center mb-3 cssunique">

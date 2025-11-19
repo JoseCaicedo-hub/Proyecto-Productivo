@@ -35,7 +35,7 @@ class PedidoController extends Controller
     }
 
     public function realizar(Request $request){
-        $carrito = session()->get('carrito', []);
+        $carrito = \App\Http\Controllers\CarritoController::getCartStatic();
 
         if (empty($carrito)) {
             return redirect()->back()->with('mensaje', 'El carrito está vacío.');
@@ -59,7 +59,7 @@ class PedidoController extends Controller
                 ]);
             }
             // 4. Vaciar el carrito de la sesión
-            session()->forget('carrito');
+            session()->forget(\App\Http\Controllers\CarritoController::getCartKey());
             DB::commit();
             return redirect()->route('carrito.mostrar')->with('mensaje', 'Pedido realizado correctamente.');
         } catch (\Exception $e) {

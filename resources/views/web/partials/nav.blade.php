@@ -30,7 +30,10 @@
                 <i class="bi-cart-fill me-1"></i>
                 Pedido
                 <span class="badge bg-dark text-white ms-1 rounded-pill">
-                {{ session('carrito') ? array_sum(array_column(session('carrito'), 'cantidad')) : 0 }}
+                @php
+                    $carrito = \App\Http\Controllers\CarritoController::getCartStatic();
+                    echo $carrito ? array_sum(array_column($carrito, 'cantidad')) : 0;
+                @endphp
                 </span>
             </a>
         </div>

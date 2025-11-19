@@ -28,6 +28,7 @@ class ProductoRequest extends FormRequest
             'codigo' => ['required', 'string', 'max:16', 'unique:productos,codigo,' . $id],
             'nombre' => ['required', 'string', 'max:100'],
             'precio' => ['required', 'numeric', 'min:0'],
+            'cantidad_almacen' => ['required', 'integer', 'min:0'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
             'imagen' => [$method === 'POST' ? 'required' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];
@@ -46,6 +47,10 @@ class ProductoRequest extends FormRequest
             'precio.required' => 'El precio del producto es obligatorio.',
             'precio.numeric' => 'El precio debe ser un valor numérico.',
             'precio.min' => 'El precio no puede ser negativo.',
+
+            'cantidad_almacen.required' => 'La cantidad en almacén es obligatoria.',
+            'cantidad_almacen.integer' => 'La cantidad en almacén debe ser un número entero.',
+            'cantidad_almacen.min' => 'La cantidad en almacén no puede ser negativa.',
 
             'descripcion.max' => 'La descripción no puede tener más de 1000 caracteres.',
 

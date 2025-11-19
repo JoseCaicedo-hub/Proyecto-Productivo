@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
@@ -39,6 +40,18 @@ Route::middleware(['auth'])->group(function(){
     })->name('dashboard');
 
     Route::post('logout', function(){
+        // Limpiar solo el carrito de sesión (el carrito en BD se mantiene)
+        $cartKey = \App\Http\Controllers\CarritoController::getCartKey();
+        session()->forget($cartKey);
+        
+        // Limpiar cualquier otro carrito de sesión que pueda quedar
+        foreach (session()->all() as $key => $value) {
+            if (strpos($key, 'carrito_') === 0) {
+                session()->forget($key);
+            }
+        }
+        
+        // NO eliminar el carrito de la BD, se mantiene para cuando el usuario vuelva a iniciar sesión
         Auth::logout();
         return redirect('/login');
     })->name('logout');

@@ -10,6 +10,7 @@ class Producto extends Model
         'codigo',
         'nombre',
         'precio',
+        'cantidad_almacen',
         'descripcion',
         'imagen',
     ];

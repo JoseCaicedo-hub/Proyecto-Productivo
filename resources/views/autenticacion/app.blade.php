@@ -44,6 +44,9 @@
     <!--begin::Required Plugin(AdminLTE)-->
     <link rel="stylesheet" href="{{asset('css/adminlte.css')}}" />
     <!--end::Required Plugin(AdminLTE)-->
+    <!--begin::StartPlace Login Styles-->
+    <link rel="stylesheet" href="{{asset('css/styles.css')}}" />
+    <!--end::StartPlace Login Styles-->
   </head>
   <!--end::Head-->
   <!--begin::Body-->
