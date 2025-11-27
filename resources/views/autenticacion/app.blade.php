@@ -51,6 +51,10 @@
   <!--end::Head-->
   <!--begin::Body-->
   <body class="login-page bg-body-secondary">
+    <video autoplay muted loop playsinline id="bg-video">
+      <source src="{{ asset('images/login-back.mp4') }}" type="video/mp4">
+    </video>
+
     <div class="login-box">
       @yield('contenido')
     </div>

@@ -2,14 +2,7 @@
 @section('titulo', 'StartPlace - Login')
 @section('contenido')
 
-<div class="animated-background">
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-</div>
+<div class="animated-background"></div>
 
 <div class="login-box">
   <div class="login-container">
@@ -52,7 +45,7 @@
       </div>
 
       <div class="form-group">
-        <div class="input-wrapper">
+        <div class="input-wrapper position-relative">
           <input 
             id="loginPassword" 
             type="password" 
@@ -64,52 +57,53 @@
           />
           <i class="bi bi-lock-fill input-icon"></i>
           <label for="loginPassword" class="form-label">Contraseña</label>
+          <button type="button" class="btn btn-sm btn-link toggle-password position-absolute" data-target="#loginPassword" style="right:10px;top:50%;transform:translateY(-50%);">
+            <i class="bi bi-eye"></i>
+          </button>
         </div>
       </div>
 
-      <div class="forgot-link">
-        <a href="{{route('password.request')}}">¿Olvidaste tu contraseña?</a>
+      
+<div class="links-vertical mb-2">
+  <div class="forgot-link">
+    <a href="{{route('password.request')}}">¿Olvidaste tu contraseña?</a>
+  </div>
+
+  <div class="forgot-link">
+    <a href="{{route('registro')}}">Eres Nuevo/a en StartPlace? Regístrate</a>
+  </div>
+</div>
+
+      <div class="social-login mb-3">
+        <a href="{{ url('auth/redirect/google') }}" class="btn social-google">
+          <i class="bi bi-google"></i>
+        </a>
+        <a href="{{ url('auth/redirect/facebook') }}" class="btn social-facebook">
+          <i class="bi bi-facebook"></i>
+        </a>
+        <a href="{{ url('auth/redirect/twitter') }}" class="btn social-twitter">
+          <i class="bi bi-twitter"></i>
+        </a>
       </div>
 
-      <button type="submit" class="btn-login">
-        <span>Iniciar Sesión</span>
-      </button>
+      <div class="d-grid">
+        <button type="submit" class="btn-login">
+          <span>Iniciar Sesión</span>
+        </button>
+      </div>
+      <div class="login-footer-links">
+        <a href="#">Ayuda</a>
+        <span>·</span>
+        <a href="#">Términos</a>
+        <span>·</span>
+        <a href="#">Privacidad</a>
+    </div>
     </form>
   </div>
 </div>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Efecto de partículas adicionales con mouse
-    const container = document.querySelector('.animated-background');
-    let particles = [];
-
-    function createParticle(e) {
-      const particle = document.createElement('div');
-      particle.className = 'bubble';
-      particle.style.width = Math.random() * 30 + 20 + 'px';
-      particle.style.height = particle.style.width;
-      particle.style.left = e.clientX + 'px';
-      particle.style.top = e.clientY + 'px';
-      particle.style.animation = 'float 3s ease-out forwards';
-      container.appendChild(particle);
-
-      setTimeout(() => {
-        particle.remove();
-      }, 3000);
-    }
-
-    // Crear partículas al mover el mouse
-    let mouseMoveTimer;
-    document.addEventListener('mousemove', function(e) {
-      clearTimeout(mouseMoveTimer);
-      mouseMoveTimer = setTimeout(() => {
-        if (Math.random() > 0.7) {
-          createParticle(e);
-        }
-      }, 100);
-    });
-
     // Animación de entrada para los inputs
     const inputs = document.querySelectorAll('.form-control');
     inputs.forEach((input, index) => {
@@ -156,20 +150,6 @@
 
     setTimeout(typeWriter, 500);
 
-    // Efecto parallax suave
-    document.addEventListener('mousemove', function(e) {
-      const bubbles = document.querySelectorAll('.bubble');
-      const mouseX = e.clientX / window.innerWidth;
-      const mouseY = e.clientY / window.innerHeight;
-
-      bubbles.forEach((bubble, index) => {
-        const speed = (index + 1) * 0.5;
-        const x = (mouseX - 0.5) * speed;
-        const y = (mouseY - 0.5) * speed;
-        bubble.style.transform += ` translate(${x}px, ${y}px)`;
-      });
-    });
-
     // Animación de carga del botón
     form.addEventListener('submit', function(e) {
       const btn = document.querySelector('.btn-login');
@@ -196,6 +176,23 @@
       setTimeout(() => {
         ripple.remove();
       }, 600);
+    });
+
+    // Mostrar/ocultar contraseña (toggle)
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const target = document.querySelector(this.getAttribute('data-target'));
+        if (!target) return;
+        if (target.type === 'password') {
+          target.type = 'text';
+          this.querySelector('i').classList.remove('bi-eye');
+          this.querySelector('i').classList.add('bi-eye-slash');
+        } else {
+          target.type = 'password';
+          this.querySelector('i').classList.remove('bi-eye-slash');
+          this.querySelector('i').classList.add('bi-eye');
+        }
+      });
     });
   });
 </script>
