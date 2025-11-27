@@ -14,6 +14,11 @@ class WebController extends Controller
             $query->where('nombre', 'like', '%' . $request->search . '%');
         }
 
+        // Filtrar por categoria si se pasa en la query string
+        if ($request->has('category') && $request->category) {
+            $query->where('categoria', $request->category);
+        }
+
         // Filtro de orden (Ordenar por precio)
         if ($request->has('sort') && $request->sort) {
             switch ($request->sort) {

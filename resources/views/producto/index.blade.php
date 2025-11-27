@@ -41,6 +41,7 @@
                                         <th style="width: 20px">ID</th>
                                         <th>Código</th>
                                         <th>Nombre</th>
+                                        <th>Categoria</th>
                                         <th>Precio</th>
                                         <th>Cantidad en almacén</th>
                                         <th>Imagen</th>
@@ -49,7 +50,7 @@
                                 <tbody>
                                     @if(count($registros)<=0)
                                         <tr>
-                                            <td colspan="7">No hay registros que coincidan con la búsqueda</td>
+                                            <td colspan="8">No hay registros que coincidan con la búsqueda</td>
                                         </tr>
                                     @else
                                         @foreach($registros as $reg)
@@ -67,6 +68,7 @@
                                                 <td>{{$reg->id}}</td>
                                                 <td>{{$reg->codigo}}</td>
                                                 <td>{{$reg->nombre}}</td>
+                                                <td>{{ $reg->categoria ?? '-' }}</td>
                                                 <td>{{$reg->precio}}</td>
                                                 <td>{{$reg->cantidad_almacen ?? 0}}</td>
                                                 <td>

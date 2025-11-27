@@ -27,6 +27,7 @@ class ProductoRequest extends FormRequest
         $rules = [
             'codigo' => ['required', 'string', 'max:16', 'unique:productos,codigo,' . $id],
             'nombre' => ['required', 'string', 'max:100'],
+            'categoria' => ['nullable', 'string', 'max:100'],
             'precio' => ['required', 'numeric', 'min:0'],
             'cantidad_almacen' => ['required', 'integer', 'min:0'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
@@ -53,6 +54,8 @@ class ProductoRequest extends FormRequest
             'cantidad_almacen.min' => 'La cantidad en almacén no puede ser negativa.',
 
             'descripcion.max' => 'La descripción no puede tener más de 1000 caracteres.',
+
+            'categoria.max' => 'La categoría no puede tener más de 100 caracteres.',
 
             'imagen.required' => 'La imagen del producto es obligatoria.',
             'imagen.image' => 'El archivo debe ser una imagen.',

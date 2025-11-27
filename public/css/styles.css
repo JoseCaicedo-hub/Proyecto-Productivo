@@ -10865,24 +10865,26 @@ textarea.form-control-lg {
 .cssunique{
   /* --- PRODUCT SECTION --- */
 .image-wrapper.cssunique {
-    height: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background-color: #f8f9fa;
-    border-radius: 0.5rem 0.5rem 0 0;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 6px; /* espacio interior para separar la imagen del borde */
 }
 
 .image-wrapper.cssunique img {
-    height: 100%;
-    width: auto;
-    object-fit: cover;
-    transition: transform 0.4s ease;
+  height: auto;
+  max-height: 85%;
+  width: auto;
+  object-fit: cover;
+  transition: transform 0.4s ease;
 }
 
 .image-wrapper.cssunique img:hover {
-    transform: scale(1.08);
+  transform: scale(1.06);
 }
 
 .card.cssunique {
@@ -10901,6 +10903,22 @@ textarea.form-control-lg {
 .btn.cssunique:hover {
     background-color: #0b5ed7;
     transform: scale(1.05);
+}
+
+/* Botones rectangulares: forzar bordes rectos incluso si se usa .rounded-pill */
+.btn, .btn.cssunique {
+  border-radius: 0 !important;
+}
+.btn.rounded-pill, .btn.rounded {
+  border-radius: 0 !important;
+}
+
+/* Forzar botones rectangulares en header y hero */
+.navbar .btn,
+.hero-section .btn,
+.hero-section .carousel-control-prev,
+.hero-section .carousel-control-next {
+  border-radius: 0 !important;
 }
 
 .stars.cssunique i {

@@ -32,7 +32,8 @@ class ProductoController extends Controller
     public function create()
     {
         $this->authorize('producto-create'); 
-        return view('producto.action');
+        $categorias = ['Electrónica','Ropa','Hogar','Accesorios','Alimentos','Otros'];
+        return view('producto.action', compact('categorias'));
     }
 
     /**
@@ -44,6 +45,7 @@ class ProductoController extends Controller
         $registro = new Producto();
         $registro->codigo=$request->input('codigo');
         $registro->nombre=$request->input('nombre');
+        $registro->categoria=$request->input('categoria');
         $registro->precio=$request->input('precio');
         $registro->cantidad_almacen=$request->input('cantidad_almacen');
         $registro->descripcion=$request->input('descripcion');
@@ -74,7 +76,8 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-edit'); 
         $registro=Producto::findOrFail($id);
-        return view('producto.action', compact('registro'));
+        $categorias = ['Electrónica','Ropa','Hogar','Accesorios','Alimentos','Otros'];
+        return view('producto.action', compact('registro','categorias'));
     }
 
     /**
@@ -86,6 +89,7 @@ class ProductoController extends Controller
         $registro=Producto::findOrFail($id);
         $registro->codigo=$request->input('codigo');
         $registro->nombre=$request->input('nombre');
+        $registro->categoria=$request->input('categoria');
         $registro->precio=$request->input('precio');
         $registro->cantidad_almacen=$request->input('cantidad_almacen');
         $registro->descripcion=$request->input('descripcion');

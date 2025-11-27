@@ -2,7 +2,13 @@
     <div id="heroCarousel" class="carousel slide miclase" data-bs-ride="carousel" data-bs-interval="5000">
         <div class="carousel-inner miclase">
 
-            @foreach($productos->take(3) as $index => $producto)
+            @php
+                $items = (isset($topProducts) && $topProducts->count())
+                    ? $topProducts
+                    : (isset($productos) ? $productos->take(5) : collect());
+            @endphp
+
+            @foreach($items as $index => $producto)
             <div class="carousel-item {{ $index == 0 ? 'active' : '' }} miclase">
                 <div class="container px-4 px-lg-5 d-flex flex-column flex-md-row align-items-center justify-content-center text-center text-md-start miclase">
                     
@@ -19,7 +25,7 @@
                         <h2 class="fw-bold mb-3 miclase">{{ $producto->nombre }}</h2>
                         <p class="text-muted mb-4 miclase">{{ Str::limit($producto->descripcion, 120, '...') }}</p>
                         <p class="fs-4 fw-semibold text-primary mb-4 miclase">$ {{ number_format($producto->precio, 2) }}</p>
-                        <a href="{{ route('web.show', $producto->id) }}" class="btn btn-primary rounded-pill px-4 py-2 miclase">
+                        <a href="{{ route('web.show', $producto->id) }}" class="btn btn-primary px-4 py-2 miclase">
                             <i class="bi miclase"></i> Ver producto
                         </a>
                     </div>
@@ -46,7 +52,7 @@
                         <h2 class="fw-bold mb-3 miclase">¿Tienes ideas para tu negocio?</h2>
                         <p class="text-muted mb-4 miclase">¿Qué esperas para empezar a vender con nosotros? Crea tu tienda y llega a nuevos clientes rápidamente.</p>
                         <div class="d-flex justify-content-center w-100">
-                          <a href="{{ route('registro') }}" class="btn btn-primary rounded-pill px-4 py-2 miclase mx-auto">
+                          <a href="{{ route('registro') }}" class="btn btn-primary px-4 py-2 miclase mx-auto">
                               <i class="bi miclase"></i> INICIAR
                           </a>
                         </div>
