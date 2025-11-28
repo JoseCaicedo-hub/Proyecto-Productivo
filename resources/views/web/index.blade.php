@@ -84,7 +84,7 @@
 
         <!-- Colecciones destacadas -->
         <div class="container px-4 px-lg-5 mt-5 category-collection">
-            <h3 class="text-center mb-4 fw-bold">Colecciones destacadas</h3>
+            <h3 class="text-center mb-4 fw-bold">Categorias destacadas</h3>
 
             <style>
                 /* Estilos de las tarjetas de colección - puedes ajustar imágenes en public/images/ */
@@ -149,7 +149,22 @@
 
         
 
-        <!-- (Sin paginación para la colección destacada) -->
+        <!-- Caja translúcida: ¿Por qué Nosotros? (dentro de la misma sección) -->
+        <div class="container px-4 px-lg-5 mt-4">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="why-box mx-auto">
+                        <div class="p-4 p-md-5 text-start text-md-center">
+                            <h3 class="fw-bold mb-3">¿Por qué Nosotros?</h3>
+                            <p class="mb-3 text-muted">En StarPlace nos esforzamos por ofrecer productos de alta calidad, atención al cliente personalizada y envíos rápidos. Trabajamos con marcas confiables y garantizamos soporte postventa para que compres con tranquilidad.</p>
+                            <div class="d-flex justify-content-start justify-content-md-center">
+                                <a href="{{ route('web.index') }}" class="btn btn-black" aria-label="Ver más sobre StarPlace">VER MAS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 

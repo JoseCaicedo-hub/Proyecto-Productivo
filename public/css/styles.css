@@ -1,4 +1,13 @@
+.category-image {
+  max-height: 100%;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 @charset "UTF-8";
+
 /*!
 * Start Bootstrap - Shop Homepage v5.0.6 (https://startbootstrap.com/template/shop-homepage)
 * Copyright 2013-2023 Start Bootstrap
@@ -11359,3 +11368,21 @@ body.login-page {
   z-index: 2;
   position: relative;
 }
+
+/* Caja ¿Por qué Nosotros? - fondo gris translúcido y botón negro */
+.why-box{
+  background: rgba(33,37,41,0.06);
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 0;
+  padding: 2.5rem 1rem;
+  box-sizing: border-box;
+}
+.why-box .container-inner{ max-width: 1100px; margin: 0 auto; }
+.why-box h3{ color:#111; }
+.why-box p{ color:#444; }
+.btn-black{ background:#000; color:#fff; border:none; border-radius:0; padding:10px 10px; text-decoration:none; display:inline-block; }
+.btn-black:hover{ background:#111; color:#fff; }
+
