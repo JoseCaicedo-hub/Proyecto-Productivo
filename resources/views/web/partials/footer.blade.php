@@ -2,11 +2,15 @@
   <div class="container">
     <div class="row">
       <!-- Columna 1 -->
-      <div class="col-md-4 mb-3">
-        <h5>StarPlace.com</h5>
-        <p class="small">
-          Tu tienda en línea de confianza. Ofrecemos productos de calidad y un servicio rápido y seguro.
-        </p>
+      <div class="col-md-4 mb-3 d-flex align-items-center">
+        <div>
+          <a href="/">
+            StartPlace
+          </a>
+          <p class="small mt-2">
+            Tu tienda en línea de confianza. Ofrecemos productos de calidad y un servicio rápido y seguro.
+          </p>
+        </div>
       </div>
 
       <!-- Columna 2 -->
@@ -26,7 +30,7 @@
         <ul class="list-unstyled small">
           <li><i class="bi bi-geo-alt-fill"></i> Colombia, Envio internacional</li>
           <li><i class="bi bi-telephone-fill"></i> +52 123 456 7890</li>
-          <li><i class="bi bi-envelope-fill"></i> soporte@starplace.com</li>
+          <li><i class="bi bi-envelope-fill"></i> {{ config('mail.from.address', 'soporte@empresa.com') }}</li>
         </ul>
         <div class="mt-3">
           <a href="#" class="text-light me-3"><i class="bi bi-facebook"></i></a>
@@ -39,7 +43,7 @@
     <hr class="border-light">
 
     <div class="text-center pb-3 small">
-      ©StarPlace.com — Todos los derechos reservados.
+      © {{ config('app.name', 'Nuestra Empresa') }} — Todos los derechos reservados.
     </div>
   </div>
 </footer>

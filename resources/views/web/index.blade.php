@@ -165,6 +165,77 @@
                 </div>
             </div>
         </div>
+</section>
+
+    <!-- Reseñas -->
+    <div class="container px-4 px-lg-5 mt-5">
+        <h3 class="text-center mb-4 fw-bold">Reseñas</h3>
+        <div class="row gx-4 gx-lg-5">
+            <div class="col-md-4 mb-4">
+                <div class="card review-card h-100 position-relative p-4">
+                    <div class="review-social position-absolute top-0 end-0 m-2"><i class="bi bi-facebook" aria-hidden="true"></i></div>
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ asset('images/user.png') }}" alt="Avatar María Pérez" class="rounded-circle me-3" style="width:56px;height:56px;object-fit:cover;">
+                        <div>
+                            <strong>María Pérez</strong><br>
+                            <small class="text-muted">Clienta</small>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted">StartPlace ha sido una de las mejores experiencias para vender. La plataforma es súper fácil de usar, puedo subir mis productos en segundos y llegar a más personas sin complicaciones. ¡Es genial lo rápido que se puede empezar a generar ventas!</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card review-card h-100 position-relative p-4">
+                    <div class="review-social position-absolute top-0 end-0 m-2"><i class="bi bi-instagram" aria-hidden="true"></i></div>
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ asset('images/user.png') }}" alt="Avatar Juan López" class="rounded-circle me-3" style="width:56px;height:56px;object-fit:cover;">
+                        <div>
+                            <strong>Juan López</strong><br>
+                            <small class="text-muted">Comprador</small>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted">Buena atención al cliente. Resolveron una duda rápidamente y el producto llegó en perfecto estado.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card review-card h-100 position-relative p-4">
+                    <div class="review-social position-absolute top-0 end-0 m-2"><i class="bi bi-facebook" aria-hidden="true"></i></div>
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ asset('images/user.png') }}" alt="Avatar Laura Gómez" class="rounded-circle me-3" style="width:56px;height:56px;object-fit:cover;">
+                        <div>
+                            <strong>Laura Gómez</strong><br>
+                            <small class="text-muted">Clienta</small>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted">Gran variedad de productos. Volveré a comprar sin dudar. El seguimiento del pedido fue claro y puntual.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+</section>
+
+<!-- Sección: Logo + Llamado a la acción (debajo de Reseñas) -->
+<section class="py-5">
+    <div class="container px-4 px-lg-5">
+        <div class="row align-items-center gx-4">
+            <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="img-fluid" style="max-width:600px;">
+            </div>
+            <div class="col-md-8 cta-ps" style="padding-left:18rem;">
+                <h3 class="fw-bold">Empieza a vender con StartPlace</h3>
+                <p class="text-muted">Por qué vender con nosotros:</p>
+                <ul class="text-muted">
+                    <li>Alcance a miles de clientes potenciales.</li>
+                    <li>Comisiones competitivas y pagos rápidos.</li>
+                    <li>Soporte dedicado y herramientas para gestionar tus ventas.</li>
+                </ul>
+            <a href="{{ route('web.index') }}" class="btn btn-dark px-4 py-2">Me interesa</a>
+            </div>
+        </div>
     </div>
 </section>
 
