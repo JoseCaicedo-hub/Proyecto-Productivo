@@ -3,7 +3,7 @@
   <!--begin::Head-->
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Sistema</title>
+    <title>StartPlace.com</title>
     <!--begin::Primary Meta Tags-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="title" content="Sistema | ArtCode.com" />
@@ -60,28 +60,58 @@
       <!--begin::App Main-->
       <main class="app-main">
         <!--begin::App Content Header-->
-        <div class="app-content-header">
+        <div class="app-content-header bg-white border-bottom">
           <!--begin::Container-->
-          <div class="container-fluid">
-
+          <div class="container-fluid py-3">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                @php
+                  $roleLabel = 'User';
+                  if (auth()->check()) {
+                      $roleLabel = auth()->user()->hasAnyRole(['admin', 'administrator', 'Admin', 'Administrador']) ? 'Admin' : 'Usuario';
+                  }
+                @endphp
+                <h1 class="h4 mb-0">@yield('titulo', $roleLabel)</h1>
+                <div class="small text-muted mt-1">@yield('subtitulo', '')</div>
+              </div>
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                  <li class="breadcrumb-item"><a href="{{ route('web.index') }}">Inicio</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">@yield('titulo', 'Panel')</li>
+                </ol>
+              </nav>
+            </div>
           </div>
           <!--end::Container-->
         </div>
         <!--end::App Content Header-->
+
         <!--begin::App Content-->
-        @yield('contenido')
+        <div class="app-content">
+          <div class="container-fluid py-4">
+            <div class="row">
+              <div class="col-12">
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    @yield('contenido')
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!--end::App Content-->
       </main>
       <!--end::App Main-->
       <!--begin::Footer-->
       <footer class="app-footer">
         <!--begin::To the end-->
-        <div class="float-end d-none d-sm-inline">Anything you want</div>
+        <div class="float-end d-none d-sm-inline"></div>
         <!--end::To the end-->
         <!--begin::Copyright-->
         <strong>
           Copyright &copy; 2025&nbsp;
-          <a href="#" class="text-decoration-none">ArtCode</a>.
+          <a href="#" class="text-decoration-none">StartPlace</a>.
         </strong>
         All rights reserved.
         <!--end::Copyright-->

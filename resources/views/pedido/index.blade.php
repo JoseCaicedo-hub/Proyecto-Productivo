@@ -51,10 +51,27 @@
                                         @foreach($registros as $reg)
                                         <tr class="align-middle">
                                             <td>
-                                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#modal-estado-{{$reg->id}}"><i
-                                                        class="bi bi bi-arrow-repeat"></i>
-                                                </button>
+                                                {{-- Botón amarillo (cambio de estado) solo para administradores con permiso --}}
+                                                @can('pedido-anulate')
+                                                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#modal-estado-{{$reg->id}}" title="Cambiar estado"><i
+                                                            class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                @endcan
+
+                                                {{-- Botón papelera para cancelar pedido: sólo visible para el propietario cuando está pendiente --}}
+                                                @if(auth()->check() && auth()->id() === $reg->user_id && $reg->estado === 'pendiente')
+                                                    <button type="button" class="btn btn-danger btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#modal-cancelar-{{$reg->id}}" title="Cancelar pedido">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                @endif
+
+                                                {{-- Si el pedido está cancelado, permitir eliminarlo (propietario o admin) --}}
+                                                @if($reg->estado === 'cancelado' && (auth()->check() && (auth()->id() === $reg->user_id || auth()->user()->can('pedido-anulate'))))
+                                                    <button type="button" class="btn btn-outline-danger btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#modal-eliminar-{{$reg->id}}" title="Eliminar pedido">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                @endif
                                             </td>
                                             <td>{{$reg->id}}</td>
                                             <td>{{$reg->created_at->format('d/m/Y')}}</td>
@@ -106,6 +123,38 @@
                                                             <td>{{ number_format($detalle->precio, 2) }}</td>
                                                             <td>{{ number_format($detalle->cantidad * $detalle->precio, 2) }}
                                                             </td>
+                                                            <td>
+                                                                <span class="badge {{ $detalle->envio_estado === 'enviado' ? 'bg-info' : ($detalle->envio_estado === 'entregado' ? 'bg-success' : 'bg-warning') }}">{{ ucfirst($detalle->envio_estado ?? 'pendiente') }}</span>
+                                                            </td>
+                                                            <td>
+                                                                @if(auth()->check() && auth()->id() === $reg->user_id && ($detalle->envio_estado === 'enviado'))
+                                                                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modal-recibir-{{ $detalle->id }}">Recibido</button>
+                                                                    <!-- Modal confirmar recibido -->
+                                                                    <div class="modal fade" id="modal-recibir-{{ $detalle->id }}" tabindex="-1" aria-labelledby="modalRecibirLabel{{ $detalle->id }}" aria-hidden="true">
+                                                                        <div class="modal-dialog modal-dialog-centered">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header bg-success text-white">
+                                                                                    <h5 class="modal-title" id="modalRecibirLabel{{ $detalle->id }}">Confirmar recibido</h5>
+                                                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                                                </div>
+                                                                                <form action="{{ route('pedido.detalle.recibir', $detalle->id) }}" method="POST">
+                                                                                    @csrf
+                                                                                    <div class="modal-body">
+                                                                                        <p>¿Confirmas que recibiste el producto <strong>{{ $detalle->producto->nombre }}</strong> (Pedido #{{ $reg->id }})?</p>
+                                                                                        <p class="small text-muted">Se registrará la fecha de recepción y se actualizará el estado.</p>
+                                                                                    </div>
+                                                                                    <div class="modal-footer">
+                                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                                        <button type="submit" class="btn btn-success">Confirmar recibido</button>
+                                                                                    </div>
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @else
+                                                                    <small class="text-muted">{{ $detalle->fecha_recibido ? $detalle->fecha_recibido->format('Y-m-d H:i') : '-' }}</small>
+                                                                @endif
+                                                            </td>
                                                         </tr>
                                                         @endforeach
                                                     </tbody>
@@ -113,6 +162,8 @@
                                             </td>
                                         </tr>
                                         @include('pedido.state')
+                                        @include('pedido.delete')
+                                        @include('pedido.delete_permanent')
                                         @endforeach
                                         @endif
                                 </tbody>

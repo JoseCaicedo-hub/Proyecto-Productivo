@@ -1,4 +1,14 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <style>
+    /* Scoped navbar styles */
+    .nav-logout-btn{
+        --sp:#0b63d6;
+        background:linear-gradient(90deg,var(--sp),#0a58c7);
+        color:#fff;border:0;padding:.45rem .75rem;border-radius:.45rem;font-weight:600;display:inline-flex;align-items:center;gap:.5rem}
+    .nav-logout-btn:hover{filter:brightness(.95);text-decoration:none;color:#fff}
+    .nav-logout-form{display:inline-block;margin-left:.75rem}
+    @media (max-width:767px){.nav-logout-btn{padding:.4rem .6rem;font-size:.95rem}}
+    </style>
     <div class="container px-4 px-lg-5">
         <a class="navbar-brand" href="{{ route('web.index') }}">
             <img src="{{ asset('images/Logo.png') }}" alt="Logo" style="max-height:75px;" />
@@ -34,8 +44,17 @@
                         data-bs-toggle="dropdown" aria-expanded="false">{{auth()->user()->name}}</a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{{route('perfil.pedidos')}}">Mis pedidos</a></li>
+                        <li><a class="dropdown-item" href="{{ route('plantilla.profile') }}">Mi perfil</a></li>
                         <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="{{route('perfil.edit')}}">Mi perfil</a></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" class="px-3 mb-0">
+                                @csrf
+                                <button type="submit" class="btn btn-link dropdown-item text-danger d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Cerrar sesión
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                     @else
                         <a class="nav-link" href="{{ route('login') }}">Iniciar sesión</a>
@@ -44,9 +63,11 @@
 
             </ul>
 
+            {{-- Logout moved into user dropdown menu --}}
+
             <a href="{{route('carrito.mostrar')}}" class="btn btn-outline-dark">
                 <i class="bi-cart-fill me-1"></i>
-                Pedido
+                Carrito
                 <span class="badge bg-dark text-white ms-1 rounded-pill">
                     @php
                         $carrito = \App\Http\Controllers\CarritoController::getCartStatic();

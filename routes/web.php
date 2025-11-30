@@ -87,8 +87,25 @@ Route::middleware(['auth'])->group(function(){
     Route::resource('roles', RoleController::class);
     Route::resource('productos', ProductoController::class);
 
+    // Almacén: Entregas por admin que publicó productos
+    Route::get('/almacen', [\App\Http\Controllers\AlmacenController::class, 'index'])->name('almacen.index');
+    Route::post('/almacen/entregar/{detalle}', [\App\Http\Controllers\AlmacenController::class, 'entregar'])->name('almacen.entregar');
+    // Ruta para que el comprador marque un detalle como recibido
+    Route::post('/pedido/detalle/{id}/recibir', [\App\Http\Controllers\PedidoController::class, 'recibirDetalle'])->name('pedido.detalle.recibir');
+    // Ruta temporal de debug para inspeccionar pedido_detalles y product->user_id
+    Route::get('/almacen/debug', [\App\Http\Controllers\AlmacenController::class, 'debug'])->name('almacen.debug');
+    // Lista de entregados
+    Route::get('/almacen/entregados', [\App\Http\Controllers\AlmacenController::class, 'entregados'])->name('almacen.entregados');
+
     Route::post('/pedido/realizar', [PedidoController::class, 'realizar'])->name('pedido.realizar');
-    Route::get('/perfil/pedidos', [PedidoController::class, 'index'])->name('perfil.pedidos');
+    // Mostrar únicamente los pedidos del usuario autenticado
+    Route::get('/perfil/pedidos', [PedidoController::class, 'misPedidos'])->name('perfil.pedidos');
+    // Ruta para que el usuario cancele su propio pedido (estado -> 'cancelado')
+    Route::post('/pedido/{id}/cancelar', [PedidoController::class, 'cancelar'])->name('pedido.cancelar');
+    // Ruta para eliminar un pedido (DELETE) — solo propietario o admins
+    Route::delete('/pedido/{id}', [PedidoController::class, 'destroy'])->name('pedido.destroy');
+    // Ruta alternativa (POST) para eliminar permanentemente desde formularios que no manejen verbos HTTP
+    Route::post('/pedido/{id}/eliminar-permanente', [PedidoController::class, 'destroyPermanent'])->name('pedido.eliminar.permanente');
     Route::patch('/pedidos/{id}/estado', [PedidoController::class, 'cambiarEstado'])->name('pedidos.cambiar.estado');    
 
     Route::get('dashboard', function(){
@@ -114,6 +131,11 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
+    Route::post('/perfil/avatar', [PerfilController::class, 'uploadAvatar'])->name('perfil.avatar.upload');
+    // Ruta rápida para ver la plantilla de perfil (plantilla.profile)
+    Route::get('/mi-perfil', function(){
+        return view('plantilla.profile', ['user' => Auth::user()]);
+    })->name('plantilla.profile');
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 });

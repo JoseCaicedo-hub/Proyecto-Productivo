@@ -27,6 +27,11 @@
                                 <div class="ms-3">
                                     <h6 class="mb-0">{{ $item['nombre'] }}</h6>
                                     <small class="text-muted">{{ $item['codigo'] }}</small>
+                                    @if(!empty($item['talla']))
+                                        <div class="mt-1">
+                                            <span class="badge bg-secondary">Talla: {{ $item['talla'] }}</span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <!--Precio-->

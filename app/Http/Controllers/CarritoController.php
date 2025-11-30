@@ -54,12 +54,15 @@ class CarritoController extends Controller
         foreach ($carritoItems as $item) {
             $producto = $item->producto;
             if ($producto) {
-                $carrito[$producto->id] = [
+                // Key compuesto: productoId[:talla]
+                $key = $producto->id . ($item->talla ? ':' . $item->talla : '');
+                $carrito[$key] = [
                     'codigo' => $producto->codigo,
                     'nombre' => $producto->nombre,
                     'precio' => $producto->precio,
                     'imagen' => $producto->imagen,
                     'cantidad' => $item->cantidad,
+                    'talla' => $item->talla,
                 ];
             }
         }
@@ -85,10 +88,17 @@ class CarritoController extends Controller
 
         // Guardar los nuevos items
         foreach ($carrito as $productoId => $item) {
+            // Si la clave contiene talla (formato "id:talla"), separarla
+            $talla = null;
+            $pid = $productoId;
+            if (strpos($productoId, ':') !== false) {
+                [$pid, $talla] = explode(':', $productoId, 2);
+            }
             Carrito::create([
                 'user_id' => $userId,
-                'producto_id' => $productoId,
+                'producto_id' => $pid,
                 'cantidad' => $item['cantidad'],
+                'talla' => $item['talla'] ?? $talla,
             ]);
         }
     }
@@ -146,20 +156,31 @@ class CarritoController extends Controller
     public function agregar(Request $request){
         $producto = Producto::findOrFail($request->producto_id);
         $cantidad = $request->cantidad ?? 1;
+        $talla = $request->talla ?? null;
+
+        // Si el producto es ropa, forzar selección de talla
+        if (is_string($producto->categoria) && strtolower(trim($producto->categoria)) === 'ropa') {
+            if (!$talla || trim($talla) === '') {
+                return redirect()->back()->with('error', 'Por favor selecciona una talla para este producto.');
+            }
+        }
 
         $carrito = $this->getCart();
-        
-        if (isset($carrito[$producto->id])) {
+        // Key compuesto si hay talla
+        $key = $producto->id . ($talla ? ':' . $talla : '');
+
+        if (isset($carrito[$key])) {
             // Ya existe en el carrito, solo aumenta la cantidad
-            $carrito[$producto->id]['cantidad'] += $cantidad;
+            $carrito[$key]['cantidad'] += $cantidad;
         } else {
             // No existe, lo agregamos
-            $carrito[$producto->id] = [
+            $carrito[$key] = [
                 'codigo' => $producto->codigo,
                 'nombre' => $producto->nombre,
                 'precio' => $producto->precio,
                 'imagen' => $producto->imagen,
                 'cantidad' => $cantidad,
+                'talla' => $talla,
             ];
         }
         

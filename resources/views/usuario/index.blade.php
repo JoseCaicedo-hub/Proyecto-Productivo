@@ -41,14 +41,16 @@
                                         <th style="width: 20px">ID</th>
                                         <th>Nombre</th>
                                         <th>Email</th>
+                                        <th>Teléfono</th>
+                                        <th>Ciudad</th>
                                         <th>Rol</th>
                                         <th>Activo</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if(count($registros)<=0)
+                                        @if(count($registros)<=0)
                                         <tr>
-                                            <td colspan="6">No hay registros que coincidan con la búsqueda</td>
+                                            <td colspan="8">No hay registros que coincidan con la búsqueda</td>
                                         </tr>
                                     @else
                                         @foreach($registros as $reg)
@@ -72,6 +74,8 @@
                                                 <td>{{$reg->id}}</td>
                                                 <td>{{$reg->name}}</td>
                                                 <td>{{$reg->email}}</td>
+                                                <td>{{ $reg->telefono ?? '-' }}</td>
+                                                <td>{{ $reg->ciudad ?? '-' }}</td>
                                                 <td>
                                                     @if($reg->roles->isNotEmpty()) 
                                                         <span class="badge bg-primary">
@@ -81,6 +85,7 @@
                                                         <span class="badge bg-secondary">Sin rol</span>
                                                     @endif
                                                 </td>
+                                                
                                                 <td>
                                                     <span class="badge {{ $reg->activo ? 'bg-success' : 'bg-danger' }}">
                                                         {{ $reg->activo ? 'Activo' : 'Inactivo' }}

@@ -10,6 +10,7 @@ class Carrito extends Model
         'user_id',
         'producto_id',
         'cantidad',
+        'talla',
     ];
 
     public function user()

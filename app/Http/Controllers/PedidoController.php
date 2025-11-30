@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pedido;
 use App\Models\PedidoDetalle;
+use App\Models\Carrito;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -34,6 +35,27 @@ class PedidoController extends Controller
         return view('pedido.index', compact('registros', 'texto'));
     }
 
+    /**
+     * Listado de pedidos del usuario autenticado (sin depender de permisos)
+     */
+    public function misPedidos(Request $request)
+    {
+        $texto = $request->input('texto');
+        $query = Pedido::with('user', 'detalles.producto')
+            ->where('user_id', auth()->id())
+            ->orderBy('id', 'desc');
+
+        // Búsqueda por nombre (aunque normalmente no es necesaria para el propio usuario)
+        if (!empty($texto)) {
+            $query->whereHas('user', function ($q) use ($texto) {
+                $q->where('name', 'like', "%{$texto}%");
+            });
+        }
+
+        $registros = $query->paginate(10);
+        return view('pedido.index', compact('registros', 'texto'));
+    }
+
     public function realizar(Request $request){
         $carrito = \App\Http\Controllers\CarritoController::getCartStatic();
 
@@ -53,13 +75,29 @@ class PedidoController extends Controller
             ]);
             // 3. Crear los detalles del pedido
             foreach ($carrito as $productoId => $item) {
+                // Manejar claves compuestas con talla: "id[:talla]"
+                $talla = null;
+                $pid = $productoId;
+                if (strpos($productoId, ':') !== false) {
+                    [$pid, $talla] = explode(':', $productoId, 2);
+                }
+
                 PedidoDetalle::create([
-                    'pedido_id' => $pedido->id, 'producto_id' => $productoId,
-                    'cantidad' => $item['cantidad'], 'precio' => $item['precio'],
+                    'pedido_id' => $pedido->id,
+                    'producto_id' => $pid,
+                    'cantidad' => $item['cantidad'],
+                    'precio' => $item['precio'],
+                    'talla' => $item['talla'] ?? $talla,
+                    'entregado' => false,
                 ]);
             }
             // 4. Vaciar el carrito de la sesión
+            // Limpiar carrito en sesión
             session()->forget(\App\Http\Controllers\CarritoController::getCartKey());
+            // Si el usuario está autenticado, eliminar también los items del carrito guardados en BD
+            if (auth()->check()) {
+                Carrito::where('user_id', auth()->id())->delete();
+            }
             DB::commit();
             return redirect()->route('carrito.mostrar')->with('mensaje', 'Pedido realizado correctamente.');
         } catch (\Exception $e) {
@@ -97,5 +135,108 @@ class PedidoController extends Controller
         $pedido->save();
 
         return redirect()->back()->with('mensaje', 'El estado del pedido fue actualizado a "' . ucfirst($estadoNuevo) . '"');
+    }
+
+    /**
+     * Permite al usuario cancelar su propio pedido (pasa a estado 'cancelado').
+     */
+    public function cancelar(Request $request, $id)
+    {
+        $pedido = Pedido::findOrFail($id);
+
+        // Verificar que el pedido pertenece al usuario autenticado
+        if ($pedido->user_id !== auth()->id()) {
+            abort(403, 'No puedes cancelar este pedido.');
+        }
+
+        // Solo permitir cancelar pedidos pendientes
+        if ($pedido->estado !== 'pendiente') {
+            return redirect()->back()->with('error', 'Solo se pueden cancelar pedidos en estado pendiente.');
+        }
+
+        $pedido->estado = 'cancelado';
+        $pedido->save();
+
+        // Marcar los detalles del pedido como cancelados para que no aparezcan en Almacén
+        $pedido->detalles()->update([
+            'envio_estado' => 'cancelado',
+            'entregado' => false,
+        ]);
+
+        return redirect()->back()->with('mensaje', 'Pedido cancelado correctamente.');
+    }
+
+    /**
+     * Eliminar un pedido (solo si está en estado 'cancelado' o por admins con permiso).
+     */
+    public function destroy(Request $request, $id)
+    {
+        $pedido = Pedido::findOrFail($id);
+
+        // Permitir borrarlo si el usuario es propietario o tiene permiso administrativo
+        $isOwner = auth()->check() && $pedido->user_id === auth()->id();
+        $isAdmin = auth()->check() && auth()->user()->can('pedido-anulate');
+
+        if (! $isOwner && ! $isAdmin) {
+            abort(403, 'No tienes permiso para eliminar este pedido.');
+        }
+
+        // Solo permitir borrado si el pedido ya está cancelado, a menos que sea admin
+        if ($pedido->estado !== 'cancelado' && ! $isAdmin) {
+            return redirect()->back()->with('error', 'Solo se pueden eliminar pedidos que estén cancelados.');
+        }
+
+        // Borrar detalles y luego el pedido
+        $pedido->detalles()->delete();
+        $pedido->delete();
+
+        return redirect()->back()->with('mensaje', 'Pedido eliminado correctamente.');
+    }
+
+    /**
+     * Eliminar permanentemente vía POST (alternativa cuando hay problemas con method spoofing)
+     */
+    public function destroyPermanent(Request $request, $id)
+    {
+        return $this->destroy($request, $id);
+    }
+
+    /**
+     * El comprador marca un detalle como recibido (recibido por el cliente)
+     */
+    public function recibirDetalle(Request $request, $detalleId)
+    {
+        $detalle = PedidoDetalle::with('pedido','producto')->findOrFail($detalleId);
+
+        // Asegurar que el que marca es el comprador del pedido
+        if (!auth()->check() || $detalle->pedido->user_id !== auth()->id()) {
+            abort(403, 'No autorizado');
+        }
+
+        // Solo se puede marcar recibido si el estado de envío es 'enviado'
+        if ($detalle->envio_estado !== 'enviado') {
+            return redirect()->back()->with('error', 'No se puede marcar como recibido hasta que el vendedor lo marque como enviado.');
+        }
+
+        $detalle->envio_estado = 'entregado';
+        $detalle->entregado = true;
+        $detalle->fecha_recibido = now();
+        $detalle->entregado_por = auth()->id();
+        $detalle->save();
+
+        // Si todos los detalles del pedido están entregados, actualizar el estado del pedido
+        $pedido = $detalle->pedido;
+        if ($pedido) {
+            $faltantes = $pedido->detalles()->where(function($q){
+                $q->where('envio_estado', '!=', 'entregado')->orWhereNull('envio_estado');
+            })->count();
+
+            if ($faltantes === 0) {
+                $pedido->estado = 'entregado';
+                $pedido->save();
+            }
+        }
+
+        return redirect()->back()->with('mensaje', 'Has marcado el artículo como recibido.');
     }
 }

@@ -11081,8 +11081,8 @@ body.login-page {
   transform: translateY(-2px);
 }
 
-.login-container .form-control:focus + .login-container .input-icon,
-.login-container .form-control:not(:placeholder-shown) + .login-container .input-icon {
+.login-container .form-control:focus + .input-icon,
+.login-container .form-control:not(:placeholder-shown) + .input-icon {
   color: #000000;
   transform: scale(1.1);
 }
@@ -11098,8 +11098,8 @@ body.login-page {
   background: transparent;
 }
 
-.login-container .form-control:focus ~ .login-container .form-label,
-.login-container .form-control:not(:placeholder-shown) ~ .login-container .form-label {
+.login-container .form-control:focus ~ .form-label,
+.login-container .form-control:not(:placeholder-shown) ~ .form-label {
   top: -12px;
   left: 20px;
   font-size: 12px;

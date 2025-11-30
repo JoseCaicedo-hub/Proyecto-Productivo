@@ -60,10 +60,28 @@
                 <p class="text-primary fw-semibold fs-5">$ {{ number_format($producto->precio, 2) }}</p>
               </div>
               <div class="card-footer bg-transparent border-0 text-center pb-3">
-                <form action="{{ route('carrito.agregar') }}" method="POST" class="d-inline-block">
+                @php
+                    $categoria = $producto->categoria ?? '';
+                    $esRopa = is_string($categoria) && strtolower(trim($categoria)) === 'ropa';
+                @endphp
+                <form action="{{ route('carrito.agregar') }}" method="POST" class="d-inline-block {{ $esRopa ? 'add-with-size' : '' }}">
                   @csrf
                   <input type="hidden" name="producto_id" value="{{ $producto->id }}">
                   <input type="hidden" name="cantidad" value="1">
+
+                  @if($esRopa)
+                    <div class="mb-2">
+                        <select name="talla" class="form-select form-select-sm talla-select" aria-label="Selecciona talla" required>
+                            <option value="">Selecciona talla</option>
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                        </select>
+                    </div>
+                  @endif
+
                   <button type="submit" class="btn btn-celeste rounded-pill px-4 fw-semibold">Añadir al carrito</button>
                 </form>
               </div>
@@ -80,3 +98,19 @@
 </div>
 
 @endsection
+
+<script>
+  (function(){
+    document.addEventListener('DOMContentLoaded', function(){
+      document.querySelectorAll('form.add-with-size').forEach(function(form){
+        form.addEventListener('submit', function(e){
+          var select = form.querySelector('.talla-select');
+          if(select && (!select.value || select.value.trim() === '')){
+            e.preventDefault();
+            alert('Por favor selecciona una talla antes de añadir al carrito.');
+          }
+        });
+      });
+    });
+  })();
+</script>

@@ -43,6 +43,10 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-create'); 
         $registro = new Producto();
+        // Asociar el producto al usuario que lo publica (si hay sesión)
+        if (auth()->check()) {
+            $registro->user_id = auth()->id();
+        }
         $registro->codigo=$request->input('codigo');
         $registro->nombre=$request->input('nombre');
         $registro->categoria=$request->input('categoria');

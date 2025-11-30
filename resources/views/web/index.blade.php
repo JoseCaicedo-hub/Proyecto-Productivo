@@ -35,8 +35,19 @@
 
         @php
             $items = \App\Http\Controllers\HeaderController::topProductos(4);
-            if (!$items || $items->isEmpty()) {
-                $items = isset($productos) ? $productos->take(4) : collect();
+            // Si no hay suficientes productos en los más vendidos, completar con productos recientes
+            if (!$items) {
+                $items = collect();
+            }
+            if ($items->count() < 4) {
+                $existingIds = $items->pluck('id')->filter()->toArray();
+                $needed = 4 - $items->count();
+                $extras = \App\Models\Producto::whereNotIn('id', $existingIds)->latest()->take($needed)->get();
+                $items = $items->concat($extras);
+            }
+            // Si aún está vacío, intentar usar la variable $productos pasada desde el controlador
+            if ($items->isEmpty() && isset($productos)) {
+                $items = $productos->take(4);
             }
         @endphp
 
@@ -64,10 +75,29 @@
 
                         <!-- Botón de añadir al carrito (centrado) -->
                         <div class="card-footer bg-transparent border-0 text-center pb-4 cssunique">
-                            <form action="{{ route('carrito.agregar') }}" method="POST" class="d-inline-block">
+                            @php
+                                $categoria = $producto->categoria ?? '';
+                                $esRopa = is_string($categoria) && strtolower(trim($categoria)) === 'ropa';
+                            @endphp
+
+                            <form action="{{ route('carrito.agregar') }}" method="POST" class="d-inline-block {{ $esRopa ? 'add-with-size' : '' }}">
                                 @csrf
                                 <input type="hidden" name="producto_id" value="{{ $producto->id }}">
                                 <input type="hidden" name="cantidad" value="1">
+
+                                @if($esRopa)
+                                    <div class="mb-2">
+                                        <select name="talla" class="form-select form-select-sm talla-select" aria-label="Selecciona talla" required>
+                                            <option value="">Selecciona talla</option>
+                                            <option value="XS">XS</option>
+                                            <option value="S">S</option>
+                                            <option value="M">M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL</option>
+                                        </select>
+                                    </div>
+                                @endif
+
                                 <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">Añadir al carrito</button>
                             </form>
                         </div>
@@ -158,7 +188,7 @@
                             <h3 class="fw-bold mb-3">¿Por qué Nosotros?</h3>
                             <p class="mb-3 text-muted">En StarPlace nos esforzamos por ofrecer productos de alta calidad, atención al cliente personalizada y envíos rápidos. Trabajamos con marcas confiables y garantizamos soporte postventa para que compres con tranquilidad.</p>
                             <div class="d-flex justify-content-start justify-content-md-center">
-                                <a href="{{ route('web.index') }}" class="btn btn-black" aria-label="Ver más sobre StarPlace">VER MAS</a>
+                                <a href="{{ route('web.equipo') }}" class="btn btn-black" aria-label="Ver más sobre StarPlace">VER MAS</a>
                             </div>
                         </div>
                     </div>
@@ -240,3 +270,20 @@
 </section>
 
 @endsection
+
+<script>
+    (function(){
+        // Validación simple para formularios en tarjetas que requieren talla
+        document.addEventListener('DOMContentLoaded', function(){
+            document.querySelectorAll('form.add-with-size').forEach(function(form){
+                form.addEventListener('submit', function(e){
+                    var select = form.querySelector('.talla-select');
+                    if(select && (!select.value || select.value.trim() === '')){
+                        e.preventDefault();
+                        alert('Por favor selecciona una talla antes de añadir al carrito.');
+                    }
+                });
+            });
+        });
+    })();
+</script>

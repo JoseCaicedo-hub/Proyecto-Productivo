@@ -9,10 +9,16 @@ class Producto extends Model
     protected $fillable = [
         'codigo',
         'nombre',
+        'user_id',
         'categoria',
         'precio',
         'cantidad_almacen',
         'descripcion',
         'imagen',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
 }

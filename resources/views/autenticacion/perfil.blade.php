@@ -22,7 +22,7 @@
                             @method('PUT')                            
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="name" class="form-label">Nombre</label>
+                                    <label for="name" class="form-label">Nombres</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                      id="name" name="name" value="{{old('name', $registro->name ??'')}}" required>
                                      @error('name')
@@ -36,6 +36,37 @@
                                      @error('email')
                                         <small class="text-danger">{{$message}}</small>
                                      @enderror
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telefono" class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control @error('telefono') is-invalid @enderror"
+                                     id="telefono" name="telefono" value="{{old('telefono', $registro->telefono ?? '')}}">
+                                     @error('telefono')
+                                        <small class="text-danger">{{$message}}</small>
+                                     @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="ciudad" class="form-label">Ciudad</label>
+                                    <input type="text" class="form-control @error('ciudad') is-invalid @enderror"
+                                     id="ciudad" name="ciudad" value="{{old('ciudad', $registro->ciudad ?? '')}}">
+                                     @error('ciudad')
+                                        <small class="text-danger">{{$message}}</small>
+                                     @enderror
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="municipio" class="form-label">Municipio</label>
+                                    <input type="text" class="form-control @error('municipio') is-invalid @enderror"
+                                     id="municipio" name="municipio" value="{{old('municipio', $registro->municipio ?? '')}}">
+                                     @error('municipio')
+                                        <small class="text-danger">{{$message}}</small>
+                                     @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <!-- placeholder to keep layout -->
                                 </div>
                             </div>
                             <div class="row">
