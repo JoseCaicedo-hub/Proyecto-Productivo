@@ -18,6 +18,62 @@ use App\Http\Controllers\DashboardController;
 Route::get('/', [WebController::class, 'index'])->name('web.index');
 Route::get('/producto/{id}', [WebController::class, 'show'])->name('web.show');
 
+// Página del equipo (acerca)
+Route::view('/equipo', 'web.equipo.index')->name('web.equipo');
+
+// Página tienda
+Route::view('/tienda', 'web.tienda.index')->name('web.tienda');
+
+// Preguntas frecuentes
+Route::view('/preguntas', 'web.preguntas.index')->name('web.preguntas');
+
+// Contacto
+Route::view('/contacto', 'web.contacto.index')->name('web.contacto');
+Route::post('/contacto/enviar', function(\Illuminate\Http\Request $request){
+    $data = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'telefono' => 'nullable|string|max:50',
+        'mensaje' => 'required|string|max:2000',
+    ]);
+
+    // Aquí puedes enviar un email, guardar en BD o crear un ticket.
+    // Por ahora solo guardamos un mensaje de sesión para confirmar al usuario.
+
+    $request->session()->flash('mensaje', 'Gracias por contactarnos. Te responderemos pronto.');
+    return redirect()->route('web.contacto');
+})->name('contacto.enviar');
+
+// Contactanos (vista marketplace dentro de web/contacto/contactanos)
+Route::get('/contactanos', function () {
+    return view('web.contacto.contactanos.index');
+})->name('web.contactanos');
+
+Route::post('/contactanos', function(\Illuminate\Http\Request $request){
+    $data = $request->validate([
+        'tipo' => 'required|string',
+        'vendedor' => 'nullable|string',
+        'nombre' => 'required|string|max:120',
+        'email' => 'required|email|max:150',
+        'telefono' => 'nullable|string|max:30',
+        'pedido_id' => 'nullable|string|max:80',
+        'producto' => 'nullable|string|max:200',
+        'mensaje' => 'required|string|max:2000',
+        'adjunto' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        'newsletter' => 'nullable|boolean',
+    ]);
+
+    if ($request->hasFile('adjunto')) {
+        $path = $request->file('adjunto')->store('contactanos/adjuntos', 'public');
+        $data['adjunto_path'] = $path;
+    }
+
+    \Log::info('Contacto contactanos recibido', $data);
+
+    $request->session()->flash('mensaje', 'Tu consulta ha sido enviada. Te contactaremos pronto.');
+    return redirect()->route('web.contactanos');
+})->name('contactanos.send');
+
 Route::get('/carrito', [CarritoController::class, 'mostrar'])->name('carrito.mostrar');
 Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
 Route::get('/carrito/sumar', [CarritoController::class, 'sumar'])->name('carrito.sumar');
@@ -77,4 +133,5 @@ Route::middleware('guest')->group(function(){
     Route::post('password/reset', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
 
 });
+
 

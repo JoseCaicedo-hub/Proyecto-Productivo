@@ -79,7 +79,7 @@
 
         <!-- Botón ver más centrado -->
         <div class="text-center mt-4">
-            <a href="{{ route('web.index') }}" class="btn btn-dark px-4 py-2">Ver más</a>
+            <a href="{{ route('web.tienda') }}" class="btn btn-dark px-4 py-2">Ver más</a>
         </div>
 
         <!-- Colecciones destacadas -->
@@ -102,46 +102,46 @@
 
             <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-4 justify-content-center">
                 <div class="col mb-4">
-                    <a href="{{ route('web.index', ['category' => 'Hogar']) }}" class="text-decoration-none">
+                    <a href="{{ route('web.tienda', ['category' => 'Hogar']) }}" class="text-decoration-none">
                         <div class="cat-card hogar shadow-sm">
                             <div class="cat-label"><h5 class="mb-0">Hogar</h5></div>
                         </div>
                     </a>
                     <div class="cat-actions">
-                        <a href="{{ route('web.index', ['category' => 'Hogar']) }}" class="btn-cat" aria-label="Ver más Hogar">Ver más</a>
+                        <a href="{{ route('web.tienda', ['category' => 'Hogar']) }}" class="btn-cat" aria-label="Ver más Hogar">Ver más</a>
                     </div>
                 </div>
 
                 <div class="col mb-4">
-                    <a href="{{ route('web.index', ['category' => 'Accesorios']) }}" class="text-decoration-none">
+                    <a href="{{ route('web.tienda', ['category' => 'Accesorios']) }}" class="text-decoration-none">
                         <div class="cat-card accesorios shadow-sm">
                             <div class="cat-label"><h5 class="mb-0">Accesorios</h5></div>
                         </div>
                     </a>
                     <div class="cat-actions">
-                        <a href="{{ route('web.index', ['category' => 'Accesorios']) }}" class="btn-cat" aria-label="Ver más Accesorios">Ver más</a>
+                        <a href="{{ route('web.tienda', ['category' => 'Accesorios']) }}" class="btn-cat" aria-label="Ver más Accesorios">Ver más</a>
                     </div>
                 </div>
 
                 <div class="col mb-4">
-                    <a href="{{ route('web.index', ['category' => 'Electrónica']) }}" class="text-decoration-none">
+                    <a href="{{ route('web.tienda', ['category' => 'Electrónica']) }}" class="text-decoration-none">
                         <div class="cat-card electronica shadow-sm">
                             <div class="cat-label"><h5 class="mb-0">Electrónica</h5></div>
                         </div>
                     </a>
                     <div class="cat-actions">
-                        <a href="{{ route('web.index', ['category' => 'Electrónica']) }}" class="btn-cat" aria-label="Ver más Electrónica">Ver más</a>
+                        <a href="{{ route('web.tienda', ['category' => 'Electrónica']) }}" class="btn-cat" aria-label="Ver más Electrónica">Ver más</a>
                     </div>
                 </div>
 
                 <div class="col mb-4">
-                    <a href="{{ route('web.index', ['category' => 'Ropa']) }}" class="text-decoration-none">
+                    <a href="{{ route('web.tienda', ['category' => 'Ropa']) }}" class="text-decoration-none">
                         <div class="cat-card ropa shadow-sm">
                             <div class="cat-label"><h5 class="mb-0">Ropa</h5></div>
                         </div>
                     </a>
                     <div class="cat-actions">
-                        <a href="{{ route('web.index', ['category' => 'Ropa']) }}" class="btn-cat" aria-label="Ver más Ropa">Ver más</a>
+                        <a href="{{ route('web.tienda', ['category' => 'Ropa']) }}" class="btn-cat" aria-label="Ver más Ropa">Ver más</a>
                     </div>
                 </div>
             </div>

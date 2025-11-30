@@ -9,7 +9,7 @@
         <meta name="description" content="Shop | ArtCode.com"/>
         <meta name="keywords" content="Shop, ArtCode"
         />
-        <title>@yield('titulo', 'Shop - ArtCode')</title>
+        <title>@yield('titulo', 'StartPlace.com')</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Bootstrap icons-->

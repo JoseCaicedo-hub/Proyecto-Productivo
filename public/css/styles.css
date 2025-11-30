@@ -11041,19 +11041,19 @@ body.login-page {
   font-weight: 300;
 }
 
-/* Formulario */
-.form-group {
+/* Formulario (scope: .login-container) */
+.login-container .form-group {
   margin-bottom: 25px;
   position: relative;
 }
 
-.input-wrapper {
+.login-container .input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.input-icon {
+.login-container .input-icon {
   position: absolute;
   left: 20px;
   color: #666666;
@@ -11062,7 +11062,7 @@ body.login-page {
   transition: all 0.3s ease;
 }
 
-.form-control {
+.login-container .form-control {
   width: 100%;
   padding: 18px 20px 18px 55px;
   border: 2px solid #e0e0e0;
@@ -11073,7 +11073,7 @@ body.login-page {
   font-family: 'Poppins', sans-serif;
 }
 
-.form-control:focus {
+.login-container .form-control:focus {
   outline: none;
   border-color: #333333;
   background: #fff;
@@ -11081,13 +11081,13 @@ body.login-page {
   transform: translateY(-2px);
 }
 
-.form-control:focus + .input-icon,
-.form-control:not(:placeholder-shown) + .input-icon {
+.login-container .form-control:focus + .login-container .input-icon,
+.login-container .form-control:not(:placeholder-shown) + .login-container .input-icon {
   color: #000000;
   transform: scale(1.1);
 }
 
-.form-label {
+.login-container .form-label {
   position: absolute;
   left: 55px;
   top: 18px;
@@ -11098,8 +11098,8 @@ body.login-page {
   background: transparent;
 }
 
-.form-control:focus ~ .form-label,
-.form-control:not(:placeholder-shown) ~ .form-label {
+.login-container .form-control:focus ~ .login-container .form-label,
+.login-container .form-control:not(:placeholder-shown) ~ .login-container .form-label {
   top: -12px;
   left: 20px;
   font-size: 12px;
@@ -11393,5 +11393,4 @@ body.login-page {
 .review-social i{ font-size:16px; }
 
 @media (max-width:576px){ .review-card{ padding:16px; } }
-
 

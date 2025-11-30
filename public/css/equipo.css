@@ -1,0 +1,176 @@
+/* equipo page styles */
+.equipo-hero .hero-left{ background: #eaf6ff; /* celeste suave */ min-height:320px; display:flex; align-items:center; }
+.hero-inner{ max-width:740px; }
+.equipo-hero .hero-left h1{ font-weight:700; color:#111; }
+.equipo-hero .hero-right{ background:#fff; }
+.marketplace-box{ max-width:320px; }
+.market-logo{ max-width:160px; height:auto; display:block; margin-left:auto; margin-right:auto; }
+.section-title{ font-weight:700; margin-bottom:.75rem; }
+.section-sub{ color:#6c757d; }
+.team-card{ border:none; background:transparent; }
+.team-photo{ width:120px; height:120px; border-radius:50%; display:block; margin-left:auto; margin-right:auto; }
+.team-card h5{ margin-top:.5rem; font-weight:600; }
+.team-card p{ color:#6c757d; }
+@media (max-width:767.98px){ .equipo-hero .hero-left, .equipo-hero .hero-right{ min-height:220px } .market-logo{ max-width:100px } }
+
+/* Idea box: caja con fondo blanco y sombra gris suave */
+.idea-box{
+    background: #f3f8ff; /* fondo ligeramente azulado para destacar */
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.14); /* sombra más intensa */
+    border: 1px solid rgba(0,0,0,0.08);
+}
+.idea-box .section-title{ margin-top: 0; }
+.idea-box .section-sub{ margin-bottom: 0; }
+/* Estilos específicos para la página Equipo */
+:root{
+  --primary-color: #0d6efd;
+  --muted: #6c757d;
+  --card-bg: #ffffff;
+}
+
+.section-wrapper{
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.section-title{
+  font-weight:600;
+  color:var(--bs-dark);
+}
+.section-sub{ color:var(--muted); }
+
+.small-title{ font-size:1.25rem; margin-bottom:.5rem; }
+
+/* Team grid & cards */
+.team-grid{ display:block; }
+.team-card{
+  background:var(--card-bg);
+  border-radius: .6rem;
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 6px 18px rgba(16,24,40,0.04);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.team-card:hover{ transform: translateY(-6px); box-shadow: 0 12px 28px rgba(16,24,40,0.08); }
+
+.team-card h4{ margin-bottom:.25rem; }
+.team-card p{ color:var(--muted); }
+
+.avatar{
+  width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,var(--primary-color),#6f42c1); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:20px;
+}
+
+.tips-box{ background:linear-gradient(180deg,#fff,#fbfbff); }
+.tips-box ul{ padding-left:1.1rem; }
+
+.btn-outline{ display:inline-block; padding:.5rem 1rem; border:1px solid var(--primary-color); color:var(--primary-color); border-radius:.4rem; text-decoration:none; }
+.btn-outline:hover{ background:rgba(13,110,253,0.06); }
+
+/* Responsive tweaks */
+@media (max-width: 575.98px){
+  .section-title{ font-size:1.5rem; }
+  .avatar{ width:64px; height:64px; font-size:18px; }
+}
+/* === ESTILOS BOCETO EN BLANCO Y NEGRO === */
+
+.section-wrapper {
+    width: 100%;
+    padding: 60px 20px;
+    background: #fff;
+    color: #000;
+    font-family: Arial, sans-serif;
+}
+
+.section-title {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.small-title {
+    font-size: 28px;
+    margin-top: 40px;
+}
+
+.section-sub {
+    font-size: 20px;
+    color: #555;
+    max-width: 700px;
+    margin-bottom: 25px;
+}
+
+.btn-outline {
+    padding: 12px 28px;
+    border: 2px solid #000;
+    background: transparent;
+    font-weight: bold;
+    transition: 0.3s;
+    text-decoration: none;
+    color: #000;
+    display: inline-block;
+}
+
+.btn-outline:hover {
+    background: #000;
+    color: #fff;
+}
+
+/* === GRID EQUIPO === */
+
+.team-title {
+    font-size: 32px;
+    margin-top: 70px;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-top: 50px;
+}
+
+.team-card {
+    border: 2px solid #000;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    background: #fafafa;
+    transition: 0.3s ease;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+}
+
+.team-card h4 {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.team-card p {
+    font-size: 14px;
+    color: #444;
+}
+
+/* === CONSEJOS DE VENTA === */
+
+.tips-box {
+    border: 2px solid #000;
+    padding: 25px;
+    border-radius: 10px;
+    margin-top: 50px;
+    background: #f5f5f5;
+}
+
+.tips-box h3 {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.tips-box ul {
+    margin-left: 20px;
+}
+
+.tips-box ul li {
+    margin-bottom: 10px;
+}

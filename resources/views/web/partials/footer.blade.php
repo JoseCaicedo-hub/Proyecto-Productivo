@@ -18,7 +18,7 @@
         <h5>Enlaces útiles</h5>
         <ul class="list-unstyled">
           <li><a href="/" class="text-light text-decoration-none">Inicio</a></li>
-          <li><a href="#" class="text-light text-decoration-none">Acerca de</a></li>
+          <li><a href="{{ route('web.equipo') }}" class="text-light text-decoration-none">Acerca de</a></li>
           <li><a href="#" class="text-light text-decoration-none">Tienda</a></li>
           <li><a href="#" class="text-light text-decoration-none">Contacto</a></li>
         </ul>

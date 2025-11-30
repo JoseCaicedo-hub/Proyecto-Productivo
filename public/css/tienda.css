@@ -1,0 +1,33 @@
+/* Estilos para la página Tienda */
+.categorias-box{ background: #fff; border-radius:12px; padding:18px; }
+.categorias-box h5{ font-weight:800; letter-spacing:0.4px; color:#07384a; }
+.categoria-link{ color:#063244; display:block; padding:8px 10px; border-radius:8px; font-weight:700; }
+.categoria-link:hover{ text-decoration:none; background:linear-gradient(90deg, rgba(14,165,233,0.08), rgba(125,214,255,0.06)); transform:translateX(4px); }
+.producto-card img{ height:260px; object-fit:cover; transition: transform .36s ease, filter .36s ease; display:block; }
+.producto-card .image-wrapper{ overflow:hidden; }
+
+/* Efecto hover: zoom suave hacia adelante y ligera elevación */
+.producto-card:hover img,
+.card:hover .card-img-top {
+	transform: scale(1.06) translateY(-4px);
+	filter: brightness(1.02);
+}
+
+/* Para tarjetas relacionadas y otras mini-cards */
+.card-img-top { transition: transform .36s ease, filter .36s ease; }
+.btn-celeste{ background: #0dcaf0; border: none; color: #063244; border-radius:6px !important; }
+.btn-celeste:hover{ background: #10c9f2; color:#042a31; transform: translateY(-1px); }
+
+/* Ajustes para que la sidebar y productos se vean limpios */
+.producto-card{ border-radius:8px; }
+.image-wrapper{ background:#f8fbff; }
+
+/* Pequeño estilo para separar visualmente las categorías */
+.categorias-box ul li{ transition: all .18s ease; }
+.categorias-box ul li + li{ margin-top:6px; }
+
+@media (max-width:767.98px){
+	.categoria-link{ padding:10px; }
+}
+
+@media (max-width:767.98px){ .producto-card img{ height:180px; } }

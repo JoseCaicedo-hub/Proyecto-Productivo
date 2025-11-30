@@ -1,4 +1,23 @@
 <header class="hero-section py-5 miclase" style="background: linear-gradient(180deg, #cbe7f5 0%, #e8f4fa 100%);">
+    <style>
+        /* Forzar una altura mínima del carrusel para evitar saltos al cambiar slides.
+           No forzamos `display` en .carousel-item para no romper el comportamiento de Bootstrap
+           (las items inactivas deben seguir ocultas). Aplicamos flex al contenedor interno. */
+        #heroCarousel { overflow: hidden; }
+        #heroCarousel .carousel-inner { min-height: 360px; }
+        #heroCarousel .carousel-item { min-height: 360px; }
+        /* Hacemos que el contenido del slide use flex para alinear imagen y texto sin mostrar slides inactivos */
+        #heroCarousel .carousel-item .container { height: 100%; display:flex; align-items:center; }
+        #heroCarousel .carousel-item .col-md-6 { display: flex; align-items: center; }
+        #heroCarousel .carousel-item img { width: 100%; height: 360px; object-fit: cover; }
+        #heroCarousel .carousel-item .text-dark { min-height: 360px; display:flex; flex-direction:column; justify-content:center; }
+        @media (max-width: 767.98px) {
+            #heroCarousel .carousel-inner, #heroCarousel .carousel-item { min-height: 220px; }
+            #heroCarousel .carousel-item img { height: 220px; }
+            #heroCarousel .carousel-item .text-dark { min-height: auto; }
+            #heroCarousel .carousel-item .container { flex-direction: column; }
+        }
+    </style>
     <div id="heroCarousel" class="carousel slide miclase" data-bs-ride="carousel" data-bs-interval="5000">
         <div class="carousel-inner miclase">
 
