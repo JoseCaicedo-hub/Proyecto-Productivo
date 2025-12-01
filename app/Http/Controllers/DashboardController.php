@@ -9,7 +9,12 @@ class DashboardController extends Controller
 {
     public function dashboard()
 {
-    $productos = Producto::paginate(10); // 👈 en lugar de all()
+    // Mostrar solo los productos publicados por el usuario autenticado
+    if (auth()->check()) {
+        $productos = Producto::where('user_id', auth()->id())->orderBy('created_at', 'desc')->paginate(12);
+    } else {
+        $productos = Producto::whereNull('id')->paginate(12); // colección vacía
+    }
     return view('dashboard', compact('productos'));
 }
 }

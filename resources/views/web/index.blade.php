@@ -108,7 +108,7 @@
         </div>
 
         <!-- Botón ver más centrado -->
-        <div class="text-center mt-4">
+        <div class="text-center mt-4 mb-5">
             <a href="{{ route('web.tienda') }}" class="btn btn-dark px-4 py-2">Ver más</a>
         </div>
 

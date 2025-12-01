@@ -20,6 +20,64 @@
     box-shadow: 0 16px 48px rgba(0,0,0,0.14); /* sombra más intensa */
     border: 1px solid rgba(0,0,0,0.08);
 }
+.idea-box{
+    position:relative;
+    overflow:visible;
+    transition: transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s cubic-bezier(.2,.9,.2,1), filter .28s ease;
+    will-change: transform, box-shadow;
+}
+
+.idea-box::before{
+    /* sutil acento difuso detrás de la caja */
+    content: "";
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%) scale(.9);
+    width:110%;
+    height:110%;
+    border-radius: inherit;
+    background: radial-gradient(circle at 20% 20%, rgba(13,110,253,0.08), transparent 30%), radial-gradient(circle at 80% 80%, rgba(111,66,193,0.05), transparent 30%);
+    z-index:0;
+    filter: blur(18px);
+    opacity:0;
+    transition: opacity .28s ease, transform .28s ease;
+    pointer-events:none;
+}
+
+.idea-box > *{ position:relative; z-index:1; }
+
+.idea-box:hover, .idea-box:focus-within{
+    transform: translateY(-10px) scale(1.01);
+    box-shadow: 0 28px 68px rgba(16,24,40,0.14), 0 6px 18px rgba(16,24,40,0.06);
+    filter: saturate(1.03);
+}
+
+.idea-box:hover::before, .idea-box:focus-within::before{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+}
+
+/* Pequeña animación del subtítulo para dar dinamismo */
+.idea-box .section-sub{
+    transition: transform .28s cubic-bezier(.2,.9,.2,1), opacity .28s ease;
+}
+.idea-box:hover .section-sub, .idea-box:focus-within .section-sub{
+    transform: translateY(-6px);
+    opacity: .95;
+}
+
+/* Mejora el foco para accesibilidad (navegadores por teclado) */
+.idea-box:focus-within{
+    outline: 3px solid rgba(13,110,253,0.12);
+    outline-offset: 6px;
+}
+
+/* Ajustes responsivos suaves */
+@media (max-width: 767.98px){
+    .idea-box{ transform:none !important; box-shadow: 0 10px 30px rgba(16,24,40,0.06); }
+    .idea-box::before{ display:none; }
+}
 .idea-box .section-title{ margin-top: 0; }
 .idea-box .section-sub{ margin-bottom: 0; }
 /* Estilos específicos para la página Equipo */

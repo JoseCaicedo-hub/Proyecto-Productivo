@@ -33,6 +33,9 @@ class UserRequest extends FormRequest
                 'email',
                 Rule::unique('users', 'email')->ignore($id), // 👈 Correcto, todo en array
             ],
+            'telefono' => 'nullable|string|max:50',
+            'ciudad' => 'nullable|string|max:100',
+            'municipio' => 'nullable|string|max:100',
         ];
 
         if ($method === 'POST') {

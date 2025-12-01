@@ -28,8 +28,8 @@
       <div class="col-md-4 mb-3">
         <h5>Contáctanos</h5>
         <ul class="list-unstyled small">
-          <li><i class="bi bi-geo-alt-fill"></i> Colombia, Envio internacional</li>
-          <li><i class="bi bi-telephone-fill"></i> +52 123 456 7890</li>
+          <li><i class="bi bi-geo-alt-fill"></i> Colombia, Envio Nacional</li>
+          <li><i class="bi bi-telephone-fill"></i> +57 322 295 1853</li>
           <li><i class="bi bi-envelope-fill"></i> {{ config('mail.from.address', 'soporte@empresa.com') }}</li>
         </ul>
         <div class="mt-3">

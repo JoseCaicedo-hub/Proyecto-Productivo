@@ -112,11 +112,81 @@
                             <strong id="orderTotal">${{ number_format($total, 2) }}</strong>
                         </div>
                         <!-- Checkout Button -->
-                         <form action="{{route('pedido.realizar')}}" method="POST">
+                        <form id="checkoutForm" action="{{ route('pedido.realizar') }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-primary w-100" id="checkout">
+                            <!-- Botón que abre el modal de envío/pago -->
+                            <button type="button" class="btn btn-primary w-100" id="checkout" data-bs-toggle="modal" data-bs-target="#shippingModal">
                                 <i class="bi bi-credit-card me-1"></i>Realizar pedido
                             </button>
+
+                            <!-- Modal para datos de envío y pago -->
+                            <div class="modal fade" id="shippingModal" tabindex="-1" aria-labelledby="shippingModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="shippingModalLabel">Datos de envío y pago</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="direccion" class="form-label">Dirección exacta <span class="text-danger">*</span></label>
+                                                <textarea name="direccion" id="direccion" class="form-control" rows="3" required>{{ old('direccion') }}</textarea>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="tipo_documento" class="form-label">Tipo de documento <span class="text-danger">*</span></label>
+                                                    <select name="tipo_documento" id="tipo_documento" class="form-select" required>
+                                                        <option value="">Seleccione...</option>
+                                                        <option value="CC" {{ old('tipo_documento') == 'CC' ? 'selected' : '' }}>Cédula de ciudadanía (CC)</option>
+                                                        <option value="NIT" {{ old('tipo_documento') == 'NIT' ? 'selected' : '' }}>NIT</option>
+                                                        <option value="CE" {{ old('tipo_documento') == 'CE' ? 'selected' : '' }}>Cédula de extranjería (CE)</option>
+                                                        <option value="PAS" {{ old('tipo_documento') == 'PAS' ? 'selected' : '' }}>Pasaporte</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="numero_documento" class="form-label">Número de documento <span class="text-danger">*</span></label>
+                                                    <input type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{ old('numero_documento') }}" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="metodo_pago" class="form-label">Método de pago <span class="text-danger">*</span></label>
+                                                    <select name="metodo_pago" id="metodo_pago" class="form-select" required>
+                                                        <option value="">Seleccione...</option>
+                                                        <option value="efectivo" {{ old('metodo_pago') == 'efectivo' ? 'selected' : '' }}>Efectivo</option>
+                                                        <option value="tarjeta" {{ old('metodo_pago') == 'tarjeta' ? 'selected' : '' }}>Tarjeta débito/crédito</option>
+                                                        <option value="transferencia" {{ old('metodo_pago') == 'transferencia' ? 'selected' : '' }}>Transferencia</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="telefono" class="form-label">Teléfono</label>
+                                                    <input type="text" name="telefono" id="telefono" class="form-control" value="{{ old('telefono') }}">
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="referencia" class="form-label">Referencia / Instrucciones (Casa, Apto, Residencia)</label>
+                                                <input type="text" name="referencia" id="referencia" class="form-control" value="{{ old('referencia') }}">
+                                            </div>
+
+                                            @if ($errors->any())
+                                                <div class="alert alert-danger">
+                                                    <ul class="mb-0">
+                                                        @foreach ($errors->all() as $error)
+                                                            <li>{{ $error }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-primary">Confirmar y pagar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                         <!-- Continue Shopping -->
                         <a href="/" class="btn btn-outline-secondary w-100 mt-3">

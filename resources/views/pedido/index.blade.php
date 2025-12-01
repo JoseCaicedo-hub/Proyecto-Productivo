@@ -44,10 +44,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if(count($registros)<=0) <tr>
-                                        <td colspan="7">No hay registros que coincidan con la búsqueda</td>
+                                    @if(count($registros) <= 0)
+                                        <tr>
+                                            <td colspan="7">No hay registros que coincidan con la búsqueda</td>
                                         </tr>
-                                        @else
+                                    @else
                                         @foreach($registros as $reg)
                                         <tr class="align-middle">
                                             <td>
@@ -95,6 +96,9 @@
                                                     data-bs-toggle="collapse" data-bs-target="#detalles-{{ $reg->id }}">
                                                     Ver detalles
                                                 </button>
+                                                <button type="button" class="btn btn-sm btn-secondary ms-1 btn-download" title="Descargar PDF" data-route="{{ route('pedido.pdf', $reg->id) }}" data-pedido-id="{{ $reg->id }}">
+                                                    <i class="bi bi-download"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                         <tr class="collapse" id="detalles-{{ $reg->id }}">
@@ -103,6 +107,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th>Producto</th>
+                                                            <th>Talla</th>
                                                             <th>Imagen</th>
                                                             <th>Cantidad</th>
                                                             <th>Precio Unitario</th>
@@ -113,6 +118,7 @@
                                                         @foreach($reg->detalles as $detalle)
                                                         <tr>
                                                             <td>{{ $detalle->producto->nombre }}</td>
+                                                            <td>{{ $detalle->talla ?? '-' }}</td>
                                                             <td>
                                                                 <img src="{{ asset('uploads/productos/' . $detalle->producto->imagen ) }}"
                                                                     class="img-fluid rounded"
@@ -165,9 +171,28 @@
                                         @include('pedido.delete')
                                         @include('pedido.delete_permanent')
                                         @endforeach
-                                        @endif
+                                    @endif
                                 </tbody>
                             </table>
+                            <!-- Modal de confirmación de descarga -->
+                            <div class="modal fade" id="confirmDownloadModal" tabindex="-1" aria-labelledby="confirmDownloadLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="confirmDownloadLabel">Descargar factura electrónica</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Estás a punto de descargar la factura electrónica del pedido <strong id="modalPedidoId">#</strong>.</p>
+                                            <p class="small text-muted">Se generará un archivo PDF con los detalles de la compra. ¿Deseas continuar?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="button" class="btn btn-primary" id="confirmDownloadBtn">Descargar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -188,5 +213,32 @@
 @push('scripts')
 <script>
 document.getElementById('mnuPedidos').classList.add('active');
+
+document.addEventListener('DOMContentLoaded', function(){
+    var confirmModalEl = document.getElementById('confirmDownloadModal');
+    var confirmModal = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
+    var selectedRoute = null;
+    var selectedPedidoId = null;
+
+    document.querySelectorAll('.btn-download').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            selectedRoute = btn.getAttribute('data-route');
+            selectedPedidoId = btn.getAttribute('data-pedido-id');
+            var modalIdEl = document.getElementById('modalPedidoId');
+            if (modalIdEl) modalIdEl.textContent = '#' + selectedPedidoId;
+            if (confirmModal) confirmModal.show();
+        });
+    });
+
+    var confirmBtn = document.getElementById('confirmDownloadBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function(){
+            if (selectedRoute) {
+                window.open(selectedRoute, '_blank');
+                if (confirmModal) confirmModal.hide();
+            }
+        });
+    }
+});
 </script>
 @endpush

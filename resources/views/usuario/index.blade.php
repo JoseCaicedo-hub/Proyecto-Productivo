@@ -77,10 +77,21 @@
                                                 <td>{{ $reg->telefono ?? '-' }}</td>
                                                 <td>{{ $reg->ciudad ?? '-' }}</td>
                                                 <td>
-                                                    @if($reg->roles->isNotEmpty()) 
-                                                        <span class="badge bg-primary">
-                                                            {{ $reg->roles->pluck('name')->implode('</span> <span class="badge bg-primary">') }} 
-                                                        </span>
+                                                    @if($reg->roles->isNotEmpty())
+                                                        @foreach($reg->roles as $role)
+                                                            @php
+                                                                $roleName = strtolower($role->name);
+                                                                $badgeClass = 'badge bg-secondary';
+                                                                if ($roleName === 'admin') {
+                                                                    $badgeClass = 'badge bg-primary';
+                                                                } elseif ($roleName === 'cliente') {
+                                                                    $badgeClass = 'badge bg-success';
+                                                                } elseif ($roleName === 'vendedor') {
+                                                                    $badgeClass = 'badge bg-warning text-dark';
+                                                                }
+                                                            @endphp
+                                                            <span class="{{ $badgeClass }}">{{ $role->name }}</span>&nbsp;
+                                                        @endforeach
                                                     @else
                                                         <span class="badge bg-secondary">Sin rol</span>
                                                     @endif

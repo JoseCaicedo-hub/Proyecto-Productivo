@@ -22,6 +22,9 @@ class RegisterController extends Controller
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
+            'telefono' => $request->input('telefono'),
+            'ciudad' => $request->input('ciudad'),
+            'municipio' => $request->input('municipio'),
             'activo' => 1, // Activar automáticamente
         ]);
 

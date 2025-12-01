@@ -195,7 +195,7 @@
             </div>
 
             <div class="text-center mt-4">
-                <a href="{{ route('web.tienda') }}" class="btn btn-primary btn-lg">Ver más</a>
+                <a href="{{ $producto->categoria ? route('web.tienda', ['category' => $producto->categoria]) : route('web.tienda') }}" class="btn btn-primary btn-lg">Ver más</a>
             </div>
         </div>
     </section>

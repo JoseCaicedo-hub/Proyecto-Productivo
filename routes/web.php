@@ -21,6 +21,12 @@ Route::get('/producto/{id}', [WebController::class, 'show'])->name('web.show');
 // Página del equipo (acerca)
 Route::view('/equipo', 'web.equipo.index')->name('web.equipo');
 
+// Página pública para ver y enviar solicitud
+Route::view('/solicitud', 'web.solicitud')->name('web.solicitud');
+
+// Formulario público para solicitudes de emprendimiento (POST)
+Route::post('/solicitudes', [\App\Http\Controllers\SolicitudController::class, 'store'])->name('solicitudes.store');
+
 // Página tienda
 Route::view('/tienda', 'web.tienda.index')->name('web.tienda');
 
@@ -98,6 +104,8 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/almacen/entregados', [\App\Http\Controllers\AlmacenController::class, 'entregados'])->name('almacen.entregados');
 
     Route::post('/pedido/realizar', [PedidoController::class, 'realizar'])->name('pedido.realizar');
+    // Descarga PDF del pedido (factura)
+    Route::get('/pedido/{id}/pdf', [PedidoController::class, 'downloadPdf'])->name('pedido.pdf');
     // Mostrar únicamente los pedidos del usuario autenticado
     Route::get('/perfil/pedidos', [PedidoController::class, 'misPedidos'])->name('perfil.pedidos');
     // Ruta para que el usuario cancele su propio pedido (estado -> 'cancelado')
@@ -138,6 +146,13 @@ Route::middleware(['auth'])->group(function(){
     })->name('plantilla.profile');
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+});
+
+// Rutas de administración para solicitudes (protección por auth; control de rol en el controlador)
+Route::middleware(['auth'])->prefix('admin')->group(function(){
+    Route::get('/solicitudes', [\App\Http\Controllers\SolicitudController::class, 'adminIndex'])->name('admin.solicitudes.index');
+    Route::post('/solicitudes/{id}/accept', [\App\Http\Controllers\SolicitudController::class, 'accept'])->name('admin.solicitudes.accept');
+    Route::post('/solicitudes/{id}/reject', [\App\Http\Controllers\SolicitudController::class, 'reject'])->name('admin.solicitudes.reject');
 });
 
 Route::middleware('guest')->group(function(){

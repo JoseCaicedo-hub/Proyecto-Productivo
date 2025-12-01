@@ -54,7 +54,7 @@
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
                     <a href="{{route('dashboard')}}" class="nav-link" id="mnuDashboard">
-                        <i class="nav-icon bi bi-speedometer"></i>
+                        <i class="nav-icon bi bi-grid"></i>
                         <p>
                             Dashboard
                         </p>
@@ -98,8 +98,11 @@
                 </li>
                 @endcanany
                 @canany(['producto-list'])
-                <li class="nav-item" id="mnuAlmacen">
-                    <a href="#" class="nav-link">
+                @php
+                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*');
+                @endphp
+                <li class="nav-item {{ $almacenOpen ? 'menu-open' : '' }}" id="mnuAlmacen">
+                    <a href="#" class="nav-link {{ $almacenOpen ? 'active' : '' }}">
                         <i class="nav-icon bi bi-archive-fill"></i>
                         <p>
                             Almacén
@@ -109,7 +112,7 @@
                     <ul class="nav nav-treeview">
                         @can('producto-list')
                         <li class="nav-item">
-                            <a href="{{route('productos.index')}}" class="nav-link" id="itemProducto">
+                            <a href="{{route('productos.index')}}" class="nav-link {{ request()->routeIs('productos.*') ? 'active' : '' }}" id="itemProducto">
                                 <i class="nav-icon bi bi-circle"></i>
                                 <p>Mis Productos</p>
                             </a>
@@ -117,17 +120,31 @@
                         @endcan
                         @can('producto-list')
                         <li class="nav-item">
-                            <a href="{{ route('almacen.index') }}" class="nav-link" id="itemEntregar">
+                            <a href="{{ route('almacen.index') }}" class="nav-link {{ request()->routeIs('almacen.index') ? 'active' : '' }}" id="itemEntregar">
                                 <i class="nav-icon bi bi-truck"></i>
                                 <p>Entregar</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('almacen.entregados') }}" class="nav-link" id="itemEntregados">
+                            <a href="{{ route('almacen.entregados') }}" class="nav-link {{ request()->routeIs('almacen.entregados') ? 'active' : '' }}" id="itemEntregados">
                                 <i class="nav-icon bi bi-check2-square"></i>
                                 <p>Entregados</p>
                             </a>
                         </li>
+                        @role('admin')
+                        <li class="nav-item">
+                            @php $pendientes = \App\Models\Solicitud::where('estado','pendiente')->count(); @endphp
+                            <a href="{{ route('admin.solicitudes.index') }}" class="nav-link {{ request()->routeIs('admin.solicitudes.*') ? 'active' : '' }}" id="itemSolicitudes">
+                                <i class="nav-icon bi bi-list-check"></i>
+                                <p>
+                                    Solicitudes
+                                    @if($pendientes > 0)
+                                        <span class="badge bg-danger ms-2">{{ $pendientes }}</span>
+                                    @endif
+                                </p>
+                            </a>
+                        </li>
+                        @endrole
                         @endcan
                     </ul>
                 </li>

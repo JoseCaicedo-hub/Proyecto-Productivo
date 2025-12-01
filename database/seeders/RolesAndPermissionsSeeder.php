@@ -19,6 +19,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Crear los roles
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $clienteRole = Role::firstOrCreate(['name' => 'cliente']);
+        $vendedorRole = Role::firstOrCreate(['name' => 'vendedor']);
         
         // Definir permisos
         $adminPermissions = [
@@ -30,6 +31,8 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $clientePermissions = ['pedido-view', 'pedido-cancel','perfil'];
 
+        $vendedorPermissions = ['producto-list','producto-create','producto-edit','producto-delete'];
+
         // Crear y asignar permisos
         foreach ($adminPermissions as $permiso) {
             $permission = Permission::firstOrCreate(['name' => $permiso]);
@@ -39,6 +42,11 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach ($clientePermissions as $permiso) {
             $permission = Permission::firstOrCreate(['name' => $permiso]);
             $clienteRole->givePermissionTo($permission);
+        }
+
+        foreach ($vendedorPermissions as $permiso) {
+            $permission = Permission::firstOrCreate(['name' => $permiso]);
+            $vendedorRole->givePermissionTo($permission);
         }
 
         // Crear usuarios y asignar roles

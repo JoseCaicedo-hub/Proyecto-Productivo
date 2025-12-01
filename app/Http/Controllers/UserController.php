@@ -47,10 +47,15 @@ class UserController extends Controller
         $registro->name=$request->input('name');
         $registro->email=$request->input('email');
         $registro->password=Hash::make($request->input('password'));
+        // contacto
+        $registro->telefono = $request->input('telefono');
+        $registro->ciudad = $request->input('ciudad');
+        $registro->municipio = $request->input('municipio');
         $registro->activo=$request->input('activo');
         $registro->save();
 
-        $registro->assignRole($request->input('role'));
+        // Asignar el rol de forma exclusiva (quita otros roles previos)
+        $registro->syncRoles([$request->input('role')]);
         return redirect()->route('usuarios.index')->with('mensaje', 'Registro '.$registro->name. '  agregado correctamente');
     }
 
@@ -82,6 +87,10 @@ class UserController extends Controller
         $registro=User::findOrFail($id);
         $registro->name=$request->input('name');
         $registro->email=$request->input('email');
+        // contacto
+        $registro->telefono = $request->input('telefono');
+        $registro->ciudad = $request->input('ciudad');
+        $registro->municipio = $request->input('municipio');
         if ($request->filled('password')) {
             $registro->password=Hash::make($request->input('password'));
         }

@@ -19,8 +19,17 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-list'); 
         $texto=$request->input('texto');
-        $registros=Producto::where('nombre', 'like',"%{$texto}%")
-                    ->orWhere('codigo', 'like',"%{$texto}%")
+        $query = Producto::query();
+
+        // Si el usuario autenticado es vendedor, mostrar sólo sus productos
+        if (auth()->check() && auth()->user()->hasRole('vendedor')) {
+            $query->where('user_id', auth()->id());
+        }
+
+        $registros = $query->where(function($q) use ($texto) {
+                        $q->where('nombre', 'like', "%{$texto}%")
+                          ->orWhere('codigo', 'like', "%{$texto}%");
+                    })
                     ->orderBy('id', 'desc')
                     ->paginate(10);
         return view('producto.index', compact('registros','texto'));
@@ -80,6 +89,12 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-edit'); 
         $registro=Producto::findOrFail($id);
+        // Si el usuario es vendedor, sólo puede editar sus propios productos
+        if (auth()->check() && auth()->user()->hasRole('vendedor')) {
+            if ($registro->user_id !== auth()->id()) {
+                abort(403, 'No autorizado a editar este producto');
+            }
+        }
         $categorias = ['Electrónica','Ropa','Hogar','Accesorios','Alimentos','Otros'];
         return view('producto.action', compact('registro','categorias'));
     }
@@ -91,6 +106,12 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-edit'); 
         $registro=Producto::findOrFail($id);
+        // Si el usuario es vendedor, sólo puede actualizar sus propios productos
+        if (auth()->check() && auth()->user()->hasRole('vendedor')) {
+            if ($registro->user_id !== auth()->id()) {
+                abort(403, 'No autorizado a actualizar este producto');
+            }
+        }
         $registro->codigo=$request->input('codigo');
         $registro->nombre=$request->input('nombre');
         $registro->categoria=$request->input('categoria');
@@ -121,6 +142,12 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-delete');
         $registro=Producto::findOrFail($id);
+        // Si el usuario es vendedor, sólo puede eliminar sus propios productos
+        if (auth()->check() && auth()->user()->hasRole('vendedor')) {
+            if ($registro->user_id !== auth()->id()) {
+                abort(403, 'No autorizado a eliminar este producto');
+            }
+        }
         $old_image = 'uploads/productos/'.$registro->imagen;
         if (file_exists($old_image)) {
             @unlink($old_image);

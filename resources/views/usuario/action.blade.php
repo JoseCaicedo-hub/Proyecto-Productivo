@@ -61,7 +61,7 @@
                                      @error('password_confirmation')
                                         <small class="text-danger">{{$message}}</small>
                                      @enderror
-                                </div>                                
+                                </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="role" class="form-label">Rol</label>
                                     <select name="role" id="role" class="form-control">
@@ -72,6 +72,33 @@
                                             </option>
                                         @endforeach
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-4 mb-3">
+                                    <label for="telefono" class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control @error('telefono') is-invalid @enderror"
+                                     id="telefono" name="telefono" value="{{ old('telefono', $registro->telefono ?? '') }}">
+                                     @error('telefono')
+                                        <small class="text-danger">{{$message}}</small>
+                                     @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="ciudad" class="form-label">Ciudad</label>
+                                    <input type="text" class="form-control @error('ciudad') is-invalid @enderror"
+                                     id="ciudad" name="ciudad" value="{{ old('ciudad', $registro->ciudad ?? '') }}">
+                                     @error('ciudad')
+                                        <small class="text-danger">{{$message}}</small>
+                                     @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="municipio" class="form-label">Municipio</label>
+                                    <input type="text" class="form-control @error('municipio') is-invalid @enderror"
+                                     id="municipio" name="municipio" value="{{ old('municipio', $registro->municipio ?? '') }}">
+                                     @error('municipio')
+                                        <small class="text-danger">{{$message}}</small>
+                                     @enderror
                                 </div>
                             </div>
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">

@@ -11,7 +11,7 @@
   <div class="row g-0 align-items-center">
     <div class="col-lg-7 hero-left">
       <div class="hero-inner px-5 py-5">
-        <h1 class="display-4">Encabezado referente a la historia de tu negocio</h1>
+        <h1 class="display-4">Construye tu negocio digital con StartPlace</h1>
       </div>
     </div>
     <div class="col-lg-5 hero-right d-flex align-items-center justify-content-center">
@@ -27,9 +27,10 @@
   <div class="row justify-content-center text-center mb-5">
     <div class="col-lg-8">
       <div class="idea-box p-4">
-        <h2 class="section-title">Idea</h2>
-        <p class="section-sub">Cómo iniciar en StartPlace: crea tu cuenta, sube 3 fotos por producto con buena iluminación, escribe descripciones claras y precios competitivos. Activa envío y atención al cliente; publicamos tu producto en minutos.</p>
-        <a class="btn btn-dark mt-3" href="#">Empezar</a>
+        <h2 class="section-title">Como iniciar?</h2>
+        <p class="section-sub">StartPlace es el marketplace diseñado para emprendedores, negocios locales y vendedores independientes que buscan aumentar su visibilidad sin costos exagerados ni procesos difíciles.
+Publica tus productos, recibe más visitas gracias a nuestra publicidad destacada y administra tus ventas de forma sencilla y segura.</p>
+        <a class="btn btn-dark mt-3" href="{{ route('web.solicitud') }}">Empezar</a>
       </div>
     </div>
   </div>
@@ -48,5 +49,7 @@
     @endforeach
   </div>
 </div>
+
+<!-- El formulario de solicitud fue movido a la página dedicada (/solicitud) -->
 
 @endsection
