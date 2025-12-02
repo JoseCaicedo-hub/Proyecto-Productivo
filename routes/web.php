@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\DashboardController;
 
 Route::get('/', [WebController::class, 'index'])->name('web.index');
 Route::get('/producto/{id}', [WebController::class, 'show'])->name('web.show');
+Route::post('/producto/{id}/review', [\App\Http\Controllers\ReviewController::class, 'store'])->name('producto.review.store');
 
 // Página del equipo (acerca)
 Route::view('/equipo', 'web.equipo.index')->name('web.equipo');
@@ -75,6 +77,31 @@ Route::post('/contactanos', function(\Illuminate\Http\Request $request){
     }
 
     \Log::info('Contacto contactanos recibido', $data);
+
+    // Resolver nombre del vendedor si se envió un ID
+    if (!empty($data['vendedor'])) {
+        $vendedorName = $data['vendedor'];
+        if (is_numeric($vendedorName)) {
+            try {
+                $user = \App\Models\User::find($vendedorName);
+                if ($user) {
+                    $vendedorName = $user->name;
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('No se pudo obtener nombre de vendedor: ' . $e->getMessage());
+            }
+        }
+        $data['vendedor_name'] = $vendedorName;
+    } else {
+        $data['vendedor_name'] = 'Todos';
+    }
+
+    // Enviar correo al equipo de soporte fijo usando Mailable con plantilla HTML
+    try {
+        Mail::to('startplace.com@gmail.com')->send(new \App\Mail\ContactanosReceived($data));
+    } catch (\Throwable $e) {
+        \Log::error('Error enviando email de contacto: ' . $e->getMessage());
+    }
 
     $request->session()->flash('mensaje', 'Tu consulta ha sido enviada. Te contactaremos pronto.');
     return redirect()->route('web.contactanos');

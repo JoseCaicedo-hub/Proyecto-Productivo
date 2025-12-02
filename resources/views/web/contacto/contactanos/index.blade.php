@@ -12,6 +12,13 @@
       </div>
 
       <div class="col-lg-8">
+        @if(session('mensaje'))
+          <div class="alert alert-success alert-dismissible fade show" role="alert" id="contact-success-alert">
+            <strong>Mensaje enviado:</strong> {{ session('mensaje') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+
         <div class="card shadow-sm mb-4">
           <div class="card-body">
             <form action="{{ route('contactanos.send') }}" method="POST" enctype="multipart/form-data">
@@ -32,11 +39,20 @@
 
                 <div class="col-md-6 mb-3">
                   <label for="vendedor" class="form-label">Vendedor (opcional)</label>
+                  @php
+                    try {
+                        $vendedores = \App\Models\User::role('vendedor')->orderBy('name')->get();
+                    } catch (\Throwable $e) {
+                        $vendedores = collect();
+                    }
+                  @endphp
                   <select id="vendedor" name="vendedor" class="form-select @error('vendedor') is-invalid @enderror">
                     <option value="">— Todos los vendedores —</option>
-                    <option value="vendedor-1" {{ old('vendedor')=='vendedor-1' ? 'selected' : '' }}>Tienda A</option>
-                    <option value="vendedor-2" {{ old('vendedor')=='vendedor-2' ? 'selected' : '' }}>Tienda B</option>
-                    <option value="vendedor-3" {{ old('vendedor')=='vendedor-3' ? 'selected' : '' }}>Tienda C</option>
+                    @if($vendedores->isNotEmpty())
+                      @foreach($vendedores as $v)
+                        <option value="{{ $v->id }}" {{ old('vendedor') == $v->id ? 'selected' : '' }}>{{ $v->name }}@if($v->empresa) - {{ $v->empresa }}@endif</option>
+                      @endforeach
+                    @endif
                   </select>
                   @error('vendedor') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
@@ -108,7 +124,7 @@
           <div class="card-body">
             <h5 class="mb-2">Soporte rápido</h5>
             <p class="mb-1"><strong>Teléfono:</strong> <a href="tel:+571234567890">(+57) 1 234 5678</a></p>
-            <p class="mb-1"><strong>Correo:</strong> <a href="mailto:contacto@startplace.com">contacto@startplace.com</a></p>
+            <p class="mb-1"><strong>Correo:</strong> <a href="mailto:startplace.com@gmail.com">startplace.com@gmail.com</a></p>
             <hr>
             <h6 class="mb-2">Estado de pedidos</h6>
             <p class="mb-0">Para consultas de seguimiento, incluye tu ID de pedido para acelerar la respuesta.</p>
@@ -128,4 +144,23 @@
     </div>
   </div>
 </section>
+
+<script>
+  (function(){
+    // Cerrar automáticamente la alerta de éxito después de 6 segundos
+    try {
+      var el = document.getElementById('contact-success-alert');
+      if (!el) return;
+      // Si bootstrap JS está disponible, usar su API para cerrar la alerta limpiamente
+      if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+        var alert = new bootstrap.Alert(el);
+        setTimeout(function(){ alert.close(); }, 6000);
+      } else {
+        setTimeout(function(){ el.style.display = 'none'; }, 6000);
+      }
+    } catch (e) {
+      console.warn('Auto-hide alert error', e);
+    }
+  })();
+</script>
 @endsection

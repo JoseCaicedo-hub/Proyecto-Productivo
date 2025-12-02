@@ -21,4 +21,9 @@ class Producto extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class, 'producto_id');
+    }
 }

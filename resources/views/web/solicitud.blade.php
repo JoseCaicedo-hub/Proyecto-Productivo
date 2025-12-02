@@ -22,7 +22,7 @@
             </div>
           @endif
 
-          <form action="{{ route('solicitudes.store') }}" method="POST">
+          <form action="{{ route('solicitudes.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-3">
               <label for="nombre" class="form-label">Nombre completo</label>
@@ -54,6 +54,27 @@
               <textarea name="detalle" id="detalle" rows="3" class="form-control">{{ old('detalle') }}</textarea>
             </div>
 
+            <div class="mb-3">
+              <label for="producto_img" class="form-label">Imagen representativa del producto (obligatorio)</label>
+              <input type="file" name="producto_img" id="producto_img" accept="image/*" class="form-control @error('producto_img') is-invalid @enderror" required>
+              <small class="form-text text-muted">JPG, PNG. Máx. recomendado 2MB.</small>
+              @error('producto_img')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+              @enderror
+              <div class="mt-2">
+                <img id="previewImage" src="#" alt="Vista previa" style="max-width:220px; max-height:160px; display:none; object-fit:cover; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="carta" class="form-label">Carta de intención / por qué iniciar con nosotros (PDF o DOC) <span class="text-muted small">(obligatorio)</span></label>
+              <input type="file" name="carta" id="carta" accept=".pdf,.doc,.docx" class="form-control @error('carta') is-invalid @enderror" required>
+              @error('carta')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+              @enderror
+              <small id="cartaName" class="form-text text-muted">No se ha seleccionado ningún archivo.</small>
+            </div>
+
             <div class="d-flex gap-2">
               <button class="btn btn-primary">Enviar solicitud</button>
               <a class="btn btn-outline-secondary" href="{{ route('web.equipo') }}">Volver</a>
@@ -64,4 +85,40 @@
     </div>
   </div>
 </section>
+@endsection
+
+@section('scripts')
+<script>
+  (function(){
+    // Preview de imagen seleccionada
+    var inputImg = document.getElementById('producto_img');
+    var preview = document.getElementById('previewImage');
+    if(inputImg){
+      inputImg.addEventListener('change', function(e){
+        var file = e.target.files && e.target.files[0];
+        if(file && file.type.startsWith('image/')){
+          var reader = new FileReader();
+          reader.onload = function(ev){
+            preview.src = ev.target.result;
+            preview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          preview.style.display = 'none';
+          preview.src = '#';
+        }
+      });
+    }
+
+    // Mostrar nombre del archivo de la carta
+    var cartaInput = document.getElementById('carta');
+    var cartaName = document.getElementById('cartaName');
+    if(cartaInput && cartaName){
+      cartaInput.addEventListener('change', function(e){
+        var file = e.target.files && e.target.files[0];
+        cartaName.textContent = file ? (file.name + ' (' + Math.round(file.size/1024) + ' KB)') : 'No se ha seleccionado ningún archivo.';
+      });
+    }
+  })();
+</script>
 @endsection

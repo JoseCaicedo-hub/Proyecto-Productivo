@@ -72,13 +72,36 @@
               </div>
             </div>
             <div class="text-end d-none d-md-block">
-              @php
+                @php
                 $profileUser = $profileUser ?? $user ?? auth()->user();
-                $rating = isset($profileUser->rating) ? floatval($profileUser->rating) : 0;
-                $fullStars = floor($rating);
-                $halfStar = ($rating - $fullStars) >= 0.5;
-                $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
-              @endphp
+                // Calcular estadísticas en vista si no fueron pasadas desde el controlador
+                $ordersCount = isset($ordersCount) ? $ordersCount : \App\Models\Pedido::where('user_id', $profileUser->id)->count();
+                $spend = isset($spend) ? $spend : \App\Models\Pedido::where('user_id', $profileUser->id)->sum('total');
+
+                // Determinar puntuación (0-5) en base al gasto y cantidad de pedidos
+                $stars = 0;
+                if ($spend >= 1000000) {
+                  $stars = 5;
+                } elseif ($spend >= 500000) {
+                  $stars = 4;
+                } elseif ($spend >= 200000) {
+                  $stars = 3;
+                } elseif ($spend >= 50000) {
+                  $stars = 2;
+                } elseif ($spend >= 10000) {
+                  $stars = 1;
+                }
+                // Bonus por volumen de pedidos
+                if ($ordersCount >= 20 && $stars < 5) {
+                  $stars++;
+                }
+
+                $fullStars = (int) $stars;
+                $halfStar = false;
+                $emptyStars = 5 - $fullStars;
+                // Si existe una calificación real en el modelo, usarla; si no, derivar una calificación numérica
+                $rating = isset($profileUser->rating) ? floatval($profileUser->rating) : floatval($stars);
+                @endphp
 
               <div class="mb-2" aria-label="Calificación del usuario">
                 @for($i = 0; $i < $fullStars; $i++)
@@ -127,7 +150,7 @@
               <div class="small-muted">Reseñas</div>
             </div>
             <div>
-              <div class="h4 mb-0">{{ $spend ?? '0' }}</div>
+              <div class="h4 mb-0">${{ number_format($spend ?? 0, 2) }}</div>
               <div class="small-muted">Gasto</div>
             </div>
           </div>

@@ -263,7 +263,7 @@
                     <li>Comisiones competitivas y pagos rápidos.</li>
                     <li>Soporte dedicado y herramientas para gestionar tus ventas.</li>
                 </ul>
-            <a href="{{ route('web.index') }}" class="btn btn-dark px-4 py-2">Me interesa</a>
+            <a href="{{ route('web.solicitud') }}" class="btn btn-dark px-4 py-2">Me interesa</a>
             </div>
         </div>
     </div>

@@ -140,6 +140,102 @@
     </section>
 </form>
 
+{{-- Reseñas --}}
+@php
+    $reviews = \App\Models\Review::where('producto_id', $producto->id)->latest()->get();
+@endphp
+
+<section class="py-4">
+    <div class="container px-4 px-lg-5">
+        <h4 class="mb-3">Reseñas</h4>
+
+        <style>
+            /* Layout: formulario fijo a la izquierda y comentarios a la derecha (responsivo) */
+            .reviews-panel { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+            .review-left { flex: 0 0 360px; max-width:360px; }
+            .review-right { flex: 1 1 420px; min-width:300px; }
+            .review-form-card { border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+            .reviews-list { max-height: 420px; overflow-y: auto; padding-right: 8px; }
+            .review-item { border-radius:8px; border:1px solid #eef2f6; padding:12px; background:#fff; }
+            .rating-stars .bi { font-size:1.2rem; cursor:pointer; color:#d1d5db; }
+            .rating-stars .bi.filled { color:#f59e0b; }
+            .reviews-tools { display:flex; gap:8px; align-items:center; }
+            .scroll-btn { border:0; background:#f1f5f9; padding:6px 8px; border-radius:6px; }
+            @media (max-width: 767px) {
+                .reviews-list { max-height: 300px; }
+                .reviews-panel { display:block; }
+                .review-left, .review-right { max-width:100%; flex: 1 1 100%; }
+            }
+        </style>
+
+        <div class="reviews-panel">
+            <div class="review-left mb-3">
+                <div class="card p-3 review-form-card">
+                    <h5 class="mb-3">Dejar una reseña</h5>
+                    @if(auth()->check())
+                        <form action="{{ route('producto.review.store', $producto->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="rating" id="reviewRating" required>
+                            <div class="mb-3">
+                                <label class="form-label d-block">Tu puntuación</label>
+                                <div class="rating-stars" id="ratingStars" aria-hidden="false">
+                                    <i class="bi bi-star" data-value="1" title="1"></i>
+                                    <i class="bi bi-star" data-value="2" title="2"></i>
+                                    <i class="bi bi-star" data-value="3" title="3"></i>
+                                    <i class="bi bi-star" data-value="4" title="4"></i>
+                                    <i class="bi bi-star" data-value="5" title="5"></i>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tu opinión</label>
+                                <textarea name="comment" class="form-control" rows="5" placeholder="Comparte qué te gustó o qué mejorarías (opcional)"></textarea>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-primary" type="submit">Enviar reseña</button>
+                            </div>
+                        </form>
+                    @else
+                        <div class="small-muted">Para dejar una reseña <a href="{{ route('login') }}">inicia sesión</a> o <a href="{{ route('registro') }}">regístrate</a>.</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="review-right mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div><strong>Comentarios</strong></div>
+                </div>
+                <div class="reviews-list" id="reviewsList">
+                    @if($reviews->isEmpty())
+                        <div class="small-muted">Aún no hay reseñas. Sé el primero en opinar.</div>
+                    @else
+                        @foreach($reviews as $r)
+                            <div class="review-item mb-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>{{ $r->user ? $r->user->name : 'Anónimo' }}</strong>
+                                        <div class="small text-muted">{{ $r->created_at->diffForHumans() }}</div>
+                                    </div>
+                                    <div>
+                                        @for($i=0;$i < $r->rating; $i++)
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        @endfor
+                                        @for($i=0;$i < 5 - $r->rating; $i++)
+                                            <i class="bi bi-star text-muted"></i>
+                                        @endfor
+                                    </div>
+                                </div>
+                                @if($r->comment)
+                                    <div class="mt-2">{{ $r->comment }}</div>
+                                @endif
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {{-- Productos relacionados (misma categoría) --}}
 @php
     $related = [];
@@ -286,6 +382,42 @@
                 }
             @endif
         });
+
+            // Reseñas: control de estrellas y scroll
+            const ratingStars = document.getElementById('ratingStars');
+            if (ratingStars) {
+                const stars = ratingStars.querySelectorAll('.bi');
+                const hiddenInput = document.getElementById('reviewRating');
+                stars.forEach(star => {
+                    star.addEventListener('mouseenter', () => {
+                        const val = parseInt(star.dataset.value);
+                        stars.forEach(s => {
+                            if (parseInt(s.dataset.value) <= val) s.classList.add('filled'); else s.classList.remove('filled');
+                        });
+                    });
+                    star.addEventListener('click', () => {
+                        const val = parseInt(star.dataset.value);
+                        hiddenInput.value = val;
+                        stars.forEach(s => {
+                            if (parseInt(s.dataset.value) <= val) s.classList.add('filled'); else s.classList.remove('filled');
+                        });
+                    });
+                });
+                ratingStars.addEventListener('mouseleave', () => {
+                    const current = parseInt(hiddenInput.value) || 0;
+                    stars.forEach(s => {
+                        if (parseInt(s.dataset.value) <= current) s.classList.add('filled'); else s.classList.remove('filled');
+                    });
+                });
+            }
+
+            const reviewsList = document.getElementById('reviewsList');
+            const scrollUp = document.getElementById('scrollUp');
+            const scrollDown = document.getElementById('scrollDown');
+            if (reviewsList) {
+                if (scrollUp) scrollUp.addEventListener('click', (ev) => { ev.preventDefault(); reviewsList.scrollBy({ top: -120, behavior: 'smooth' }); });
+                if (scrollDown) scrollDown.addEventListener('click', (ev) => { ev.preventDefault(); reviewsList.scrollBy({ top: 120, behavior: 'smooth' }); });
+            }
     });
 </script>
 

@@ -22,7 +22,17 @@ class SolicitudController extends Controller
             'titulo' => 'nullable|string|max:255',
             'idea' => 'required|string',
             'detalle' => 'nullable|string',
+            'producto_img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'carta' => 'required|mimes:pdf,doc,docx|max:5120',
         ]);
+
+        // Guardar archivos en disco (disk 'public')
+        if ($request->hasFile('producto_img')) {
+            $data['producto_img'] = $request->file('producto_img')->store('solicitudes/images', 'public');
+        }
+        if ($request->hasFile('carta')) {
+            $data['carta'] = $request->file('carta')->store('solicitudes/cartas', 'public');
+        }
 
         $data['user_id'] = auth()->id();
 
