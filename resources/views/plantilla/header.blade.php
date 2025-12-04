@@ -1,5 +1,9 @@
 <nav class="app-header navbar navbar-expand bg-body" style="background:linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);border-bottom:1px solid rgba(0,0,0,0.04);">
     <style>
+        /* Navbar links styling */
+        .app-header .nav-link{color:#374151;font-weight:600;padding:.5rem .85rem;border-radius:.45rem;transition:all .12s ease}
+        .app-header .nav-link:hover{background:rgba(63,195,255,0.08);color:#0b63d6}
+        .app-header .nav-link.active{background:linear-gradient(90deg,rgba(63,195,255,0.12),rgba(63,195,255,0.06));color:#0b63d6}
         /* Plantilla header: estilo más profesional y neutro */
         .plantilla-user-header { background: #ffffff; color: #111827; border-bottom:1px solid rgba(15,23,42,0.04); padding:12px 16px; display:flex; gap:14px; align-items:center; }
         .plantilla-avatar-lg { width:72px; height:72px; object-fit:cover; border-radius:50%; border:2px solid rgba(2,6,23,0.06); box-shadow:0 8px 24px rgba(2,6,23,0.06); }
@@ -27,8 +31,11 @@
                     <i class="bi bi-list"></i>
                 </a>
             </li>
-            <li class="nav-item d-none d-md-block"><a href="/" class="nav-link">Inicio</a></li>
-            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contacto</a></li>
+            <li class="nav-item d-none d-md-block"><a href="{{ route('web.index') }}" class="nav-link">Inicio</a></li>
+            <li class="nav-item d-none d-md-block"><a href="{{ route('web.tienda') }}" class="nav-link">Tienda</a></li>
+            <li class="nav-item d-none d-md-block"><a href="{{ route('web.preguntas') }}" class="nav-link">Preguntas</a></li>
+            <li class="nav-item d-none d-md-block"><a href="{{ route('web.equipo') }}" class="nav-link">Acerca</a></li>
+            <li class="nav-item d-none d-md-block"><a href="{{ route('web.contactanos') }}" class="nav-link">Contáctanos</a></li>
         </ul>
         <!--end::Start Navbar Links-->
         <!--begin::End Navbar Links-->

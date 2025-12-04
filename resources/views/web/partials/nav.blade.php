@@ -8,6 +8,24 @@
     .nav-logout-btn:hover{filter:brightness(.95);text-decoration:none;color:#fff}
     .nav-logout-form{display:inline-block;margin-left:.75rem}
     @media (max-width:767px){.nav-logout-btn{padding:.4rem .6rem;font-size:.95rem}}
+        /* Login button styles */
+        .nav-login-btn{
+            --lp:#3fc3ff;
+            display:inline-flex;align-items:center;gap:.6rem;padding:.48rem .8rem;border-radius:.6rem;font-weight:700;border:0;color:#03314d;background:linear-gradient(90deg,rgba(63,195,255,0.14),rgba(63,195,255,0.06));box-shadow:0 6px 18px rgba(47,128,182,0.06);text-decoration:none;outline:0;transition:transform .12s ease,box-shadow .12s ease}
+        .nav-login-btn i{color:inherit;font-size:1.02rem}
+        .nav-login-btn:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(47,128,182,0.08);text-decoration:none;color:#03314d;background:linear-gradient(90deg,rgba(63,195,255,0.22),rgba(63,195,255,0.12))}
+        .nav-login-btn:focus{box-shadow:0 0 0 6px rgba(63,195,255,0.12);outline:0}
+        .nav-login-btn, .nav-login-btn *{text-decoration:none !important}
+        @media (max-width:767px){.nav-login-btn{padding:.35rem .5rem;font-size:.92rem}}
+        /* Cart button styles */
+        .nav-cart-btn{
+            --cp:#3fc3ff;
+            display:inline-flex;align-items:center;gap:.5rem;padding:.45rem .65rem;border-radius:.55rem;font-weight:700;border:0;color:#03314d;background:linear-gradient(90deg,rgba(63,195,255,0.14),rgba(63,195,255,0.06));box-shadow:0 6px 14px rgba(47,128,182,0.05);text-decoration:none;transition:transform .12s ease,box-shadow .12s ease}
+        .nav-cart-btn i{font-size:1rem;color:var(--cp)}
+        .nav-cart-btn .cart-label{display:inline-block;color:#03314d}
+        .nav-cart-btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(47,128,182,0.07);text-decoration:none;color:#03314d}
+        .nav-cart-badge{background:#ffffff;color:var(--cp);border-radius:999px;padding:.18rem .45rem;font-size:.78rem;min-width:28px;display:inline-block;text-align:center;border:1px solid rgba(63,195,255,0.14)}
+        @media (max-width:767px){.nav-cart-btn .cart-label{display:none}.nav-cart-btn{padding:.35rem .5rem}}
     /* User dropdown styles */
     .nav-user-dropdown .dropdown-toggle { gap: .5rem; }
     .user-dropdown-menu { min-width: 260px; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(19,38,63,0.12); border:1px solid rgba(13,110,253,0.06); }
@@ -60,10 +78,10 @@
 
             {{-- Logout moved into user dropdown menu --}}
 
-            <a href="{{route('carrito.mostrar')}}" class="btn btn-outline-dark">
-                <i class="bi-cart-fill me-1"></i>
-                Carrito
-                <span class="badge bg-dark text-white ms-1 rounded-pill">
+            <a href="{{route('carrito.mostrar')}}" class="nav-cart-btn me-0" aria-label="Ver carrito">
+                <i class="bi-cart-fill" aria-hidden="true"></i>
+                <span class="cart-label">Carrito</span>
+                <span class="nav-cart-badge ms-2">
                     @php
                         $carrito = \App\Http\Controllers\CarritoController::getCartStatic();
                         echo $carrito ? array_sum(array_column($carrito, 'cantidad')) : 0;
@@ -121,7 +139,10 @@
                         </div>
                     </div>
                 @else
-                    <a class="btn btn-link me-3" href="{{ route('login') }}">Iniciar sesión</a>
+                    <a class="nav-login-btn me-3" href="{{ route('login') }}" aria-label="Iniciar sesión">
+                        <i class="bi bi-person-fill" aria-hidden="true"></i>
+                        <span class="d-none d-md-inline">Iniciar sesión</span>
+                    </a>
                 @endauth
 
                 {{-- Brand/logo was originally on the left; removed from right. --}}
