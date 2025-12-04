@@ -26,4 +26,9 @@ class Producto extends Model
     {
         return $this->hasMany(\App\Models\Review::class, 'producto_id');
     }
+
+    public function imagenes()
+    {
+        return $this->hasMany(\App\Models\ProductoImagen::class, 'producto_id')->orderBy('orden');
+    }
 }
