@@ -1,38 +1,4 @@
 <aside class="app-sidebar custom-sidebar shadow">
-    <style>
-    /* Scoped styles para el sidebar: paleta blanca + celeste de StartPlace */
-    .custom-sidebar{
-        --sp-primary: #0b63d6; /* celeste principal */
-        --sp-primary-dark: #07478a;
-        --sp-accent: #e6f9ff;
-        background: linear-gradient(180deg,#ffffff 0%, #f8fdff 100%);
-        color:var(--sp-primary-dark);
-        min-height:100vh;
-        border-right:1px solid rgba(11,61,145,0.06);
-    }
-    .custom-sidebar .sidebar-brand{
-        padding:12px 16px;
-        background: linear-gradient(90deg,var(--sp-accent) 0%, #dff3ff 100%);
-        border-bottom:1px solid rgba(11,61,145,0.04);
-    }
-    .custom-sidebar .brand-link{display:flex;align-items:center;gap:12px;text-decoration:none}
-    .custom-sidebar .brand-image{width:56px;height:56px;object-fit:contain;border-radius:10px;box-shadow:0 6px 18px rgba(11,63,150,0.08)}
-    .custom-sidebar .brand-text{font-weight:700;color:var(--sp-primary-dark);margin-left:6px;display:inline-block;opacity:0;transform:translateX(-6px);transition:opacity .18s ease, transform .18s ease}
-    .custom-sidebar .brand-link:hover .brand-text, .custom-sidebar:hover .brand-text{opacity:1;transform:none}
-    .custom-sidebar .sidebar-wrapper{padding-top:10px}
-    .custom-sidebar .nav-link{color:var(--sp-primary-dark);border-radius:8px;margin:6px 8px;padding:10px 12px;display:flex;align-items:center}
-    .custom-sidebar .nav-link .nav-icon{font-size:1.05rem;color:var(--sp-primary)}
-    .custom-sidebar .nav-link:hover{background:rgba(11,99,214,0.06);color:var(--sp-primary-dark)}
-    .custom-sidebar .nav-item .nav-treeview .nav-link{padding-left:36px}
-    .custom-sidebar .nav-arrow{float:right;color:#6c757d}
-    .custom-sidebar .nav-link.active, .custom-sidebar .nav-link.active:hover{background:linear-gradient(90deg,#dbeeff,#eaf6ff);color:var(--sp-primary-dark);font-weight:600}
-    /* pequeño ajuste para iconos y texto en dispositivos pequeños */
-        @media (max-width:767px){
-            .custom-sidebar{position:relative}
-            .custom-sidebar .brand-text{display:none}
-            .custom-sidebar .brand-image{width:48px;height:48px}
-        }
-    </style>
     <!--begin::Sidebar Brand-->
     <div class="sidebar-brand">
         <!--begin::Brand Link-->
@@ -97,9 +63,9 @@
                     </ul>
                 </li>
                 @endcanany
-                @canany(['producto-list'])
+                @canany(['producto-list', 'empresa-list', 'empresa-solicitud-list', 'empresa-solicitud-history'])
                 @php
-                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*');
+                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*') || request()->routeIs('empresas.*') || request()->routeIs('admin.empresas.solicitudes.*');
                 @endphp
                 <li class="nav-item {{ $almacenOpen ? 'menu-open' : '' }}" id="mnuAlmacen">
                     <a href="#" class="nav-link {{ $almacenOpen ? 'active' : '' }}">
@@ -118,6 +84,14 @@
                             </a>
                         </li>
                         @endcan
+                        @can('empresa-list')
+                        <li class="nav-item">
+                            <a href="{{ route('empresas.index') }}" class="nav-link {{ request()->routeIs('empresas.*') ? 'active' : '' }}" id="itemEmpresa">
+                                <i class="nav-icon bi bi-building"></i>
+                                <p>Mi Empresa</p>
+                            </a>
+                        </li>
+                        @endcan
                         @can('producto-list')
                         <li class="nav-item">
                             <a href="{{ route('almacen.index') }}" class="nav-link {{ request()->routeIs('almacen.index') ? 'active' : '' }}" id="itemEntregar">
@@ -131,6 +105,28 @@
                                 <p>Entregados</p>
                             </a>
                         </li>
+                        @can('empresa-solicitud-list')
+                        <li class="nav-item">
+                            @php $pendientesEmpresas = \App\Models\SolicitudEmpresa::where('estado','pendiente')->count(); @endphp
+                            <a href="{{ route('admin.empresas.solicitudes.index') }}" class="nav-link {{ request()->routeIs('admin.empresas.solicitudes.*') ? 'active' : '' }}" id="itemSolicitudesEmpresas">
+                                <i class="nav-icon bi bi-building-check"></i>
+                                <p>
+                                    Solicitudes Empresas
+                                    @if($pendientesEmpresas > 0)
+                                        <span class="badge bg-danger ms-2">{{ $pendientesEmpresas }}</span>
+                                    @endif
+                                </p>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('empresa-solicitud-history')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.empresas.solicitudes.historial') }}" class="nav-link {{ request()->routeIs('admin.empresas.solicitudes.historial') ? 'active' : '' }}" id="itemHistorialSolicitudesEmpresas">
+                                <i class="nav-icon bi bi-clock-history"></i>
+                                <p>Historial Empresas</p>
+                            </a>
+                        </li>
+                        @endcan
                         @role('admin')
                         <li class="nav-item">
                             @php $pendientes = \App\Models\Solicitud::where('estado','pendiente')->count(); @endphp

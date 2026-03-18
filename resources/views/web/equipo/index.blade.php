@@ -36,14 +36,43 @@ Publica tus productos, recibe más visitas gracias a nuestra publicidad destacad
   </div>
 
   <!-- Equipo -->
-  <h3 class="text-center mb-4">Tu Equipo</h3>
+  <h3 class="text-center mb-4">Equipo Directivo</h3>
+  @php
+    $equipo = [
+      [
+        'imagen' => 1,
+        'nombre' => 'Fundador',
+        'cargo' => 'CEO & Estrategia de Negocio',
+        'descripcion' => 'Define la visión de StartPlace, lidera el crecimiento del marketplace y establece alianzas estratégicas.',
+      ],
+      [
+        'imagen' => 2,
+        'nombre' => 'Cofundador',
+        'cargo' => 'COO & Operaciones',
+        'descripcion' => 'Supervisa procesos operativos, experiencia de vendedores y calidad del servicio en toda la plataforma.',
+      ],
+      [
+        'imagen' => 3,
+        'nombre' => 'Líder de Tecnología',
+        'cargo' => 'CTO & Producto Digital',
+        'descripcion' => 'Dirige la evolución tecnológica, seguridad de la plataforma y desarrollo continuo de nuevas funcionalidades.',
+      ],
+      [
+        'imagen' => 4,
+        'nombre' => 'Líder Comercial',
+        'cargo' => 'CMO & Crecimiento de Marca',
+        'descripcion' => 'Impulsa posicionamiento de marca, adquisición de usuarios y estrategias de marketing orientadas a resultados.',
+      ],
+    ];
+  @endphp
   <div class="row gy-4">
-    @foreach([1,2,3,4] as $i)
+    @foreach($equipo as $miembro)
       <div class="col-12 col-sm-6 col-lg-3">
         <div class="card team-card text-center p-3 h-100">
-          <img src="{{ asset('images/team' . $i . '.svg') }}" alt="Integrante {{$i}}" class="team-photo mb-3">
-          <h5 class="mb-1">Integrante {{$i}}</h5>
-          <p class="small text-muted mb-0">Resumen breve del aporte del integrante en el proyecto y sus responsabilidades.</p>
+          <img src="{{ asset('images/team' . $miembro['imagen'] . '.svg') }}" alt="{{ $miembro['nombre'] }}" class="team-photo mb-3">
+          <h5 class="mb-1">{{ $miembro['nombre'] }}</h5>
+          <p class="fw-semibold mb-2">{{ $miembro['cargo'] }}</p>
+          <p class="small text-muted mb-0">{{ $miembro['descripcion'] }}</p>
         </div>
       </div>
     @endforeach

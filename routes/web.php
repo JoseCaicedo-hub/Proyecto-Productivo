@@ -15,6 +15,8 @@ use App\Http\Controllers\WebController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\SolicitudEmpresaController;
 
 Route::get('/', [WebController::class, 'index'])->name('web.index');
 Route::get('/producto/{id}', [WebController::class, 'show'])->name('web.show');
@@ -120,6 +122,12 @@ Route::middleware(['auth'])->group(function(){
     Route::resource('roles', RoleController::class);
     Route::resource('productos', ProductoController::class);
 
+    Route::get('/almacen/mi-empresa', [EmpresaController::class, 'index'])->name('empresas.index');
+    Route::get('/almacen/mi-empresa/crear', [EmpresaController::class, 'create'])->name('empresas.create');
+    Route::post('/almacen/mi-empresa', [EmpresaController::class, 'store'])->name('empresas.store');
+    Route::get('/almacen/mi-empresa/{id}/editar', [EmpresaController::class, 'edit'])->name('empresas.edit');
+    Route::put('/almacen/mi-empresa/{id}', [EmpresaController::class, 'update'])->name('empresas.update');
+
     // Almacén: Entregas por admin que publicó productos
     Route::get('/almacen', [\App\Http\Controllers\AlmacenController::class, 'index'])->name('almacen.index');
     Route::post('/almacen/entregar/{detalle}', [\App\Http\Controllers\AlmacenController::class, 'entregar'])->name('almacen.entregar');
@@ -169,10 +177,69 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/perfil/avatar', [PerfilController::class, 'uploadAvatar'])->name('perfil.avatar.upload');
     // Ruta rápida para ver la plantilla de perfil (plantilla.profile)
     Route::get('/mi-perfil', function(){
-        return view('plantilla.profile', ['user' => Auth::user()]);
+        $user = Auth::user();
+
+        $ordersCount = \App\Models\Pedido::where('user_id', $user->id)->count();
+        $reviewsCount = \App\Models\Review::where('user_id', $user->id)->count();
+        $spend = \App\Models\Pedido::where('user_id', $user->id)->sum('total');
+
+        $buyerCount = DB::table('pedido_detalles')
+            ->join('pedidos', 'pedido_detalles.pedido_id', '=', 'pedidos.id')
+            ->join('productos', 'pedido_detalles.producto_id', '=', 'productos.id')
+            ->where('productos.user_id', $user->id)
+            ->distinct('pedidos.user_id')
+            ->count('pedidos.user_id');
+
+        $sellerCount = DB::table('pedido_detalles')
+            ->join('pedidos', 'pedido_detalles.pedido_id', '=', 'pedidos.id')
+            ->join('productos', 'pedido_detalles.producto_id', '=', 'productos.id')
+            ->where('pedidos.user_id', $user->id)
+            ->distinct('productos.user_id')
+            ->count('productos.user_id');
+
+        $storesPurchased = DB::table('pedido_detalles')
+            ->join('pedidos', 'pedido_detalles.pedido_id', '=', 'pedidos.id')
+            ->join('productos', 'pedido_detalles.producto_id', '=', 'productos.id')
+            ->join('users as sellers', 'productos.user_id', '=', 'sellers.id')
+            ->where('pedidos.user_id', $user->id)
+            ->select('sellers.id', 'sellers.name')
+            ->distinct()
+            ->orderBy('sellers.name')
+            ->get();
+
+        $recentActivities = [];
+
+        $recentOrders = \App\Models\Pedido::where('user_id', $user->id)
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        foreach ($recentOrders as $order) {
+            $recentActivities[] = [
+                'title' => 'Pedido #' . $order->id,
+                'meta' => 'Estado: ' . ucfirst((string) $order->estado) . ' · Total: $' . number_format((float) $order->total, 2),
+            ];
+        }
+
+        return view('plantilla.profile', [
+            'user' => $user,
+            'ordersCount' => $ordersCount,
+            'reviewsCount' => $reviewsCount,
+            'spend' => $spend,
+            'buyerCount' => $buyerCount,
+            'sellerCount' => $sellerCount,
+            'storesPurchased' => $storesPurchased,
+            'recentActivities' => $recentActivities,
+        ]);
     })->name('plantilla.profile');
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/admin/empresas/solicitudes', [SolicitudEmpresaController::class, 'index'])->name('admin.empresas.solicitudes.index');
+    Route::get('/admin/empresas/solicitudes/historial', [SolicitudEmpresaController::class, 'historial'])->name('admin.empresas.solicitudes.historial');
+    Route::get('/admin/empresas/solicitudes/{id}/documento', [SolicitudEmpresaController::class, 'descargarDocumento'])->name('admin.empresas.solicitudes.documento');
+    Route::post('/admin/empresas/solicitudes/{id}/aprobar', [SolicitudEmpresaController::class, 'aprobar'])->name('admin.empresas.solicitudes.aprobar');
+    Route::post('/admin/empresas/solicitudes/{id}/rechazar', [SolicitudEmpresaController::class, 'rechazar'])->name('admin.empresas.solicitudes.rechazar');
 });
 
 // Rutas de administración para solicitudes (protección por auth; control de rol en el controlador)

@@ -10,6 +10,7 @@ class Producto extends Model
         'codigo',
         'nombre',
         'user_id',
+        'empresa_id',
         'categoria',
         'precio',
         'cantidad_almacen',
@@ -20,6 +21,11 @@ class Producto extends Model
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class);
+    }
+
+    public function empresa()
+    {
+        return $this->belongsTo(\App\Models\Empresa::class);
     }
 
     public function reviews()

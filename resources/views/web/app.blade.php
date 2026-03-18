@@ -16,6 +16,143 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{{asset('css/styles.css')}}" rel="stylesheet" />
+        <!-- Custom Themes -->
+        <link rel="stylesheet" href="{{asset('css/custom-themes.css')}}" />
+        <script>
+            (function () {
+                try {
+                    var savedTheme = localStorage.getItem('theme');
+                    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if ((savedTheme && savedTheme === 'dark') || (!savedTheme && prefersDark)) {
+                        document.documentElement.classList.add('dark-mode');
+                    }
+                } catch (e) {}
+            })();
+        </script>
+        <style>
+            html, body { transition: background-color .18s ease, color .18s ease; }
+            html.dark-mode body { background-color: #0f172a; color: #e2e8f0; }
+            html.dark-mode .bg-white,
+            html.dark-mode .bg-light,
+            html.dark-mode .card,
+            html.dark-mode .dropdown-menu,
+            html.dark-mode .modal-content,
+            html.dark-mode .site-footer,
+            html.dark-mode .navbar {
+                background: #111827 !important;
+                color: #e2e8f0 !important;
+                border-color: rgba(148, 163, 184, 0.2) !important;
+            }
+            html.dark-mode .text-muted,
+            html.dark-mode .small-muted { color: #94a3b8 !important; }
+            html.dark-mode .nav-link,
+            html.dark-mode a { color: #cbd5e1; }
+            html.dark-mode .nav-link:hover,
+            html.dark-mode a:hover { color: #7dd3fc; }
+            html.dark-mode .form-control,
+            html.dark-mode .form-select,
+            html.dark-mode input,
+            html.dark-mode textarea {
+                background-color: #0b1220 !important;
+                color: #e2e8f0 !important;
+                border-color: rgba(148, 163, 184, 0.25) !important;
+            }
+            html.dark-mode .form-control::placeholder,
+            html.dark-mode input::placeholder,
+            html.dark-mode textarea::placeholder { color: #94a3b8 !important; }
+            html.dark-mode .btn-outline-dark {
+                color: #e2e8f0;
+                border-color: rgba(148, 163, 184, 0.35);
+            }
+            html.dark-mode .btn-dark,
+            html.dark-mode .btn-black {
+                background: #334155 !important;
+                border-color: #475569 !important;
+                color: #e2e8f0 !important;
+            }
+            html.dark-mode .btn-dark:hover,
+            html.dark-mode .btn-black:hover {
+                background: #475569 !important;
+                border-color: #64748b !important;
+                color: #f8fafc !important;
+            }
+            html.dark-mode h1,
+            html.dark-mode h2,
+            html.dark-mode h3,
+            html.dark-mode h4,
+            html.dark-mode h5,
+            html.dark-mode h6,
+            html.dark-mode .text-dark,
+            html.dark-mode .fw-bold,
+            html.dark-mode .fw-semibold {
+                color: #e2e8f0 !important;
+            }
+            html.dark-mode .hero-section,
+            html.dark-mode #heroCarousel,
+            html.dark-mode #heroCarousel .carousel-inner,
+            html.dark-mode #heroCarousel .carousel-item {
+                background: linear-gradient(180deg, #0b1220 0%, #111827 100%) !important;
+            }
+            html.dark-mode #heroCarousel .text-muted,
+            html.dark-mode .hero-section .text-muted {
+                color: #93c5fd !important;
+            }
+            html.dark-mode #heroCarousel .bg-white {
+                background: #0f172a !important;
+                border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            }
+            html.dark-mode .category-collection .cat-card .cat-label {
+                background: rgba(2, 6, 23, 0.62) !important;
+            }
+            html.dark-mode .why-box,
+            html.dark-mode .review-card {
+                background: #111827 !important;
+                border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            }
+
+            .add-cart-loading-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 5000;
+                background: rgba(2, 6, 23, 0.42);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(1.5px);
+            }
+
+            .add-cart-loading-box {
+                min-width: 230px;
+                border-radius: 12px;
+                padding: 16px 18px;
+                background: rgba(15, 23, 42, 0.94);
+                color: #f8fafc;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                box-shadow: 0 16px 38px rgba(2, 6, 23, 0.35);
+            }
+
+            .add-cart-loading-box .spinner-border {
+                width: 1.15rem;
+                height: 1.15rem;
+                border-width: .15em;
+            }
+
+            .add-cart-loading-box p {
+                margin: 0;
+                font-weight: 600;
+            }
+
+            html.dark-mode .add-cart-loading-overlay {
+                background: rgba(2, 6, 23, 0.62);
+            }
+
+            html.dark-mode .add-cart-loading-box {
+                background: rgba(11, 18, 32, 0.96);
+                border: 1px solid rgba(148, 163, 184, 0.25);
+            }
+        </style>
         @stack('estilos')
     </head>
     <body>
@@ -27,12 +164,141 @@
         @endif
         <!-- Search and Filter Section -->
         @yield('contenido')
+
+        <div id="addCartLoadingOverlay" class="add-cart-loading-overlay d-none" aria-hidden="true">
+            <div class="add-cart-loading-box">
+                <div class="spinner-border text-light" role="status" aria-label="Cargando"></div>
+                <p>Agregando producto...</p>
+            </div>
+        </div>
+
         <!-- Footer-->
         @include('web.partials.footer')
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="{{asset('js/scripts.js')}}"></script>
+        <script>
+            (function () {
+                var overlay = document.getElementById('addCartLoadingOverlay');
+                var scrollStateKey = 'add_cart_scroll_restore';
+
+                function showOverlay() {
+                    if (!overlay) return;
+                    overlay.classList.remove('d-none');
+                }
+
+                function hideOverlay() {
+                    if (!overlay) return;
+                    overlay.classList.add('d-none');
+                }
+
+                function isAddCartForm(form) {
+                    if (!form) return false;
+                    var action = (form.getAttribute('action') || '').toLowerCase();
+                    return action.indexOf('/carrito/agregar') !== -1;
+                }
+
+                function saveScrollState() {
+                    try {
+                        var state = {
+                            path: window.location.pathname + window.location.search,
+                            y: window.scrollY || window.pageYOffset || 0,
+                        };
+                        sessionStorage.setItem(scrollStateKey, JSON.stringify(state));
+                    } catch (e) {}
+                }
+
+                function restoreScrollState() {
+                    try {
+                        var raw = sessionStorage.getItem(scrollStateKey);
+                        if (!raw) return;
+
+                        var state = JSON.parse(raw);
+                        if (!state || typeof state !== 'object') {
+                            sessionStorage.removeItem(scrollStateKey);
+                            return;
+                        }
+
+                        var currentPath = window.location.pathname + window.location.search;
+                        if (state.path === currentPath) {
+                            requestAnimationFrame(function () {
+                                window.scrollTo(0, Number(state.y || 0));
+                            });
+                        }
+
+                        sessionStorage.removeItem(scrollStateKey);
+                    } catch (e) {}
+                }
+
+                document.addEventListener('submit', function (event) {
+                    var form = event.target;
+                    if (!isAddCartForm(form)) return;
+
+                    if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                        return;
+                    }
+
+                    setTimeout(function () {
+                        if (!event.defaultPrevented) {
+                            saveScrollState();
+                            showOverlay();
+                        }
+                    }, 0);
+                });
+
+                window.addEventListener('pageshow', function () {
+                    hideOverlay();
+                    restoreScrollState();
+                });
+
+                document.addEventListener('DOMContentLoaded', restoreScrollState);
+            })();
+        </script>
+        <script>
+            (function () {
+                var root = document.documentElement;
+                var button = document.getElementById('themeToggleBtn');
+
+                function updateButton(theme) {
+                    if (!button) return;
+                    var moon = button.querySelector('.theme-icon-moon');
+                    var sun = button.querySelector('.theme-icon-sun');
+                    if (theme === 'dark') {
+                        moon && moon.classList.add('d-none');
+                        sun && sun.classList.remove('d-none');
+                        button.setAttribute('title', 'Cambiar a modo claro');
+                        button.setAttribute('aria-label', 'Cambiar a modo claro');
+                    } else {
+                        sun && sun.classList.add('d-none');
+                        moon && moon.classList.remove('d-none');
+                        button.setAttribute('title', 'Cambiar a modo oscuro');
+                        button.setAttribute('aria-label', 'Cambiar a modo oscuro');
+                    }
+                }
+
+                function applyTheme(theme, persist) {
+                    var isDark = theme === 'dark';
+                    root.classList.toggle('dark-mode', isDark);
+                    if (persist !== false) {
+                        try { localStorage.setItem('theme', theme); } catch (e) {}
+                    }
+                    updateButton(theme);
+                }
+
+                var savedTheme = null;
+                try { savedTheme = localStorage.getItem('theme'); } catch (e) {}
+                var initialTheme = savedTheme || ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+                applyTheme(initialTheme, false);
+
+                if (button) {
+                    button.addEventListener('click', function () {
+                        var nextTheme = root.classList.contains('dark-mode') ? 'light' : 'dark';
+                        applyTheme(nextTheme, true);
+                    });
+                }
+            })();
+        </script>
         @stack('scripts')
     </body>
 </html>

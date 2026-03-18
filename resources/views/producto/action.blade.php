@@ -43,6 +43,23 @@
                                      @enderror
                                 </div>
                                 <div class="col-md-4 mb-4">
+                                    <label for="empresa_id" class="form-label">Empresa</label>
+                                    <select name="empresa_id" id="empresa_id" class="form-select @error('empresa_id') is-invalid @enderror" required>
+                                        <option value="">-- Seleccione empresa --</option>
+                                        @foreach(($empresas ?? []) as $empresa)
+                                            <option value="{{ $empresa->id }}" {{ (string) old('empresa_id', $registro->empresa_id ?? '') === (string) $empresa->id ? 'selected' : '' }}>
+                                                {{ $empresa->nombre }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('empresa_id')
+                                        <small class="text-danger">{{$message}}</small>
+                                    @enderror
+                                    @if(empty($empresas) || (is_countable($empresas) && count($empresas) === 0))
+                                        <small class="text-muted d-block mt-1">No tienes empresas aprobadas. Crea una en <strong>Almacén &gt; Mi Empresa</strong>.</small>
+                                    @endif
+                                </div>
+                                <div class="col-md-4 mb-4">
                                     <label for="cantidad_almacen" class="form-label">Cantidad en almacén</label>
                                     <input type="number" class="form-control @error('cantidad_almacen') is-invalid @enderror"
                                      id="cantidad_almacen" name="cantidad_almacen" value="{{old('cantidad_almacen',  $registro->cantidad_almacen ?? 0)}}" min="0" required>

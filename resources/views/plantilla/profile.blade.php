@@ -76,7 +76,15 @@
                 $profileUser = $profileUser ?? $user ?? auth()->user();
                 // Calcular estadísticas en vista si no fueron pasadas desde el controlador
                 $ordersCount = isset($ordersCount) ? $ordersCount : \App\Models\Pedido::where('user_id', $profileUser->id)->count();
+                $reviewsCount = isset($reviewsCount) ? $reviewsCount : \App\Models\Review::where('user_id', $profileUser->id)->count();
                 $spend = isset($spend) ? $spend : \App\Models\Pedido::where('user_id', $profileUser->id)->sum('total');
+                $buyerCount = isset($buyerCount) ? $buyerCount : 0;
+                $sellerCount = isset($sellerCount) ? $sellerCount : 0;
+                $storesPurchased = isset($storesPurchased) ? $storesPurchased : collect();
+
+                $fmtCounter = function ($value) {
+                  return ((int) $value) > 99 ? '99+' : (string) ((int) $value);
+                };
 
                 // Determinar puntuación (0-5) en base al gasto y cantidad de pedidos
                 $stars = 0;
@@ -142,11 +150,11 @@
           <h6>Estadísticas</h6>
           <div class="d-flex justify-content-between align-items-center mt-3">
             <div>
-              <div class="h4 mb-0">{{ $ordersCount ?? 0 }}</div>
+              <div class="h4 mb-0">{{ $fmtCounter($ordersCount ?? 0) }}</div>
               <div class="small-muted">Pedidos</div>
             </div>
             <div>
-              <div class="h4 mb-0">{{ $reviewsCount ?? 0 }}</div>
+              <div class="h4 mb-0">{{ $fmtCounter($reviewsCount ?? 0) }}</div>
               <div class="small-muted">Reseñas</div>
             </div>
             <div>
@@ -159,10 +167,20 @@
         <div class="info-card">
           <h6>Enlaces rápidos</h6>
           <ul class="list-unstyled mb-0 mt-2">
+            <li><a href="{{ route('perfil.pedidos') }}">Comprador (mis pedidos)</a></li>
+            <li><a href="{{ route('almacen.index') }}">Vendedor (gestión de entregas)</a></li>
             <li><a href="{{ route('perfil.edit') }}">Editar perfil</a></li>
             <li><a href="{{ route('perfil.pedidos') }}">Mis pedidos</a></li>
             <li><a href="{{ route('web.contactanos') }}">Contactar soporte</a></li>
           </ul>
+          <div class="d-flex justify-content-between align-items-center mt-3 small-muted">
+            <span>Compradores</span>
+            <strong>{{ $fmtCounter($buyerCount) }}</strong>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mt-1 small-muted">
+            <span>Vendedores</span>
+            <strong>{{ $fmtCounter($sellerCount) }}</strong>
+          </div>
         </div>
 
       </div>
@@ -187,7 +205,16 @@
 
         <div class="info-card">
           <h5 class="mb-3">Detalles</h5>
-          <p class="mb-0 small-muted">Aquí puedes mostrar información adicional: órdenes, direcciones, métodos de pago y más. Inserta componentes o partials según tu necesidad.</p>
+          <p class="mb-2 small-muted">Esta persona ha comprado en las siguientes tiendas:</p>
+          @if($storesPurchased->isNotEmpty())
+            <ul class="mb-0 ps-3">
+              @foreach($storesPurchased as $store)
+                <li>{{ $store->name }}</li>
+              @endforeach
+            </ul>
+          @else
+            <p class="mb-0 small-muted">Aún no hay tiendas registradas por compras realizadas.</p>
+          @endif
         </div>
       </div>
     </div>

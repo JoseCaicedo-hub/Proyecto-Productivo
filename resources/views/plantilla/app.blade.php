@@ -44,6 +44,9 @@
     <!--begin::Required Plugin(AdminLTE)-->
     <link rel="stylesheet" href="{{asset('css/adminlte.css')}}" />
     <!--end::Required Plugin(AdminLTE)-->
+    <!--begin::Custom Themes-->
+    <link rel="stylesheet" href="{{asset('css/custom-themes.css')}}" />
+    <!--end::Custom Themes-->
     @stack('estilos')
   </head>
   <!--end::Head-->

@@ -55,4 +55,19 @@ class User extends Authenticatable
     public function entradas(){
         return $this->hasMany(Entrada::class);
     }
+
+    public function empresas()
+    {
+        return $this->hasMany(Empresa::class);
+    }
+
+    public function solicitudEmpresas()
+    {
+        return $this->hasMany(SolicitudEmpresa::class);
+    }
+
+    public function productos()
+    {
+        return $this->hasMany(Producto::class);
+    }
 }

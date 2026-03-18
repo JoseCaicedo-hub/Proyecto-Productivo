@@ -73,13 +73,31 @@ class PedidoController extends Controller
             'metodo_pago' => 'required|string|max:50',
             'telefono' => 'nullable|string|max:30',
             'referencia' => 'nullable|string|max:255',
+            'selected_items' => 'required|array|min:1',
+            'selected_items.*' => 'string',
         ]);
+
+        $selectedItems = collect($validated['selected_items'] ?? [])
+            ->map(fn ($item) => (string) $item)
+            ->unique()
+            ->values()
+            ->all();
+
+        $carritoSeleccionado = array_filter(
+            $carrito,
+            fn ($item, $productoId) => in_array((string) $productoId, $selectedItems, true),
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        if (empty($carritoSeleccionado)) {
+            return redirect()->back()->with('error', 'Selecciona al menos un producto para realizar la compra.');
+        }
 
         DB::beginTransaction();
         try {
             // 1. Calcular el total
             $total = 0;
-            foreach ($carrito as $item) {
+            foreach ($carritoSeleccionado as $item) {
                 $total += $item['precio'] * $item['cantidad'];
             }
             // 2. Crear el pedido incluyendo datos de envío/pago
@@ -97,7 +115,7 @@ class PedidoController extends Controller
 
             $pedido = Pedido::create($pedidoData);
             // 3. Crear los detalles del pedido
-            foreach ($carrito as $productoId => $item) {
+            foreach ($carritoSeleccionado as $productoId => $item) {
                 // Manejar claves compuestas con talla: "id[:talla]"
                 $talla = null;
                 $pid = $productoId;
@@ -120,13 +138,15 @@ class PedidoController extends Controller
                     'entregado' => false,
                 ]);
             }
-            // 4. Vaciar el carrito de la sesión
-            // Limpiar carrito en sesión
-            session()->forget(\App\Http\Controllers\CarritoController::getCartKey());
-            // Si el usuario está autenticado, eliminar también los items del carrito guardados en BD
-            if (auth()->check()) {
-                Carrito::where('user_id', auth()->id())->delete();
+            // 4. Mantener en carrito solo los productos no seleccionados
+            $carritoRestante = $carrito;
+            foreach ($selectedItems as $selectedId) {
+                unset($carritoRestante[$selectedId]);
             }
+
+            $carritoController = new \App\Http\Controllers\CarritoController();
+            $carritoController->saveCartPublic($carritoRestante);
+
             DB::commit();
             return redirect()->route('carrito.mostrar')->with('mensaje', 'Pedido realizado correctamente.');
         } catch (\Exception $e) {

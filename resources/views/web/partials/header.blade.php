@@ -4,16 +4,16 @@
            No forzamos `display` en .carousel-item para no romper el comportamiento de Bootstrap
            (las items inactivas deben seguir ocultas). Aplicamos flex al contenedor interno. */
         #heroCarousel { overflow: hidden; }
-        #heroCarousel .carousel-inner { min-height: 360px; }
-        #heroCarousel .carousel-item { min-height: 360px; }
+        #heroCarousel .carousel-inner { min-height: clamp(240px, 38vw, 300px); }
+        #heroCarousel .carousel-item { min-height: inherit; }
         /* Hacemos que el contenido del slide use flex para alinear imagen y texto sin mostrar slides inactivos */
-        #heroCarousel .carousel-item .container { height: 100%; display:flex; align-items:center; }
+        #heroCarousel .carousel-item .container { min-height: inherit; display:flex; align-items:center; padding-top:.5rem; padding-bottom:.5rem; }
         #heroCarousel .carousel-item .col-md-6 { display: flex; align-items: center; }
-        #heroCarousel .carousel-item img { width: 100%; height: 360px; object-fit: cover; }
-        #heroCarousel .carousel-item .text-dark { min-height: 360px; display:flex; flex-direction:column; justify-content:center; }
+        #heroCarousel .carousel-item img { width: 100%; height: clamp(180px, 30vw, 280px); object-fit: cover; }
+        #heroCarousel .carousel-item .text-dark { min-height: auto; display:flex; flex-direction:column; justify-content:center; }
         @media (max-width: 767.98px) {
-            #heroCarousel .carousel-inner, #heroCarousel .carousel-item { min-height: 220px; }
-            #heroCarousel .carousel-item img { height: 220px; }
+            #heroCarousel .carousel-inner, #heroCarousel .carousel-item { min-height: 180px; }
+            #heroCarousel .carousel-item img { height: 180px; }
             #heroCarousel .carousel-item .text-dark { min-height: auto; }
             #heroCarousel .carousel-item .container { flex-direction: column; }
         }
@@ -36,7 +36,7 @@
                         <img src="{{ asset('uploads/productos/' . $producto->imagen) }}"
                              alt="{{ $producto->nombre }}"
                              class="img-fluid rounded shadow-lg miclase"
-                             style="max-height: 350px; object-fit: cover;">
+                                style="max-height: 280px; object-fit: cover;">
                     </div>
 
                     <!-- Información -->
@@ -58,7 +58,7 @@
 
                     <!-- Imagen ilustrativa (placeholder) -->
                     <div class="col-md-6 mb-4 mb-md-0 d-flex justify-content-center miclase me-md-5">
-                        <div class="d-flex align-items-center justify-content-center bg-white rounded shadow-lg miclase" style="width:100%; max-width:520px; height:350px;">
+                        <div class="d-flex align-items-center justify-content-center bg-white rounded shadow-lg miclase" style="width:100%; max-width:520px; height:min(280px,52vw);">
                             <div class="text-center">
                                 <i class="bi bi-shop-window" style="font-size:72px; color:#0d6efd;"></i>
                                 <p class="mt-3 text-muted">Empieza a vender hoy</p>

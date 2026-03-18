@@ -29,7 +29,14 @@ class HeaderController
         }
 
         // Recuperar los productos en el mismo orden
-        $productos = Producto::whereIn('id', $topIds)->get()->keyBy('id');
+        $productos = Producto::with('empresa')
+            ->whereIn('id', $topIds)
+            ->whereNotNull('empresa_id')
+            ->whereHas('empresa', function ($q) {
+                $q->where('estado', 'aprobada');
+            })
+            ->get()
+            ->keyBy('id');
 
         $ordered = collect($topIds)->map(function ($id) use ($productos) {
             return $productos->get($id);

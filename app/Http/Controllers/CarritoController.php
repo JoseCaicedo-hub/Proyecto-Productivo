@@ -190,7 +190,53 @@ class CarritoController extends Controller
 
     public function mostrar(){
         $carrito = $this->getCart();
-        return view('web.pedido', compact('carrito'));
+
+        $productoIdsEnCarrito = collect(array_keys($carrito))
+            ->map(function ($key) {
+                $parts = explode(':', (string) $key, 2);
+                return (int) ($parts[0] ?? 0);
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        $productosEnCarrito = collect();
+        $categoriasCarrito = collect();
+        $categoriasPorItem = [];
+        if ($productoIdsEnCarrito->isNotEmpty()) {
+            $productosEnCarrito = Producto::whereIn('id', $productoIdsEnCarrito)
+                ->get(['id', 'categoria']);
+
+            $categoriasCarrito = $productosEnCarrito
+                ->pluck('categoria')
+                ->filter()
+                ->unique()
+                ->values();
+
+            $mapaCategoriaPorProductoId = $productosEnCarrito
+                ->mapWithKeys(function ($producto) {
+                    return [
+                        (int) $producto->id => strtolower(trim((string) ($producto->categoria ?? ''))),
+                    ];
+                });
+
+            foreach (array_keys($carrito) as $itemKey) {
+                $parts = explode(':', (string) $itemKey, 2);
+                $productoId = (int) ($parts[0] ?? 0);
+                $categoriasPorItem[$itemKey] = $mapaCategoriaPorProductoId->get($productoId, '');
+            }
+        }
+
+        $articulosSimilares = collect();
+        if ($categoriasCarrito->isNotEmpty()) {
+            $articulosSimilares = Producto::whereIn('categoria', $categoriasCarrito)
+                ->whereNotIn('id', $productoIdsEnCarrito)
+                ->orderBy('created_at', 'desc')
+                ->take(4)
+                ->get();
+        }
+
+        return view('web.pedido', compact('carrito', 'articulosSimilares', 'categoriasPorItem'));
     }
 
     public function sumar(Request $request){

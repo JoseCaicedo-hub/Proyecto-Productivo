@@ -8,7 +8,11 @@ use App\Models\Producto;
 class WebController extends Controller
 {
     public function index(Request $request){
-        $query=Producto::query();
+        $query = Producto::with('empresa')
+            ->whereNotNull('empresa_id')
+            ->whereHas('empresa', function ($q) {
+                $q->where('estado', 'aprobada');
+            });
         // Búsqueda por nombre
         if ($request->has('search') && $request->search) {
             $query->where('nombre', 'like', '%' . $request->search . '%');
@@ -17,6 +21,10 @@ class WebController extends Controller
         // Filtrar por categoria si se pasa en la query string
         if ($request->has('category') && $request->category) {
             $query->where('categoria', $request->category);
+        }
+
+        if ($request->filled('empresa')) {
+            $query->where('empresa_id', $request->empresa);
         }
 
         // Filtro de orden (Ordenar por precio)
@@ -41,7 +49,7 @@ class WebController extends Controller
 
     public function show($id){
         // Obtener el producto por ID
-        $producto = Producto::findOrFail($id);        
+        $producto = Producto::with('empresa')->findOrFail($id);        
         // Pasar el producto a la vista
         return view('web.item', compact('producto'));
     }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Producto;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProductoRequest extends FormRequest
 {
@@ -23,10 +25,26 @@ class ProductoRequest extends FormRequest
     {
         $method = $this->method();
         $id = $this->route('producto');
+        $ownerId = auth()->id();
+
+        if ($id && auth()->check() && auth()->user()->hasRole('admin')) {
+            $producto = Producto::find($id);
+            if ($producto && $producto->user_id) {
+                $ownerId = $producto->user_id;
+            }
+        }
 
         $rules = [
             'codigo' => ['required', 'string', 'max:16', 'unique:productos,codigo,' . $id],
             'nombre' => ['required', 'string', 'max:100'],
+            'empresa_id' => [
+                'required',
+                'integer',
+                Rule::exists('empresas', 'id')->where(function ($query) use ($ownerId) {
+                    $query->where('estado', 'aprobada')
+                          ->where('user_id', $ownerId);
+                }),
+            ],
             'categoria' => ['nullable', 'string', 'max:100'],
             'precio' => ['required', 'numeric', 'min:0'],
             'cantidad_almacen' => ['required', 'integer', 'min:0'],
@@ -44,6 +62,9 @@ class ProductoRequest extends FormRequest
 
             'nombre.required' => 'El nombre del producto es obligatorio.',
             'nombre.max' => 'El nombre no puede tener más de 255 caracteres.',
+
+            'empresa_id.required' => 'Debes seleccionar una empresa para el producto.',
+            'empresa_id.exists' => 'La empresa seleccionada no está aprobada o no te pertenece.',
 
             'precio.required' => 'El precio del producto es obligatorio.',
             'precio.numeric' => 'El precio debe ser un valor numérico.',

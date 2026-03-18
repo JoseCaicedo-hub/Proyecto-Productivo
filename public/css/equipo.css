@@ -232,3 +232,55 @@
 .tips-box ul li {
     margin-bottom: 10px;
 }
+
+/* ================================================
+   DARK MODE — Acerca / Equipo page overrides
+   ================================================ */
+html.dark-mode .equipo-hero .hero-left {
+    background: #0b1220 !important;
+}
+html.dark-mode .equipo-hero .hero-left h1 {
+    color: #e2e8f0 !important;
+}
+html.dark-mode .equipo-hero .hero-right {
+    background: #111827 !important;
+}
+html.dark-mode .marketplace-box {
+    background: #111827 !important;
+}
+html.dark-mode .idea-box {
+    background: #111827 !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45) !important;
+}
+html.dark-mode .idea-box .section-title {
+    color: #e2e8f0 !important;
+}
+html.dark-mode .idea-box .section-sub {
+    color: #94a3b8 !important;
+}
+html.dark-mode .section-wrapper {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+}
+html.dark-mode .team-card {
+    background: #111827 !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+html.dark-mode .team-card h4,
+html.dark-mode .team-card h5 {
+    color: #e2e8f0 !important;
+}
+html.dark-mode .team-card p {
+    color: #94a3b8 !important;
+}
+html.dark-mode .tips-box {
+    background: #111827 !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+html.dark-mode .tips-box h3 {
+    color: #e2e8f0 !important;
+}
+html.dark-mode .tips-box ul li {
+    color: #cbd5e1 !important;
+}

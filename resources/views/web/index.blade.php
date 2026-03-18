@@ -3,26 +3,66 @@
 @endsection
 @section('contenido')
 <form method="GET" action="{{route('web.index')}}">
+    <style>
+        .search-panel{border-radius:14px;background:linear-gradient(180deg,#ffffff,#fbfdff)}
+        .search-input-wrap{position:relative}
+        .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#38bdf8;font-size:1rem}
+        .search-input{padding-left:2.15rem;border:1px solid rgba(11,99,214,0.12);border-radius:10px;height:48px}
+        .search-input:focus{border-color:rgba(56,189,248,.45);box-shadow:0 0 0 .2rem rgba(56,189,248,.15)}
+        .btn-search{background:linear-gradient(90deg,#38bdf8,#7dd3fc);border:0;color:#083344;font-weight:700;border-radius:10px;width:48px;height:48px;padding:0;display:inline-flex;align-items:center;justify-content:center;transition:transform .14s ease, box-shadow .14s ease}
+        .btn-search i{transition:transform .14s ease}
+        .btn-search:hover{filter:brightness(.98);color:#05202b;transform:translateY(-1px);box-shadow:0 10px 20px rgba(56,189,248,.22)}
+        .btn-search:hover i{transform:scale(1.12) rotate(-8deg)}
+        .btn-search-clear{border:1px solid rgba(11,99,214,0.18);border-radius:10px;background:#fff;color:#0b63d6;width:48px;height:48px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+        .btn-search-clear:hover{background:#f0f9ff;color:#0a58c7}
+        .search-hint{font-size:.9rem;color:#64748b}
+        html.dark-mode .search-panel{background:#111827;border:1px solid rgba(148,163,184,.2)}
+        html.dark-mode .search-input{background:#0b1220;color:#e2e8f0;border-color:rgba(148,163,184,.28)}
+        html.dark-mode .search-hint{color:#94a3b8}
+        html.dark-mode .btn-search-clear{background:#0f172a;color:#93c5fd;border-color:rgba(148,163,184,.3)}
+    </style>
     <div class="container px-4 px-lg-5 mt-4">
-        <div class="row">
-            <div class="col-md-8 mb-3">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="searchInput" placeholder="Buscar productos..."
-                        aria-label="Buscar productos" name="search" value="{{request('search')}}">
-                    <button class="btn btn-outline-dark" type="submit" id="searchButton">
-                        <i class="bi bi-search"></i> Buscar
-                    </button>
+        <div class="card border-0 shadow-sm search-panel mb-3">
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-2 align-items-end">
+                    <div class="col-12 col-lg-8">
+                        <label for="searchInput" class="form-label fw-semibold mb-1">Buscar producto</label>
+                        <div class="search-input-wrap">
+                            <i class="bi bi-search search-icon" aria-hidden="true"></i>
+                            <input type="text" class="form-control search-input" id="searchInput" placeholder="Ej: audífonos, camiseta, hogar..."
+                                aria-label="Buscar productos" name="search" value="{{request('search')}}">
+                        </div>
+                    </div>
+                    @php
+                        $empresasFiltro = \App\Models\Empresa::query()
+                            ->where('estado', 'aprobada')
+                            ->whereHas('productos')
+                            ->orderBy('nombre')
+                            ->get(['id','nombre']);
+                    @endphp
+                    <div class="col-12 col-lg-2">
+                        <label for="empresa" class="form-label fw-semibold mb-1">Empresa</label>
+                        <select id="empresa" name="empresa" class="form-select">
+                            <option value="">Todas</option>
+                            @foreach($empresasFiltro as $empresaItem)
+                                <option value="{{ $empresaItem->id }}" {{ (string)request('empresa') === (string)$empresaItem->id ? 'selected' : '' }}>{{ $empresaItem->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-lg-2 d-flex gap-2 justify-content-lg-start">
+                        <button class="btn btn-search" type="submit" id="searchButton" aria-label="Buscar">
+                            <i class="bi bi-search"></i>
+                            <span class="visually-hidden">Buscar</span>
+                        </button>
+                        @if(request()->filled('search') || request()->filled('empresa'))
+                            <a href="{{ route('web.index') }}" class="btn btn-search-clear" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="input-group">
-                    <label class="input-group-text" for="sortSelect">Ordenar por:</label>
-                    <select class="form-select" id="sortSelect" name="sort">
-                        <option value="priceAsc" {{ request('sort') == 'priceAsc' ? 'selected' : '' }}>Precio: menor a
-                            mayor</option>
-                        <option value="priceDesc" {{ request('sort') == 'priceDesc' ? 'selected' : '' }}>Precio: mayor a
-                            menor</option>
-                    </select>
+                <div class="search-hint mt-2">
+                    <i class="bi bi-lightbulb me-1"></i> Tip: escribe nombre del producto o categoría para encontrar resultados más rápido.
                 </div>
             </div>
         </div>
@@ -42,7 +82,15 @@
             if ($items->count() < 4) {
                 $existingIds = $items->pluck('id')->filter()->toArray();
                 $needed = 4 - $items->count();
-                $extras = \App\Models\Producto::whereNotIn('id', $existingIds)->latest()->take($needed)->get();
+                $extras = \App\Models\Producto::with('empresa')
+                    ->whereNotIn('id', $existingIds)
+                    ->whereNotNull('empresa_id')
+                    ->whereHas('empresa', function($q){
+                        $q->where('estado', 'aprobada');
+                    })
+                    ->latest()
+                    ->take($needed)
+                    ->get();
                 $items = $items->concat($extras);
             }
             // Si aún está vacío, intentar usar la variable $productos pasada desde el controlador
@@ -71,6 +119,12 @@
                             <p class="text-primary fw-semibold fs-5 cssunique">
                                 $ {{ number_format($producto->precio, 2) }}
                             </p>
+                            <div class="small text-muted d-flex align-items-center gap-2">
+                                @if(optional($producto->empresa)->logo)
+                                    <img src="{{ asset($producto->empresa->logo) }}" alt="{{ $producto->empresa->nombre }}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+                                @endif
+                                <span>{{ optional($producto->empresa)->nombre ?? 'Sin empresa' }}</span>
+                            </div>
                         </div>
 
                         <!-- Botón de añadir al carrito (centrado) -->
@@ -80,26 +134,29 @@
                                 $esRopa = is_string($categoria) && strtolower(trim($categoria)) === 'ropa';
                             @endphp
 
-                            <form action="{{ route('carrito.agregar') }}" method="POST" class="d-inline-block {{ $esRopa ? 'add-with-size' : '' }}">
-                                @csrf
-                                <input type="hidden" name="producto_id" value="{{ $producto->id }}">
-                                <input type="hidden" name="cantidad" value="1">
+                            <div class="product-actions">
+                                <form action="{{ route('carrito.agregar') }}" method="POST" class="{{ $esRopa ? 'add-with-size' : '' }}">
+                                    @csrf
+                                    <input type="hidden" name="producto_id" value="{{ $producto->id }}">
+                                    <input type="hidden" name="cantidad" value="1">
 
-                                @if($esRopa)
-                                    <div class="mb-2">
-                                        <select name="talla" class="form-select form-select-sm talla-select" aria-label="Selecciona talla" required>
-                                            <option value="">Selecciona talla</option>
-                                            <option value="XS">XS</option>
-                                            <option value="S">S</option>
-                                            <option value="M">M</option>
-                                            <option value="L">L</option>
-                                            <option value="XL">XL</option>
-                                        </select>
-                                    </div>
-                                @endif
+                                    @if($esRopa)
+                                        <div class="mb-2">
+                                            <select name="talla" class="form-select form-select-sm talla-select" aria-label="Selecciona talla" required>
+                                                <option value="">Selecciona talla</option>
+                                                <option value="XS">XS</option>
+                                                <option value="S">S</option>
+                                                <option value="M">M</option>
+                                                <option value="L">L</option>
+                                                <option value="XL">XL</option>
+                                            </select>
+                                        </div>
+                                    @endif
 
-                                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">Añadir al carrito</button>
-                            </form>
+                                    <button type="submit" class="btn btn-primary btn-add-cart fw-semibold">Añadir al carrito</button>
+                                </form>
+                                <a href="{{ route('web.show', $producto->id) }}" class="btn btn-view-article fw-semibold">Ver artículo</a>
+                            </div>
                         </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use App\Models\Empresa;
 use App\Http\Requests\ProductoRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
@@ -19,7 +20,7 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-list'); 
         $texto=$request->input('texto');
-        $query = Producto::query();
+        $query = Producto::with('empresa');
 
         // Si el usuario autenticado es vendedor, mostrar sólo sus productos
         if (auth()->check() && auth()->user()->hasRole('vendedor')) {
@@ -42,7 +43,16 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-create'); 
         $categorias = ['Electrónica','Ropa','Hogar','Accesorios','Alimentos','Otros'];
-        return view('producto.action', compact('categorias'));
+        $empresas = Empresa::where('user_id', auth()->id())
+            ->where('estado', 'aprobada')
+            ->orderBy('nombre')
+            ->get();
+
+        if ($empresas->isEmpty()) {
+            return redirect()->route('empresas.index')->with('mensaje', 'Debes tener al menos una empresa aprobada para crear productos.');
+        }
+
+        return view('producto.action', compact('categorias', 'empresas'));
     }
 
     /**
@@ -58,6 +68,7 @@ class ProductoController extends Controller
         }
         $registro->codigo=$request->input('codigo');
         $registro->nombre=$request->input('nombre');
+        $registro->empresa_id=$request->input('empresa_id');
         $registro->categoria=$request->input('categoria');
         $registro->precio=$request->input('precio');
         $registro->cantidad_almacen=$request->input('cantidad_almacen');
@@ -96,7 +107,21 @@ class ProductoController extends Controller
             }
         }
         $categorias = ['Electrónica','Ropa','Hogar','Accesorios','Alimentos','Otros'];
-        return view('producto.action', compact('registro','categorias'));
+        $ownerId = auth()->user()->hasRole('admin') ? ($registro->user_id ?? auth()->id()) : auth()->id();
+
+        $empresas = Empresa::where('user_id', $ownerId)
+            ->where('estado', 'aprobada')
+            ->orderBy('nombre')
+            ->get();
+
+        if ($registro->empresa_id && !$empresas->contains('id', $registro->empresa_id)) {
+            $empresaActual = Empresa::find($registro->empresa_id);
+            if ($empresaActual) {
+                $empresas->prepend($empresaActual);
+            }
+        }
+
+        return view('producto.action', compact('registro','categorias', 'empresas'));
     }
 
     /**
@@ -114,6 +139,7 @@ class ProductoController extends Controller
         }
         $registro->codigo=$request->input('codigo');
         $registro->nombre=$request->input('nombre');
+        $registro->empresa_id=$request->input('empresa_id');
         $registro->categoria=$request->input('categoria');
         $registro->precio=$request->input('precio');
         $registro->cantidad_almacen=$request->input('cantidad_almacen');

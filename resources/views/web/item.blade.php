@@ -33,6 +33,13 @@
                         <i class="bi bi-upc-scan"></i> Código: <strong>{{ $producto->codigo }}</strong>
                     </div>
 
+                    <div class="small text-muted mb-3 d-flex align-items-center gap-2">
+                        @if(optional($producto->empresa)->logo)
+                            <img src="{{ asset($producto->empresa->logo) }}" alt="{{ $producto->empresa->nombre }}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">
+                        @endif
+                        <span>Empresa: <strong>{{ optional($producto->empresa)->nombre ?? 'Sin empresa' }}</strong></span>
+                    </div>
+
                     <h1 class="display-5 fw-bold text-primary mb-3">{{ $producto->nombre }}</h1>
 
                     <div class="fs-3 fw-semibold mb-4 text-success">
@@ -240,9 +247,13 @@
 @php
     $related = [];
     if(!empty($producto->categoria)){
-        $related = \Illuminate\Support\Facades\DB::table('productos')
+        $related = \App\Models\Producto::with('empresa')
             ->where('categoria', $producto->categoria)
             ->where('id', '<>', $producto->id)
+            ->whereNotNull('empresa_id')
+            ->whereHas('empresa', function($q){
+                $q->where('estado', 'aprobada');
+            })
             ->inRandomOrder()
             ->limit(8)
             ->get();
@@ -281,6 +292,12 @@
                             <div class="card-body p-3 text-start">
                                 <h6 class="fw-bold mb-1">{{ Str::limit($p->nombre, 60) }}</h6>
                                 <p class="text-primary fw-semibold mb-0">$ {{ number_format($p->precio,2) }}</p>
+                                <div class="small text-muted d-flex align-items-center gap-2 mt-1">
+                                    @if(optional($p->empresa)->logo)
+                                        <img src="{{ asset($p->empresa->logo) }}" alt="{{ $p->empresa->nombre }}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">
+                                    @endif
+                                    <span>{{ optional($p->empresa)->nombre ?? 'Sin empresa' }}</span>
+                                </div>
                             </div>
                             <div class="card-footer bg-transparent border-0 text-center pb-3">
                                 <a href="{{ url('/producto/'.$p->id) }}" class="btn btn-celeste">Ver producto</a>

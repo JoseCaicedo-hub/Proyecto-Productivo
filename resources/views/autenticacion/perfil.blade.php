@@ -17,6 +17,31 @@
                                 {{ session('mensaje') }}
                             </div>
                         @endif
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="border rounded p-3 bg-light">
+                                    <h5 class="mb-3">Foto de perfil</h5>
+                                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                                        @php
+                                            $avatar = $registro->avatar ?? null;
+                                            $avatarSrc = $avatar ?: 'https://ui-avatars.com/api/?name=' . urlencode($registro->name ?? 'Usuario') . '&background=e6f9ff&color=0b63d6&size=128';
+                                        @endphp
+                                        <img src="{{ $avatarSrc }}" alt="Avatar" class="rounded-circle" style="width:90px;height:90px;object-fit:cover;border:2px solid rgba(11,99,214,0.2);">
+
+                                        <form action="{{ route('perfil.avatar.upload') }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center gap-2 flex-wrap" id="avatar-upload-form">
+                                            @csrf
+                                            <input type="file" id="avatar-input" name="avatar" class="d-none" accept="image/*" required onchange="if(this.files.length){ document.getElementById('avatar-upload-form').submit(); }">
+                                            <label for="avatar-input" class="btn btn-outline-primary mb-0">Actualizar foto</label>
+                                        </form>
+                                    </div>
+                                    @error('avatar')
+                                        <small class="text-danger d-block mt-2">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
                         <form action="{{ route('perfil.update')}}" method="POST" id="formRegistroUsuario">
                             @csrf
                             @method('PUT')                            

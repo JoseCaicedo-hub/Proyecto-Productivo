@@ -1,5 +1,9 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-light sticky-top" style="z-index:1030;">
     <style>
+    #mainNavbar{transition:transform .22s ease, box-shadow .2s ease}
+    #mainNavbar.nav-hidden{transform:translateY(-110%)}
+    #mainNavbar.nav-scrolled{box-shadow:0 8px 24px rgba(15,23,42,0.08)}
+    html.dark-mode #mainNavbar.nav-scrolled{box-shadow:0 10px 28px rgba(2,6,23,0.45)}
     /* Scoped navbar styles */
     .nav-logout-btn{
         --sp:#0b63d6;
@@ -42,6 +46,45 @@
     .user-links { display:flex; flex-direction:column; gap:6px; }
     .user-links a { color:#374151; padding:8px 10px; border-radius:8px; text-decoration:none; }
     .user-links a:hover{ background:#f1f5f9; }
+    /* Theme toggle */
+    .theme-toggle-btn{
+        width:40px;height:40px;border-radius:999px;border:1px solid rgba(11,99,214,0.12);
+        background:linear-gradient(180deg,#f8feff,#eef9ff);color:#0b63d6;
+        display:inline-flex;align-items:center;justify-content:center;
+        box-shadow:0 6px 16px rgba(47,128,182,0.08);transition:all .14s ease;
+    }
+    .theme-toggle-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(47,128,182,0.12)}
+    html.dark-mode .theme-toggle-btn{
+        background:#0b1220;color:#facc15;border-color:rgba(250,204,21,0.35);
+        box-shadow:0 8px 20px rgba(2,6,23,0.45);
+    }
+    html.dark-mode .navbar{background:#111827 !important}
+    html.dark-mode .navbar .nav-link{color:#cbd5e1 !important}
+    html.dark-mode .navbar .nav-link:hover{color:#7dd3fc !important}
+    html.dark-mode .nav-cart-btn{
+        background:linear-gradient(90deg,rgba(56,189,248,0.22),rgba(56,189,248,0.12)) !important;
+        color:#e2f4ff !important;
+        border:1px solid rgba(125,211,252,0.35);
+        box-shadow:0 10px 22px rgba(2,6,23,0.35);
+    }
+    html.dark-mode .nav-cart-btn .cart-label{color:#e2f4ff !important}
+    html.dark-mode .nav-cart-btn i{color:#7dd3fc !important}
+    html.dark-mode .nav-cart-btn:hover{
+        background:linear-gradient(90deg,rgba(56,189,248,0.3),rgba(56,189,248,0.18)) !important;
+        color:#f0f9ff !important;
+    }
+    html.dark-mode .nav-cart-badge{
+        background:#0f172a;
+        color:#93c5fd;
+        border-color:rgba(147,197,253,0.45);
+    }
+    html.dark-mode .user-dropdown-menu,
+    html.dark-mode .user-dropdown-header,
+    html.dark-mode .user-dropdown-body{background:#111827 !important;color:#e2e8f0 !important;border-color:rgba(148,163,184,.2) !important}
+    html.dark-mode .user-dropdown-name{color:#e2e8f0}
+    html.dark-mode .user-dropdown-email{color:#94a3b8}
+    html.dark-mode .user-links a{color:#cbd5e1}
+    html.dark-mode .user-links a:hover{background:#0b1220}
     </style>
     <div class="container px-4 px-lg-5">
         <a class="navbar-brand" href="{{ route('web.index') }}">
@@ -89,6 +132,11 @@
                 </span>
             </a>
 
+            <button type="button" class="theme-toggle-btn ms-2" id="themeToggleBtn" aria-label="Cambiar tema" title="Cambiar tema">
+                <i class="bi bi-moon-stars-fill theme-icon-moon" aria-hidden="true"></i>
+                <i class="bi bi-sun-fill theme-icon-sun d-none" aria-hidden="true"></i>
+            </button>
+
             {{-- Right-side: user dropdown and logo (moved from left) --}}
             <div class="d-flex align-items-center ms-3">
                 @auth
@@ -124,6 +172,9 @@
                             </div>
                             <div class="user-dropdown-body">
                                 <div class="user-links mb-2">
+                                    @if($user->hasAnyRole(['admin', 'vendedor']))
+                                        <a href="{{ route('almacen.index') }}"><i class="bi bi-speedometer2 me-2"></i>Panel de control</a>
+                                    @endif
                                     <a href="{{route('perfil.pedidos')}}"><i class="bi bi-bag me-2"></i>Mis pedidos</a>
                                     <a href="{{ route('plantilla.profile') }}"><i class="bi bi-person me-2"></i>Mi perfil</a>
                                     <a href="{{ route('perfil.edit') }}"><i class="bi bi-pencil me-2"></i>Editar perfil</a>
@@ -150,3 +201,45 @@
         </div>
     </div>
 </nav>
+
+<script>
+    (function () {
+        var navbar = document.getElementById('mainNavbar');
+        if (!navbar) return;
+
+        var lastY = window.pageYOffset || 0;
+        var ticking = false;
+        var showHideOffset = 90;
+
+        function updateNavbarOnScroll() {
+            var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+            var delta = y - lastY;
+            var collapse = navbar.querySelector('.navbar-collapse');
+            var isMenuOpen = collapse && collapse.classList.contains('show');
+
+            if (y > 8) {
+                navbar.classList.add('nav-scrolled');
+            } else {
+                navbar.classList.remove('nav-scrolled');
+            }
+
+            if (!isMenuOpen) {
+                if (y > showHideOffset && delta > 6) {
+                    navbar.classList.add('nav-hidden');
+                } else if (delta < -4 || y <= showHideOffset) {
+                    navbar.classList.remove('nav-hidden');
+                }
+            }
+
+            lastY = Math.max(y, 0);
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', function () {
+            if (!ticking) {
+                window.requestAnimationFrame(updateNavbarOnScroll);
+                ticking = true;
+            }
+        }, { passive: true });
+    })();
+</script>
