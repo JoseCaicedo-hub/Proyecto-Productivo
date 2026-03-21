@@ -29,14 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
-        // Registrar macros de Blade para formateo de precios
-        Blade::stringable(function ($value) {
-            if (is_numeric($value)) {
-                return PriceHelper::formatCOP($value);
-            }
-            return $value;
-        });
-
+        // Registrar macros Blade para formateo de precios
         Blade::directive('formatCOP', function ($price) {
             return "<?php echo \App\Helpers\PriceHelper::formatCOP({$price}); ?>";
         });
