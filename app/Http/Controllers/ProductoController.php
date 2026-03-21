@@ -45,12 +45,15 @@ class ProductoController extends Controller
         $this->authorize('producto-create'); 
         $categorias = Category::orderBy('name')->pluck('name')->toArray();
         
-        // Verificar que el vendedor tenga una empresa asignada
-        if (auth()->check() && !auth()->user()->empresa_id) {
+        // Verificar que el vendedor tenga una empresa asignada (NO aplica para admins)
+        if (auth()->check() && !auth()->user()->hasRole('admin') && !auth()->user()->empresa_id) {
             return redirect()->route('dashboard')->with('error', 'Debes completar tu perfil como vendedor y tener una empresa asignada para crear productos.');
         }
 
-        return view('producto.action', compact('categorias'));
+        // Para admins, pasar lista de todas las empresas
+        $empresas = auth()->user()->hasRole('admin') ? Empresa::where('estado', 'activo')->get() : null;
+
+        return view('producto.action', compact('categorias', 'empresas'));
     }
 
     /**
@@ -60,16 +63,22 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-create'); 
         
-        // Verificar que el usuario tenga empresa asignada
-        if (!auth()->user()->empresa_id) {
+        // Verificar que el usuario (no admin) tenga empresa asignada
+        if (!auth()->user()->hasRole('admin') && !auth()->user()->empresa_id) {
             return redirect()->route('dashboard')->with('error', 'No tienes una empresa asignada. Por favor completa tu perfil.');
         }
 
         $registro = new Producto();
         // Asociar el producto al usuario que lo publica
         $registro->user_id = auth()->id();
-        // Automáticamente asignar la empresa del vendedor
-        $registro->empresa_id = auth()->user()->empresa_id;
+        // Automáticamente asignar la empresa del vendedor (si tiene)
+        // Para admins, pueden dejar esto en null o seleccionar manualmente
+        if (auth()->user()->empresa_id) {
+            $registro->empresa_id = auth()->user()->empresa_id;
+        } elseif ($request->has('empresa_id') && auth()->user()->hasRole('admin')) {
+            // Admins pueden asignar empresa manualmente
+            $registro->empresa_id = $request->input('empresa_id');
+        }
         
         $registro->codigo = $request->input('codigo');
         $registro->nombre = $request->input('nombre');

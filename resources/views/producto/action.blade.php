@@ -42,7 +42,7 @@
                                         <small class="text-danger">{{$message}}</small>
                                      @enderror
                                 </div>
-                                <div class="col-md-4 mb-4">
+                                <div class="col-md-3 mb-4">
                                     <label for="cantidad_almacen" class="form-label">Cantidad en almacén</label>
                                     <input type="number" class="form-control @error('cantidad_almacen') is-invalid @enderror"
                                      id="cantidad_almacen" name="cantidad_almacen" value="{{old('cantidad_almacen',  $registro->cantidad_almacen ?? 0)}}" min="0" required>
@@ -50,6 +50,24 @@
                                         <small class="text-danger">{{$message}}</small>
                                      @enderror
                                 </div>
+                                @if(auth()->user()->hasRole('admin'))
+                                <div class="col-md-4 mb-4">
+                                    <label for="empresa_id" class="form-label">Empresa (Admin)</label>
+                                    <select name="empresa_id" id="empresa_id" class="form-select @error('empresa_id') is-invalid @enderror">
+                                        <option value="">-- Selecciona una empresa --</option>
+                                        @if(isset($empresas) && $empresas->count())
+                                            @foreach($empresas as $empresa)
+                                                <option value="{{ $empresa->id }}" {{ (old('empresa_id') ?? $registro->empresa_id ?? '') == $empresa->id ? 'selected' : '' }}>
+                                                    {{ $empresa->nombre }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    @error('empresa_id')
+                                        <small class="text-danger">{{$message}}</small>
+                                    @enderror
+                                </div>
+                                @endif
                                 <div class="col-md-3 mb-3">
                                     <label for="categoria" class="form-label">Categoria</label>
                                     <select name="categoria" id="categoria" class="form-select @error('categoria') is-invalid @enderror">
