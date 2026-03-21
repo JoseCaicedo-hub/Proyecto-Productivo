@@ -4,7 +4,9 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0">Mi Empresa</h3>
+        @if(!$user->hasRole('vendedor') || $user->hasRole('admin'))
         <a href="{{ route('empresas.create') }}" class="btn btn-primary btn-sm">Nueva empresa</a>
+        @endif
     </div>
 
     @if(session('mensaje'))
@@ -116,6 +118,9 @@
 @push('scripts')
 <script>
     document.getElementById('mnuAlmacen').classList.add('menu-open');
-    document.getElementById('itemEmpresa').classList.add('active');
+    const itemEmpresa = document.getElementById('itemEmpresa');
+    if (itemEmpresa) {
+        itemEmpresa.classList.add('active');
+    }
 </script>
 @endpush

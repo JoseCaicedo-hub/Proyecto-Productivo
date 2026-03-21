@@ -31,9 +31,20 @@ class EmpresaController extends Controller
     public function create()
     {
         $user = auth()->user();
+        $esVendedor = $user->hasRole('vendedor') && !$user->hasRole('admin');
 
         if (!$user->can('empresa-create')) {
             abort(403, 'No autorizado.');
+        }
+
+        if ($esVendedor) {
+            $yaTieneEmpresa = Empresa::where('user_id', $user->id)
+                ->whereIn('estado', ['activo', 'aprobada'])
+                ->exists();
+
+            if ($yaTieneEmpresa || $user->empresa_id) {
+                return redirect()->route('dashboard')->with('error', 'Ya tienes una empresa aprobada. No puedes crear otra.');
+            }
         }
 
         return view('empresa.action');
@@ -46,6 +57,16 @@ class EmpresaController extends Controller
 
         if (!$user->can('empresa-create')) {
             abort(403, 'No autorizado.');
+        }
+
+        if ($esVendedor) {
+            $yaTieneEmpresa = Empresa::where('user_id', $user->id)
+                ->whereIn('estado', ['activo', 'aprobada'])
+                ->exists();
+
+            if ($yaTieneEmpresa || $user->empresa_id) {
+                return redirect()->route('dashboard')->with('error', 'Ya tienes una empresa aprobada. No puedes crear otra.');
+            }
         }
 
         $data = $request->validate([

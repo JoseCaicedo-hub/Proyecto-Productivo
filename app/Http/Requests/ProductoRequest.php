@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Producto;
 use App\Helpers\PriceHelper;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -42,22 +41,17 @@ class ProductoRequest extends FormRequest
     {
         $method = $this->method();
         $id = $this->route('producto');
-        $ownerId = auth()->id();
         $isAdmin = auth()->check() && auth()->user()->hasRole('admin');
-
-        if ($id && auth()->check() && auth()->user()->hasRole('admin')) {
-            $producto = Producto::find($id);
-            if ($producto && $producto->user_id) {
-                $ownerId = $producto->user_id;
-            }
-        }
 
         $empresaRules = [
             'nullable',
             'integer',
-            Rule::exists('empresas', 'id')->where(function ($query) use ($ownerId) {
-                $query->where('estado', 'activo')
-                      ->where('user_id', $ownerId);
+            Rule::exists('empresas', 'id')->where(function ($query) use ($isAdmin) {
+                $query->whereIn('estado', ['activo', 'aprobada']);
+
+                if (!$isAdmin) {
+                    $query->where('user_id', auth()->id());
+                }
             }),
         ];
 

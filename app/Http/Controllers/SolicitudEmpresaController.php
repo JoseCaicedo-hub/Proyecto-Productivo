@@ -51,7 +51,7 @@ class SolicitudEmpresaController extends Controller
         $solicitud = SolicitudEmpresa::where('estado', 'pendiente')->findOrFail($id);
 
         DB::transaction(function () use ($solicitud) {
-            Empresa::create([
+            $empresa = Empresa::create([
                 'user_id' => $solicitud->user_id,
                 'nombre' => $solicitud->nombre,
                 'logo' => $solicitud->logo,
@@ -59,6 +59,12 @@ class SolicitudEmpresaController extends Controller
                 'contacto' => $solicitud->contacto,
                 'estado' => 'aprobada',
             ]);
+
+            $usuario = $solicitud->user;
+            if ($usuario && !$usuario->empresa_id) {
+                $usuario->empresa_id = $empresa->id;
+                $usuario->save();
+            }
 
             $solicitud->estado = 'aprobada';
             $solicitud->admin_id = auth()->id();

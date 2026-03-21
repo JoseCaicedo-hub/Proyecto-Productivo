@@ -85,12 +85,14 @@
                         </li>
                         @endcan
                         @can('empresa-list')
+                        @if(!auth()->user()->hasRole('vendedor') || auth()->user()->hasRole('admin'))
                         <li class="nav-item">
                             <a href="{{ route('empresas.index') }}" class="nav-link {{ request()->routeIs('empresas.*') ? 'active' : '' }}" id="itemEmpresa">
                                 <i class="nav-icon bi bi-building"></i>
                                 <p>Mi Empresa</p>
                             </a>
                         </li>
+                        @endif
                         @endcan
                         @can('producto-list')
                         <li class="nav-item">

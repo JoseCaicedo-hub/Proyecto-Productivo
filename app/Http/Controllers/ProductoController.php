@@ -44,14 +44,17 @@ class ProductoController extends Controller
     {
         $this->authorize('producto-create'); 
         $categorias = Category::orderBy('name')->pluck('name')->toArray();
+        $user = auth()->user();
         
         // Verificar que el vendedor tenga una empresa asignada (NO aplica para admins)
-        if (auth()->check() && !auth()->user()->hasRole('admin') && !auth()->user()->empresa_id) {
+        if (auth()->check() && !$user->hasRole('admin') && !$this->resolveEmpresaIdForUser($user)) {
             return redirect()->route('dashboard')->with('error', 'Debes completar tu perfil como vendedor y tener una empresa asignada para crear productos.');
         }
 
         // Para admins, pasar lista de todas las empresas
-        $empresas = auth()->user()->hasRole('admin') ? Empresa::where('estado', 'activo')->get() : null;
+        $empresas = $user->hasRole('admin')
+            ? Empresa::whereIn('estado', ['activo', 'aprobada'])->orderBy('nombre')->get()
+            : null;
 
         return view('producto.action', compact('categorias', 'empresas'));
     }
@@ -62,20 +65,21 @@ class ProductoController extends Controller
     public function store(ProductoRequest $request)
     {
         $this->authorize('producto-create'); 
+        $user = auth()->user();
+        $empresaIdVendedor = $this->resolveEmpresaIdForUser($user);
         
         // Verificar que el usuario (no admin) tenga empresa asignada
-        if (!auth()->user()->hasRole('admin') && !auth()->user()->empresa_id) {
+        if (!$user->hasRole('admin') && !$empresaIdVendedor) {
             return redirect()->route('dashboard')->with('error', 'No tienes una empresa asignada. Por favor completa tu perfil.');
         }
 
         $registro = new Producto();
         // Asociar el producto al usuario que lo publica
         $registro->user_id = auth()->id();
-        // Automáticamente asignar la empresa del vendedor (si tiene)
-        // Para admins, pueden dejar esto en null o seleccionar manualmente
-        if (auth()->user()->empresa_id) {
-            $registro->empresa_id = auth()->user()->empresa_id;
-        } elseif ($request->has('empresa_id') && auth()->user()->hasRole('admin')) {
+        // Automáticamente asignar la empresa del vendedor
+        if (!$user->hasRole('admin')) {
+            $registro->empresa_id = $empresaIdVendedor;
+        } elseif ($request->filled('empresa_id')) {
             // Admins pueden asignar empresa manualmente
             $registro->empresa_id = $request->input('empresa_id');
         }
@@ -119,7 +123,7 @@ class ProductoController extends Controller
         $registro=Producto::findOrFail($id);
         // Si el usuario es vendedor, sólo puede editar sus propios productos
         if (auth()->check() && auth()->user()->hasRole('vendedor')) {
-            $empresaId = auth()->user()->empresa_id;
+            $empresaId = $this->resolveEmpresaIdForUser(auth()->user());
             $esPropioPorUsuario = ((int) $registro->user_id === (int) auth()->id());
             $esPropioPorEmpresa = ($empresaId && (int) $registro->empresa_id === (int) $empresaId);
 
@@ -131,7 +135,7 @@ class ProductoController extends Controller
         $ownerId = auth()->user()->hasRole('admin') ? ($registro->user_id ?? auth()->id()) : auth()->id();
 
         $empresas = Empresa::where('user_id', $ownerId)
-            ->where('estado', 'activo')
+            ->whereIn('estado', ['activo', 'aprobada'])
             ->orderBy('nombre')
             ->get();
 
@@ -158,7 +162,7 @@ class ProductoController extends Controller
         $registro=Producto::findOrFail($id);
         // Si el usuario es vendedor, sólo puede actualizar sus propios productos
         if (auth()->check() && auth()->user()->hasRole('vendedor')) {
-            $empresaId = auth()->user()->empresa_id;
+            $empresaId = $this->resolveEmpresaIdForUser(auth()->user());
             $esPropioPorUsuario = ((int) $registro->user_id === (int) auth()->id());
             $esPropioPorEmpresa = ($empresaId && (int) $registro->empresa_id === (int) $empresaId);
 
@@ -169,7 +173,7 @@ class ProductoController extends Controller
         $registro->codigo=$request->input('codigo');
         $registro->nombre=$request->input('nombre');
         if ($user->hasRole('vendedor')) {
-            $registro->empresa_id = $user->empresa_id ?: $registro->empresa_id;
+            $registro->empresa_id = $this->resolveEmpresaIdForUser($user) ?: $registro->empresa_id;
         } else {
             $registro->empresa_id = $request->input('empresa_id', $registro->empresa_id);
         }
@@ -213,5 +217,30 @@ class ProductoController extends Controller
         }
         $registro->delete();
         return redirect()->route('productos.index')->with('mensaje', $registro->nombre. ' eliminado correctamente.');
+    }
+
+    private function resolveEmpresaIdForUser($user): ?int
+    {
+        if (!$user || $user->hasRole('admin')) {
+            return $user?->empresa_id ? (int) $user->empresa_id : null;
+        }
+
+        if ($user->empresa_id) {
+            return (int) $user->empresa_id;
+        }
+
+        $empresa = Empresa::where('user_id', $user->id)
+            ->whereIn('estado', ['activo', 'aprobada'])
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$empresa) {
+            return null;
+        }
+
+        $user->empresa_id = $empresa->id;
+        $user->save();
+
+        return (int) $empresa->id;
     }
 }
