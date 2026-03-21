@@ -43,7 +43,7 @@
                     <div class="col-md-6 text-dark miclase">
                         <h2 class="fw-bold mb-3 miclase">{{ $producto->nombre }}</h2>
                         <p class="text-muted mb-4 miclase">{{ Str::limit($producto->descripcion, 120, '...') }}</p>
-                        <p class="fs-4 fw-semibold text-primary mb-4 miclase">$ {{ number_format($producto->precio, 2) }}</p>
+                        <p class="fs-4 fw-semibold text-primary mb-4 miclase">@formatCOP($producto->precio)</p>
                         <a href="{{ route('web.show', $producto->id) }}" class="btn btn-primary px-4 py-2 miclase">
                             <i class="bi miclase"></i> Ver producto
                         </a>

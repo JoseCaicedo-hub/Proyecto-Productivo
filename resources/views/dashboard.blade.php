@@ -111,7 +111,7 @@
                                             <div class="card-body">
                                                 <p class="text-muted small">{{ $producto->categoria }}</p>
                                                 <h5 class="card-title">{{ $producto->nombre }}</h5>
-                                                <p class="text-primary fw-bold">${{ number_format($producto->precio, 2) }}</p>
+                                                <p class="text-primary fw-bold">@formatCOP($producto->precio)</p>
                                                 <p class="text-muted small">Stock: {{ $producto->cantidad_almacen }}</p>
                                             </div>
                                             <div class="card-footer bg-transparent">
@@ -156,7 +156,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="stat-card gastado">
                         <i class="bi bi-currency-dollar" style="font-size: 32px;"></i>
-                        <div class="stat-number">${{ number_format($estadisticas['total_gastado'], 0) }}</div>
+                        <div class="stat-number">@formatCOP($estadisticas['total_gastado'])</div>
                         <div class="stat-label">Total Gastado</div>
                     </div>
                 </div>
@@ -181,7 +181,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-4 text-end">
-                                                <div class="pedido-monto">${{ number_format($pedido->total, 2) }}</div>
+                                                <div class="pedido-monto">@formatCOP($pedido->total)</div>
                                                 <span class="badge bg-{{ $pedido->estado == 'completado' ? 'success' : ($pedido->estado == 'pendiente' ? 'warning' : 'danger') }}">
                                                     {{ ucfirst($pedido->estado) }}
                                                 </span>

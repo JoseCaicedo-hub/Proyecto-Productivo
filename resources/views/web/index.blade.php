@@ -118,7 +118,7 @@
                             <p class="text-muted mb-1 small">{{ $producto->categoria ?? 'Sin categoría' }}</p>
                             <h5 class="fw-bold mb-2 cssunique">{{ $producto->nombre }}</h5>
                             <p class="text-primary fw-semibold fs-5 cssunique">
-                                $ {{ number_format($producto->precio, 2) }}
+                                @formatCOP($producto->precio)
                             </p>
                             <div class="small text-muted d-flex align-items-center gap-2">
                                 @if(optional($producto->empresa)->logo)

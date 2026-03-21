@@ -81,7 +81,7 @@
                                             <td>{{$reg->id}}</td>
                                             <td>{{$reg->created_at->format('d/m/Y')}}</td>
                                             <td>{{$reg->user->name}}</td>
-                                            <td>${{ number_format($reg->total, 2) }}</td>
+                                            <td>@formatCOP($reg->total)</td>
                                             <td>
                                                 @php
                                                     $colores = [
@@ -130,8 +130,8 @@
                                                                     alt="{{ $detalle->producto->nombre}}">
                                                             </td>
                                                             <td>{{ $detalle->cantidad}}</td>
-                                                            <td>{{ number_format($detalle->precio, 2) }}</td>
-                                                            <td>{{ number_format($detalle->cantidad * $detalle->precio, 2) }}
+                                                            <td>@formatCOPNoSymbol($detalle->precio)</td>
+                                                            <td>@formatCOPNoSymbol($detalle->cantidad * $detalle->precio)</td>
                                                             </td>
                                                             <td>
                                                                 <span class="badge {{ $detalle->envio_estado === 'enviado' ? 'bg-info' : ($detalle->envio_estado === 'entregado' ? 'bg-success' : 'bg-warning') }}">{{ ucfirst($detalle->envio_estado ?? 'pendiente') }}</span>

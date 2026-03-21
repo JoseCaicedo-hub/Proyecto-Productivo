@@ -72,7 +72,7 @@
                         </div>
 
                         <div class="price-cell">
-                            <span class="fw-bold">${{ number_format($item['precio'], 2) }}</span>
+                            <span class="fw-bold">@formatCOP($item['precio'])</span>
                         </div>
 
                         <div class="quantity-control">
@@ -122,17 +122,17 @@
 
                     <div class="summary-row subtotal-row">
                         <label>Subtotal</label>
-                        <span id="subtotalAmount">${{ number_format($subtotal, 2) }}</span>
+                        <span id="subtotalAmount">@formatCOP($subtotal)</span>
                     </div>
 
                     <div class="summary-row">
                         <label>Envío</label>
-                        <span id="shippingAmount">${{ number_format($envio, 2) }}</span>
+                        <span id="shippingAmount">@formatCOP($envio)</span>
                     </div>
 
                     <div class="summary-row" style="padding: 16px 0; border-bottom: none;">
                         <label style="font-size: 1.1rem;">Total</label>
-                        <span class="total" id="orderTotal">${{ number_format($total, 2) }}</span>
+                        <span class="total" id="orderTotal">@formatCOP($total)</span>
                     </div>
 
                     <button type="button" id="openCheckoutBtn" class="btn btn-checkout">
@@ -209,7 +209,7 @@
                         <div class="card-body text-start">
                             <p class="small text-muted mb-1">{{ $producto->categoria ?? 'Sin categoría' }}</p>
                             <h6 class="mb-2">{{ $producto->nombre }}</h6>
-                            <p class="fw-semibold mb-0">$ {{ number_format($producto->precio, 2) }}</p>
+                            <p class="fw-semibold mb-0">@formatCOP($producto->precio)</p>
                         </div>
                         <div class="card-footer bg-transparent border-0 pt-0 pb-3">
                             <a href="{{ route('web.show', $producto->id) }}" class="btn btn-view-article w-100">Ver artículo</a>

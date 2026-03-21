@@ -16,7 +16,7 @@
                         <strong>Resumen del pedido</strong>
                         <ul class="small mb-0 mt-2">
                             @foreach($reg->detalles as $detalle)
-                                <li>{{ $detalle->producto->nombre }} — x{{ $detalle->cantidad }} — ${{ number_format($detalle->precio,2) }}</li>
+                                <li>{{ $detalle->producto->nombre }} — x{{ $detalle->cantidad }} — @formatCOP($detalle->precio)</li>
                             @endforeach
                         </ul>
                     </div>

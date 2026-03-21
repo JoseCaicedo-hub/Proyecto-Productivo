@@ -71,7 +71,7 @@
                                                 <td>{{$reg->nombre}}</td>
                                                 <td>{{ $reg->empresa->nombre ?? 'Sin empresa' }}</td>
                                                 <td>{{ $reg->categoria ?? '-' }}</td>
-                                                <td>{{$reg->precio}}</td>
+                                                <td>@formatCOP($reg->precio)</td>
                                                 <td>{{$reg->cantidad_almacen ?? 0}}</td>
                                                 <td>
                                                 @if($reg->imagen)

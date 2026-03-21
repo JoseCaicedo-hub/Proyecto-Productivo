@@ -43,7 +43,7 @@
                     <h1 class="display-5 fw-bold text-primary mb-3">{{ $producto->nombre }}</h1>
 
                     <div class="fs-3 fw-semibold mb-4 text-success">
-                        <i class="bi bi-currency-dollar"></i>{{ number_format($producto->precio, 2) }}
+                        <i class="bi bi-currency-dollar"></i>@formatCOPNoSymbol($producto->precio)
                     </div>
 
                     @if(($producto->cantidad_almacen ?? 0) > 0)
@@ -298,7 +298,7 @@
                             </a>
                             <div class="card-body p-3 text-start">
                                 <h6 class="fw-bold mb-1">{{ Str::limit($p->nombre, 60) }}</h6>
-                                <p class="text-primary fw-semibold mb-0">$ {{ number_format($p->precio,2) }}</p>
+                                <p class="text-primary fw-semibold mb-0">@formatCOP($p->precio)</p>
                                 <div class="small text-muted d-flex align-items-center gap-2 mt-1">
                                     @if(optional($p->empresa)->logo)
                                         <img src="{{ asset($p->empresa->logo) }}" alt="{{ $p->empresa->nombre }}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">

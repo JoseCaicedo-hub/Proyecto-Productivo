@@ -75,8 +75,8 @@
                     @endif
                 </td>
                 <td class="text-right">{{ $d->cantidad }}</td>
-                <td class="text-right">{{ number_format($d->precio,2) }}</td>
-                <td class="text-right">{{ number_format($d->cantidad * $d->precio,2) }}</td>
+                <td class="text-right">{{ number_format($d->precio) }}</td>
+                <td class="text-right">{{ number_format($d->cantidad * $d->precio) }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -93,15 +93,15 @@
     <table class="totals">
         <tr>
             <td style="width:65%" class="text-right small">Subtotal</td>
-            <td class="text-right">${{ number_format($subtotal,2) }}</td>
+            <td class="text-right">${{ number_format($subtotal) }}</td>
         </tr>
         <tr>
             <td class="text-right small">IVA ({{ $taxRate * 100 }}%)</td>
-            <td class="text-right">${{ number_format($tax,2) }}</td>
+            <td class="text-right">${{ number_format($tax) }}</td>
         </tr>
         <tr>
             <td class="text-right small"><strong>Total</strong></td>
-            <td class="text-right"><strong>${{ number_format($total > 0 ? $total : $pedido->total,2) }}</strong></td>
+            <td class="text-right"><strong>${{ number_format($total > 0 ? $total : $pedido->total) }}</strong></td>
         </tr>
     </table>
 

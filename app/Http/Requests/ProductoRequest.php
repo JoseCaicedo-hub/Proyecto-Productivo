@@ -3,11 +3,28 @@
 namespace App\Http\Requests;
 
 use App\Models\Producto;
+use App\Helpers\PriceHelper;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class ProductoRequest extends FormRequest
 {
+    /**
+     * Prepare the data for validation by cleaning price input
+     */
+    protected function prepareForValidation(): void
+    {
+        // Limpiar precio: convertir formatos como "1.000" o "1,000" a "1000"
+        if ($this->has('precio')) {
+            $cleanedPrice = PriceHelper::cleanPrice($this->input('precio'));
+            if ($cleanedPrice !== null) {
+                $this->merge([
+                    'precio' => $cleanedPrice,
+                ]);
+            }
+        }
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -53,7 +70,7 @@ class ProductoRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:100'],
             'empresa_id' => $empresaRules,
             'categoria' => ['nullable', 'string', 'max:100', Rule::exists('categories', 'name')],
-            'precio' => ['required', 'numeric', 'min:0'],
+            'precio' => ['required', 'integer', 'min:1'],
             'cantidad_almacen' => ['required', 'integer', 'min:0'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
             'imagen' => [$method === 'POST' ? 'required' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
@@ -74,8 +91,8 @@ class ProductoRequest extends FormRequest
             'empresa_id.exists' => 'La empresa seleccionada no está aprobada o no te pertenece.',
 
             'precio.required' => 'El precio del producto es obligatorio.',
-            'precio.numeric' => 'El precio debe ser un valor numérico.',
-            'precio.min' => 'El precio no puede ser negativo.',
+            'precio.integer' => 'El precio debe ser un número entero en COP (sin decimales).',
+            'precio.min' => 'El precio debe ser mayor a 0.',
 
             'cantidad_almacen.required' => 'La cantidad en almacén es obligatoria.',
             'cantidad_almacen.integer' => 'La cantidad en almacén debe ser un número entero.',

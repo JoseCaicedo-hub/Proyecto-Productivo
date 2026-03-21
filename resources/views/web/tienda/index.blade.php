@@ -139,7 +139,7 @@
               <div class="card-body text-start p-3">
                 <p class="text-muted mb-1 small">{{ $producto->categoria ?? 'Sin categoría' }}</p>
                 <h5 class="fw-bold mb-2">{{ $producto->nombre }}</h5>
-                <p class="text-primary fw-semibold fs-5">$ {{ number_format($producto->precio, 2) }}</p>
+                <p class="text-primary fw-semibold fs-5">@formatCOP($producto->precio)</p>
                 <div class="small text-muted d-flex align-items-center gap-2">
                   @if(optional($producto->empresa)->logo)
                     <img src="{{ asset($producto->empresa->logo) }}" alt="{{ $producto->empresa->nombre }}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
