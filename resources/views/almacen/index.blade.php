@@ -46,6 +46,13 @@
                         <td>{{ $detalle->fecha_envio ? $detalle->fecha_envio->format('Y-m-d H:i') : '-' }}</td>
                         <td>{{ $detalle->fecha_recibido ? $detalle->fecha_recibido->format('Y-m-d H:i') : '-' }}</td>
                         <td>
+                            @if(optional($detalle->producto)->user_id === auth()->id())
+                                <button type="button" class="btn btn-sm btn-outline-info mb-1" data-bs-toggle="modal" data-bs-target="#modal-envio-{{ $detalle->id }}">
+                                    Ver detalles de envío
+                                </button>
+                                <br>
+                            @endif
+
                             @if($detalle->envio_estado === 'pendiente')
                                 <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal-enviar-{{ $detalle->id }}">Marcar Enviado</button>
                             @else
@@ -75,6 +82,37 @@
                             </div>
                         </div>
                     </div>
+
+                    @if(optional($detalle->producto)->user_id === auth()->id())
+                    <div class="modal fade" id="modal-envio-{{ $detalle->id }}" tabindex="-1" aria-labelledby="modalEnvioLabel{{ $detalle->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalEnvioLabel{{ $detalle->id }}">Detalles de envío - Pedido #{{ $detalle->pedido_id }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-2"><strong>Nombre del cliente:</strong> {{ $detalle->pedido->nombre_cliente ?? optional($detalle->pedido->user)->name ?? '—' }}</div>
+                                    <div class="mb-2"><strong>Teléfono:</strong> {{ $detalle->pedido->telefono ?? '—' }}</div>
+                                    <div class="mb-2"><strong>Dirección completa:</strong> {{ $detalle->pedido->direccion ?? '—' }}</div>
+                                    <div class="mb-2"><strong>Ciudad:</strong> {{ $detalle->pedido->ciudad ?? '—' }}</div>
+                                    <div class="mb-2"><strong>Departamento / Estado:</strong> {{ $detalle->pedido->departamento ?? '—' }}</div>
+                                    <div class="mb-2"><strong>País:</strong> {{ $detalle->pedido->pais ?? '—' }}</div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary js-copy-address"
+                                        data-address="{{ trim(($detalle->pedido->direccion ?? '') . ', ' . ($detalle->pedido->ciudad ?? '') . ', ' . ($detalle->pedido->departamento ?? '') . ', ' . ($detalle->pedido->pais ?? ''), ', ') }}"
+                                    >
+                                        Copiar dirección
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 @endforeach
                 </tbody>
             </table>
@@ -82,3 +120,29 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.js-copy-address').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const value = (this.dataset.address || '').trim();
+            if (!value) {
+                alert('No hay dirección disponible para copiar.');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(value);
+                this.textContent = 'Dirección copiada';
+                setTimeout(() => {
+                    this.textContent = 'Copiar dirección';
+                }, 1500);
+            } catch (error) {
+                alert('No se pudo copiar la dirección.');
+            }
+        });
+    });
+});
+</script>
+@endpush

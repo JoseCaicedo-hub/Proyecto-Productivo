@@ -92,7 +92,7 @@ class EmpresaController extends Controller
             'logo' => $logoPath,
             'descripcion' => $data['descripcion'] ?? null,
             'contacto' => $data['contacto'] ?? null,
-            'estado' => 'aprobada',
+            'estado' => 'activo',
         ]);
 
         return redirect()->route('empresas.index')->with('mensaje', 'Empresa creada correctamente.');

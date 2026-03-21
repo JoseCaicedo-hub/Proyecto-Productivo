@@ -61,9 +61,13 @@
                                                 @endcan
 
                                                 {{-- Botón papelera para cancelar pedido: sólo visible para el propietario cuando está pendiente --}}
-                                                @if(auth()->check() && auth()->id() === $reg->user_id && $reg->estado === 'pendiente')
+                                                @if(auth()->check() && auth()->id() === $reg->user_id && $reg->estado === 'pendiente' && !$reg->detalles->contains(function($d){ return in_array($d->envio_estado, ['enviado', 'entregado']); }))
                                                     <button type="button" class="btn btn-danger btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#modal-cancelar-{{$reg->id}}" title="Cancelar pedido">
                                                         <i class="bi bi-x-circle"></i>
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-info btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#modal-direccion-{{$reg->id}}" title="Editar dirección">
+                                                        <i class="bi bi-geo-alt"></i>
                                                     </button>
                                                 @endif
 
@@ -170,6 +174,85 @@
                                         @include('pedido.state')
                                         @include('pedido.delete')
                                         @include('pedido.delete_permanent')
+
+                                        @if(auth()->check() && auth()->id() === $reg->user_id && $reg->estado === 'pendiente' && !$reg->detalles->contains(function($d){ return in_array($d->envio_estado, ['enviado', 'entregado']); }))
+                                            <div class="modal fade" id="modal-direccion-{{$reg->id}}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Editar dirección del pedido #{{$reg->id}}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                        </div>
+                                                        <form action="{{ route('pedido.actualizar.direccion', $reg->id) }}" method="POST">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <div class="modal-body">
+                                                                <div class="mb-2">
+                                                                    <label class="form-label">País</label>
+                                                                    @php
+                                                                        $paisesEditar = ['Colombia','Argentina','Brasil','Chile','Ecuador','Perú','Venezuela','México','Costa Rica','Panamá','Uruguay','Paraguay','Bolivia','Guatemala','Honduras'];
+                                                                        $currentPais = old('pais', $reg->pais ?? '');
+                                                                        $currentDepartamento = old('departamento', $reg->departamento ?? '');
+                                                                        $currentCiudad = old('ciudad', $reg->ciudad ?? '');
+                                                                    @endphp
+                                                                    <select
+                                                                        name="pais"
+                                                                        id="pais_{{ $reg->id }}"
+                                                                        class="form-select js-pais-edit"
+                                                                        data-pedido-id="{{ $reg->id }}"
+                                                                        data-current-pais="{{ $currentPais }}"
+                                                                        data-current-departamento="{{ $currentDepartamento }}"
+                                                                        data-current-ciudad="{{ $currentCiudad }}"
+                                                                        required
+                                                                    >
+                                                                        <option value="">Selecciona un país</option>
+                                                                        @foreach($paisesEditar as $pais)
+                                                                            <option value="{{ $pais }}" {{ $currentPais === $pais ? 'selected' : '' }}>{{ $pais }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-2">
+                                                                    <label class="form-label">Departamento / Estado</label>
+                                                                    <select
+                                                                        name="departamento"
+                                                                        id="departamento_{{ $reg->id }}"
+                                                                        class="form-select js-departamento-edit"
+                                                                        data-pedido-id="{{ $reg->id }}"
+                                                                        required
+                                                                    >
+                                                                        <option value="">Selecciona un departamento/estado</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-2">
+                                                                    <label class="form-label">Municipio / Ciudad</label>
+                                                                    <select
+                                                                        name="ciudad"
+                                                                        id="ciudad_{{ $reg->id }}"
+                                                                        class="form-select js-ciudad-edit"
+                                                                        data-pedido-id="{{ $reg->id }}"
+                                                                        required
+                                                                    >
+                                                                        <option value="">Selecciona un municipio/ciudad</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-2">
+                                                                    <label class="form-label">Dirección completa</label>
+                                                                    <textarea name="direccion" class="form-control" rows="3" required>{{ old('direccion', $reg->direccion ?? '') }}</textarea>
+                                                                </div>
+                                                                <div class="mb-2">
+                                                                    <label class="form-label">Referencia</label>
+                                                                    <input type="text" name="referencia" class="form-control" value="{{ old('referencia', $reg->referencia ?? '') }}">
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                         @endforeach
                                     @endif
                                 </tbody>
@@ -239,6 +322,114 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         });
     }
+
+    const colombiaDataUrl = "{{ asset('data/colombia.min.json') }}";
+    const locationData = {
+        'Colombia': {},
+        'Argentina': {'Buenos Aires': ['Buenos Aires', 'La Plata'], 'Córdoba': ['Córdoba']},
+        'Brasil': {'São Paulo': ['São Paulo'], 'Rio de Janeiro': ['Rio de Janeiro']},
+        'Chile': {'Región Metropolitana': ['Santiago']},
+        'Ecuador': {'Pichincha': ['Quito']},
+        'Perú': {'Lima': ['Lima']},
+        'Venezuela': {'Distrito Capital': ['Caracas']},
+        'México': {'Ciudad de México': ['Ciudad de México']},
+        'Costa Rica': {'San José': ['San José']},
+        'Panamá': {'Panamá': ['Ciudad de Panamá']},
+        'Uruguay': {'Montevideo': ['Montevideo']},
+        'Paraguay': {'Asunción': ['Asunción']},
+        'Bolivia': {'La Paz': ['La Paz']},
+        'Guatemala': {'Guatemala': ['Ciudad de Guatemala']},
+        'Honduras': {'Francisco Morazán': ['Tegucigalpa']}
+    };
+
+    function setSelectOptions(select, values, placeholder, selectedValue) {
+        if (!select) return;
+        select.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = placeholder;
+        select.appendChild(defaultOption);
+
+        values.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            if ((selectedValue || '') === value) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    }
+
+    function populateDepartamentosFor(pedidoId, selectedDepartamento = '') {
+        const paisSelect = document.getElementById(`pais_${pedidoId}`);
+        const departamentoSelect = document.getElementById(`departamento_${pedidoId}`);
+        if (!paisSelect || !departamentoSelect) return;
+
+        const pais = (paisSelect.value || '').trim();
+        const departamentos = Object.keys(locationData[pais] || {});
+        setSelectOptions(departamentoSelect, departamentos, 'Selecciona un departamento/estado', selectedDepartamento);
+    }
+
+    function populateCiudadesFor(pedidoId, selectedCiudad = '') {
+        const paisSelect = document.getElementById(`pais_${pedidoId}`);
+        const departamentoSelect = document.getElementById(`departamento_${pedidoId}`);
+        const ciudadSelect = document.getElementById(`ciudad_${pedidoId}`);
+        if (!paisSelect || !departamentoSelect || !ciudadSelect) return;
+
+        const pais = (paisSelect.value || '').trim();
+        const departamento = (departamentoSelect.value || '').trim();
+        const ciudades = (locationData[pais] && locationData[pais][departamento]) ? locationData[pais][departamento] : [];
+        setSelectOptions(ciudadSelect, ciudades, 'Selecciona un municipio/ciudad', selectedCiudad);
+    }
+
+    async function loadColombiaData() {
+        try {
+            const response = await fetch(colombiaDataUrl, { cache: 'no-store' });
+            if (!response.ok) return;
+
+            const data = await response.json();
+            if (!Array.isArray(data)) return;
+
+            const map = {};
+            data.forEach(item => {
+                if (item?.departamento && Array.isArray(item?.ciudades)) {
+                    map[item.departamento] = item.ciudades;
+                }
+            });
+
+            if (Object.keys(map).length > 0) {
+                locationData['Colombia'] = map;
+            }
+        } catch (e) {
+        }
+    }
+
+    function setupEditAddressSelectors() {
+        document.querySelectorAll('.js-pais-edit').forEach(select => {
+            const pedidoId = select.dataset.pedidoId;
+            const selectedDepartamento = select.dataset.currentDepartamento || '';
+            const selectedCiudad = select.dataset.currentCiudad || '';
+
+            populateDepartamentosFor(pedidoId, selectedDepartamento);
+            populateCiudadesFor(pedidoId, selectedCiudad);
+
+            select.addEventListener('change', function () {
+                populateDepartamentosFor(pedidoId, '');
+                populateCiudadesFor(pedidoId, '');
+            });
+        });
+
+        document.querySelectorAll('.js-departamento-edit').forEach(select => {
+            const pedidoId = select.dataset.pedidoId;
+            select.addEventListener('change', function () {
+                populateCiudadesFor(pedidoId, '');
+            });
+        });
+    }
+
+    loadColombiaData().then(setupEditAddressSelectors);
 });
 </script>
 @endpush

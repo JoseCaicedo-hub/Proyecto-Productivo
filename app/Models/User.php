@@ -25,8 +25,12 @@ class User extends Authenticatable
         'activo',
         'avatar',
         'telefono',
+        'pais',
+        'departamento',
+        'direccion',
         'ciudad',
-        'municipio'
+        'municipio',
+        'empresa_id'
     ];
 
     /**
@@ -54,6 +58,11 @@ class User extends Authenticatable
 
     public function entradas(){
         return $this->hasMany(Entrada::class);
+    }
+
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
     }
 
     public function empresas()

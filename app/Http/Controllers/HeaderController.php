@@ -33,7 +33,7 @@ class HeaderController
             ->whereIn('id', $topIds)
             ->whereNotNull('empresa_id')
             ->whereHas('empresa', function ($q) {
-                $q->where('estado', 'aprobada');
+                $q->where('estado', 'activo');
             })
             ->get()
             ->keyBy('id');

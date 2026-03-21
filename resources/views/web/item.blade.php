@@ -68,6 +68,13 @@
                         </div>
                     @endif
 
+                    @if (session('error'))
+                        <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                        </div>
+                    @endif
+
                     <hr class="my-4">
 
                     <div class="mb-4">
@@ -86,9 +93,9 @@
                         </style>
 
                         @php
-                            // Límite máximo por pedido: 100 o lo que haya en almacen (si existe)
+                            // Límite máximo por pedido: 10 o lo que haya en almacén (si es menor)
                             $stock = $producto->cantidad_almacen ?? 0;
-                            $maxOrder = $stock > 0 ? min($stock, 100) : 100;
+                            $maxOrder = $stock > 0 ? min($stock, 10) : 10;
                         @endphp
 
                         <div class="qty-control">
@@ -111,7 +118,7 @@
                             </button>
                         </div>
 
-                        <small class="form-text text-muted mt-2">Pedido máximo por orden: <strong>{{ $maxOrder }}</strong></small>
+                        <small class="form-text text-muted mt-2">Pedido máximo por producto: <strong>{{ $maxOrder }}</strong>. Si necesitas más unidades, contáctate directamente con la empresa.</small>
                     </div>
 
                     {{-- Selector de talla para productos en la categoría Ropa --}}
@@ -252,7 +259,7 @@
             ->where('id', '<>', $producto->id)
             ->whereNotNull('empresa_id')
             ->whereHas('empresa', function($q){
-                $q->where('estado', 'aprobada');
+                $q->where('estado', 'activo');
             })
             ->inRandomOrder()
             ->limit(8)
@@ -320,7 +327,7 @@
         const increaseBtn = document.getElementById('qtyIncrease');
         const quantityInput = document.getElementById('selectedQuantity');
         const addToCartBtn = document.getElementById('addToCartBtn');
-        // maxAvailable ahora es el máximo por pedido (min(stock,100)) y se respeta también el stock
+        // maxAvailable ahora es el máximo por pedido (min(stock,10)) y se respeta también el stock
         const maxAvailable = {{ $maxOrder }};
 
         // Normaliza y retorna número seguro

@@ -5,6 +5,10 @@
 @endpush
 
 @section('contenido')
+@php
+  $logoPath = public_path('images/Logo.png');
+  $logoVersion = file_exists($logoPath) ? filemtime($logoPath) : time();
+@endphp
 
 <!-- HERO: izquierda texto, derecha logo marketplace -->
 <div class="equipo-hero container-fluid px-0">
@@ -16,7 +20,7 @@
     </div>
     <div class="col-lg-5 hero-right d-flex align-items-center justify-content-center">
       <div class="marketplace-box text-center p-4">
-        <img src="{{ asset('images/logo.png') }}" alt="MarketPlace" class="market-logo mb-3" style="max-width:300px;">
+        <img src="{{ asset('images/Logo.png') }}?v={{ $logoVersion }}" alt="MarketPlace" class="market-logo mb-3" style="max-width:300px;" onerror="this.onerror=null;this.src='{{ asset('images/marketplace-logo.svg') }}';">
       </div>
     </div>
   </div>

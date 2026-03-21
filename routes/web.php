@@ -16,11 +16,15 @@ use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmpresaController;
-use App\Http\Controllers\SolicitudEmpresaController;
+use App\Http\Controllers\SolicitudCompraMayoristaController;
+use App\Http\Controllers\ChatbotController;
 
 Route::get('/', [WebController::class, 'index'])->name('web.index');
 Route::get('/producto/{id}', [WebController::class, 'show'])->name('web.show');
 Route::post('/producto/{id}/review', [\App\Http\Controllers\ReviewController::class, 'store'])->name('producto.review.store');
+Route::post('/chatbot/message', [ChatbotController::class, 'message'])
+    ->middleware('throttle:chatbot')
+    ->name('chatbot.message');
 
 // Página del equipo (acerca)
 Route::view('/equipo', 'web.equipo.index')->name('web.equipo');
@@ -63,6 +67,7 @@ Route::post('/contactanos', function(\Illuminate\Http\Request $request){
     $data = $request->validate([
         'tipo' => 'required|string',
         'vendedor' => 'nullable|string',
+        'empresa_id' => 'nullable|numeric|exists:empresas,id',
         'nombre' => 'required|string|max:120',
         'email' => 'required|email|max:150',
         'telefono' => 'nullable|string|max:30',
@@ -76,6 +81,20 @@ Route::post('/contactanos', function(\Illuminate\Http\Request $request){
     if ($request->hasFile('adjunto')) {
         $path = $request->file('adjunto')->store('contactanos/adjuntos', 'public');
         $data['adjunto_path'] = $path;
+    }
+
+    // Resolver nombre de empresa si se envió un ID
+    if (!empty($data['empresa_id'])) {
+        try {
+            $empresa = \App\Models\Empresa::find($data['empresa_id']);
+            if ($empresa) {
+                $data['empresa_name'] = $empresa->nombre;
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('No se pudo obtener nombre de empresa: ' . $e->getMessage());
+        }
+    } else {
+        $data['empresa_name'] = 'Cualquier empresa';
     }
 
     \Log::info('Contacto contactanos recibido', $data);
@@ -145,15 +164,13 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/perfil/pedidos', [PedidoController::class, 'misPedidos'])->name('perfil.pedidos');
     // Ruta para que el usuario cancele su propio pedido (estado -> 'cancelado')
     Route::post('/pedido/{id}/cancelar', [PedidoController::class, 'cancelar'])->name('pedido.cancelar');
+    // Ruta para que el usuario edite la dirección de su pedido (solo si no ha sido enviado)
+    Route::patch('/pedido/{id}/direccion', [PedidoController::class, 'actualizarDireccion'])->name('pedido.actualizar.direccion');
     // Ruta para eliminar un pedido (DELETE) — solo propietario o admins
     Route::delete('/pedido/{id}', [PedidoController::class, 'destroy'])->name('pedido.destroy');
     // Ruta alternativa (POST) para eliminar permanentemente desde formularios que no manejen verbos HTTP
     Route::post('/pedido/{id}/eliminar-permanente', [PedidoController::class, 'destroyPermanent'])->name('pedido.eliminar.permanente');
     Route::patch('/pedidos/{id}/estado', [PedidoController::class, 'cambiarEstado'])->name('pedidos.cambiar.estado');    
-
-    Route::get('dashboard', function(){
-        return view('dashboard');
-    })->name('dashboard');
 
     Route::post('logout', function(){
         // Limpiar solo el carrito de sesión (el carrito en BD se mantiene)
@@ -235,11 +252,12 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
-    Route::get('/admin/empresas/solicitudes', [SolicitudEmpresaController::class, 'index'])->name('admin.empresas.solicitudes.index');
-    Route::get('/admin/empresas/solicitudes/historial', [SolicitudEmpresaController::class, 'historial'])->name('admin.empresas.solicitudes.historial');
-    Route::get('/admin/empresas/solicitudes/{id}/documento', [SolicitudEmpresaController::class, 'descargarDocumento'])->name('admin.empresas.solicitudes.documento');
-    Route::post('/admin/empresas/solicitudes/{id}/aprobar', [SolicitudEmpresaController::class, 'aprobar'])->name('admin.empresas.solicitudes.aprobar');
-    Route::post('/admin/empresas/solicitudes/{id}/rechazar', [SolicitudEmpresaController::class, 'rechazar'])->name('admin.empresas.solicitudes.rechazar');
+    // Rutas para solicitudes de compra mayorista
+    Route::post('/solicitud-mayorista', [SolicitudCompraMayoristaController::class, 'store'])->name('mayorista.solicitud.store');
+    Route::get('/empresa/solicitudes-mayorista', [SolicitudCompraMayoristaController::class, 'indexEmpresa'])->name('mayorista.solicitudes.index');
+    Route::get('/empresa/solicitudes-mayorista/{id}', [SolicitudCompraMayoristaController::class, 'show'])->name('mayorista.solicitud.show');
+    Route::post('/empresa/solicitudes-mayorista/{id}/estado', [SolicitudCompraMayoristaController::class, 'updateEstado'])->name('mayorista.solicitud.updateEstado');
+    Route::post('/empresa/solicitudes-mayorista/{id}/visto', [SolicitudCompraMayoristaController::class, 'marcarVisto'])->name('mayorista.solicitud.visto');
 });
 
 // Rutas de administración para solicitudes (protección por auth; control de rol en el controlador)

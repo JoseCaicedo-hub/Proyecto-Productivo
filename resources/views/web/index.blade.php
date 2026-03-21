@@ -1,5 +1,6 @@
 @extends('web.app')
 @section('header')
+@include('web.partials.header')
 @endsection
 @section('contenido')
 <form method="GET" action="{{route('web.index')}}">
@@ -35,7 +36,7 @@
                     </div>
                     @php
                         $empresasFiltro = \App\Models\Empresa::query()
-                            ->where('estado', 'aprobada')
+                            ->where('estado', 'activo')
                             ->whereHas('productos')
                             ->orderBy('nombre')
                             ->get(['id','nombre']);
@@ -86,7 +87,7 @@
                     ->whereNotIn('id', $existingIds)
                     ->whereNotNull('empresa_id')
                     ->whereHas('empresa', function($q){
-                        $q->where('estado', 'aprobada');
+                        $q->where('estado', 'activo');
                     })
                     ->latest()
                     ->take($needed)

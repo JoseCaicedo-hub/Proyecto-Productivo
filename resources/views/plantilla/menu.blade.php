@@ -63,9 +63,9 @@
                     </ul>
                 </li>
                 @endcanany
-                @canany(['producto-list', 'empresa-list', 'empresa-solicitud-list', 'empresa-solicitud-history'])
+                @canany(['producto-list', 'empresa-list'])
                 @php
-                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*') || request()->routeIs('empresas.*') || request()->routeIs('admin.empresas.solicitudes.*');
+                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*') || request()->routeIs('empresas.*');
                 @endphp
                 <li class="nav-item {{ $almacenOpen ? 'menu-open' : '' }}" id="mnuAlmacen">
                     <a href="#" class="nav-link {{ $almacenOpen ? 'active' : '' }}">
@@ -105,28 +105,6 @@
                                 <p>Entregados</p>
                             </a>
                         </li>
-                        @can('empresa-solicitud-list')
-                        <li class="nav-item">
-                            @php $pendientesEmpresas = \App\Models\SolicitudEmpresa::where('estado','pendiente')->count(); @endphp
-                            <a href="{{ route('admin.empresas.solicitudes.index') }}" class="nav-link {{ request()->routeIs('admin.empresas.solicitudes.*') ? 'active' : '' }}" id="itemSolicitudesEmpresas">
-                                <i class="nav-icon bi bi-building-check"></i>
-                                <p>
-                                    Solicitudes Empresas
-                                    @if($pendientesEmpresas > 0)
-                                        <span class="badge bg-danger ms-2">{{ $pendientesEmpresas }}</span>
-                                    @endif
-                                </p>
-                            </a>
-                        </li>
-                        @endcan
-                        @can('empresa-solicitud-history')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.empresas.solicitudes.historial') }}" class="nav-link {{ request()->routeIs('admin.empresas.solicitudes.historial') ? 'active' : '' }}" id="itemHistorialSolicitudesEmpresas">
-                                <i class="nav-icon bi bi-clock-history"></i>
-                                <p>Historial Empresas</p>
-                            </a>
-                        </li>
-                        @endcan
                         @role('admin')
                         <li class="nav-item">
                             @php $pendientes = \App\Models\Solicitud::where('estado','pendiente')->count(); @endphp

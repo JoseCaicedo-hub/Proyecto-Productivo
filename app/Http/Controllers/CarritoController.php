@@ -8,6 +8,8 @@ use App\Models\Carrito;
 
 class CarritoController extends Controller
 {
+    private const MAX_CANTIDAD_POR_PRODUCTO = 10;
+
     /**
      * Obtiene la clave única de sesión para el carrito del usuario
      */
@@ -130,6 +132,11 @@ class CarritoController extends Controller
      */
     public function saveCartPublic($carrito)
     {
+        foreach ($carrito as $key => $item) {
+            $cantidad = (int) ($item['cantidad'] ?? 1);
+            $carrito[$key]['cantidad'] = min(max($cantidad, 1), self::MAX_CANTIDAD_POR_PRODUCTO);
+        }
+
         // Guardar en sesión
         session()->put(self::getCartKey(), $carrito);
         
@@ -155,7 +162,7 @@ class CarritoController extends Controller
 
     public function agregar(Request $request){
         $producto = Producto::findOrFail($request->producto_id);
-        $cantidad = $request->cantidad ?? 1;
+        $cantidad = max(1, (int) ($request->cantidad ?? 1));
         $talla = $request->talla ?? null;
 
         // Si el producto es ropa, forzar selección de talla
@@ -168,10 +175,16 @@ class CarritoController extends Controller
         $carrito = $this->getCart();
         // Key compuesto si hay talla
         $key = $producto->id . ($talla ? ':' . $talla : '');
+        $cantidadActual = isset($carrito[$key]) ? (int) $carrito[$key]['cantidad'] : 0;
+        $nuevaCantidad = $cantidadActual + $cantidad;
+
+        if ($nuevaCantidad > self::MAX_CANTIDAD_POR_PRODUCTO) {
+            return redirect()->back()->with('error', 'El límite de compra por producto es 10 unidades. Si deseas pedir al por mayor, comunícate directamente con la empresa.');
+        }
 
         if (isset($carrito[$key])) {
             // Ya existe en el carrito, solo aumenta la cantidad
-            $carrito[$key]['cantidad'] += $cantidad;
+            $carrito[$key]['cantidad'] = $nuevaCantidad;
         } else {
             // No existe, lo agregamos
             $carrito[$key] = [
@@ -244,7 +257,12 @@ class CarritoController extends Controller
         $carrito = $this->getCart();
 
         if (isset($carrito[$productoId])) {
-            $carrito[$productoId]['cantidad'] += 1;
+            $cantidadActual = (int) $carrito[$productoId]['cantidad'];
+            if ($cantidadActual >= self::MAX_CANTIDAD_POR_PRODUCTO) {
+                return redirect()->back()->with('error', 'El límite de compra por producto es 10 unidades. Si deseas pedir al por mayor, comunícate directamente con la empresa.');
+            }
+
+            $carrito[$productoId]['cantidad'] = $cantidadActual + 1;
             $this->saveCart($carrito);
         }
 

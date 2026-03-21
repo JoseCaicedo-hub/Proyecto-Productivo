@@ -9,22 +9,96 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\SolicitudRecibida;
 use App\Notifications\NuevaSolicitudNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class SolicitudController extends Controller
 {
     // Guardar solicitud enviada desde el formulario público
     public function store(Request $request)
     {
-        $data = $request->validate([
+        if (auth()->check() && auth()->user()->hasRole('vendedor')) {
+            return redirect()->back()->with('error', 'Tu solicitud ya fue aprobada y ya cuentas con rol de vendedor.');
+        }
+
+        $paisesPermitidos = ['Colombia','Argentina','Brasil','Chile','Ecuador','Perú','Venezuela','México','Costa Rica','Panamá','Uruguay','Paraguay','Bolivia','Guatemala','Honduras'];
+
+        $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:191',
             'email' => 'required|email|max:191',
-            'telefono' => 'nullable|string|max:50',
-            'titulo' => 'nullable|string|max:255',
-            'idea' => 'required|string',
-            'detalle' => 'nullable|string',
+            'nombre_emprendimiento' => 'required|string|max:191',
+            'tipo_negocio' => 'nullable|string|max:100',
+            'categoria_negocio' => 'nullable|string|max:100',
+            'productos_servicios' => 'required|string',
+            'publico_objetivo' => 'nullable|string|max:255',
+            'diferenciador' => 'nullable|string',
+            'pais' => ['required', 'string', Rule::in($paisesPermitidos)],
+            'departamento' => ['required', 'string', 'max:120', 'regex:/^[\pL\s\-\'.]+$/u'],
+            'ciudad' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-\'.]+$/u'],
+            'direccion' => 'nullable|string|max:255',
+            'telefono' => ['required', 'regex:/^[0-9]+$/'],
+            'redes_sociales_web' => 'nullable|string|max:255',
+            'empresa_registrada_legalmente' => 'nullable|in:si,no',
             'producto_img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'carta' => 'required|mimes:pdf,doc,docx|max:5120',
+        ], [
+            'nombre_emprendimiento.required' => 'El nombre del emprendimiento es obligatorio.',
+            'productos_servicios.required' => 'La descripción de productos o servicios es obligatoria.',
+            'pais.required' => 'El país es obligatorio.',
+            'pais.in' => 'El país seleccionado no es válido.',
+            'departamento.required' => 'El departamento/estado es obligatorio.',
+            'departamento.regex' => 'El departamento/estado solo puede contener letras y espacios.',
+            'ciudad.required' => 'La ciudad es obligatoria.',
+            'ciudad.regex' => 'La ciudad solo puede contener letras y espacios.',
+            'telefono.required' => 'El teléfono del emprendimiento es obligatorio.',
+            'telefono.regex' => 'El teléfono solo debe contener números.',
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            $pais = mb_strtolower(trim((string) $request->input('pais', '')));
+            $telefono = preg_replace('/\D+/', '', (string) $request->input('telefono', ''));
+            $len = strlen($telefono);
+
+            $reglasTelefonoPorPais = [
+                'colombia' => ['exact' => 10],
+            ];
+
+            $regla = $reglasTelefonoPorPais[$pais] ?? ['min' => 10, 'max' => 15];
+
+            if (isset($regla['exact'])) {
+                if ($len !== (int) $regla['exact']) {
+                    $validator->errors()->add('telefono', 'El teléfono para ' . ucfirst($pais) . ' debe tener exactamente ' . $regla['exact'] . ' dígitos.');
+                }
+                return;
+            }
+
+            $min = (int) ($regla['min'] ?? 10);
+            $max = (int) ($regla['max'] ?? 15);
+
+            if ($len < $min || $len > $max) {
+                $validator->errors()->add('telefono', 'El teléfono debe tener entre ' . $min . ' y ' . $max . ' dígitos.');
+            }
+        });
+
+        $data = $validator->validate();
+
+        $pendingQuery = Solicitud::where('estado', 'pendiente');
+        if (auth()->check()) {
+            $pendingQuery->where('user_id', auth()->id());
+        } else {
+            $pendingQuery->where('email', $data['email']);
+        }
+
+        if ($pendingQuery->exists()) {
+            return redirect()->back()->withInput()->with('error', 'Ya tienes una solicitud pendiente. Debes esperar la respuesta del administrador antes de enviar otra.');
+        }
+
+        $data['titulo'] = $data['nombre_emprendimiento'];
+        $data['idea'] = $data['productos_servicios'];
+        $data['detalle'] = trim(implode("\n", array_filter([
+            !empty($data['publico_objetivo']) ? 'Público objetivo: ' . $data['publico_objetivo'] : null,
+            !empty($data['diferenciador']) ? 'Diferenciador: ' . $data['diferenciador'] : null,
+        ])));
 
         // Guardar archivos en disco (disk 'public')
         if ($request->hasFile('producto_img')) {

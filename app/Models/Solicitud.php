@@ -8,7 +8,32 @@ class Solicitud extends Model
 {
     // Nombre de la tabla en plural en español (evita pluralización irregular)
     protected $table = 'solicitudes';
-    protected $fillable = ['user_id','nombre','email','telefono','titulo','idea','detalle','producto_img','carta','estado','admin_id','respuesta'];
+    protected $fillable = [
+        'user_id',
+        'nombre',
+        'email',
+        'telefono',
+        'titulo',
+        'idea',
+        'detalle',
+        'nombre_emprendimiento',
+        'tipo_negocio',
+        'categoria_negocio',
+        'productos_servicios',
+        'publico_objetivo',
+        'diferenciador',
+        'pais',
+        'departamento',
+        'ciudad',
+        'direccion',
+        'redes_sociales_web',
+        'empresa_registrada_legalmente',
+        'producto_img',
+        'carta',
+        'estado',
+        'admin_id',
+        'respuesta',
+    ];
 
     public function user()
     {

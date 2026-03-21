@@ -11,6 +11,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Carrito;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class PedidoController extends Controller
 {
@@ -61,21 +63,151 @@ class PedidoController extends Controller
 
     public function realizar(Request $request){
         $carrito = \App\Http\Controllers\CarritoController::getCartStatic();
+        $rawNumeroDocumento = (string) $request->input('numero_documento', '');
 
         if (empty($carrito)) {
             return redirect()->back()->with('mensaje', 'El carrito está vacío.');
         }
+        // Normalizar campos numéricos
+        $request->merge([
+            'numero_documento' => preg_replace('/\D+/', '', $rawNumeroDocumento),
+            'telefono' => preg_replace('/\D+/', '', (string) $request->input('telefono', '')),
+            'card_number' => preg_replace('/\D+/', '', (string) $request->input('card_number', '')),
+            'card_cvv' => preg_replace('/\D+/', '', (string) $request->input('card_cvv', '')),
+            'account_number' => preg_replace('/\D+/', '', (string) $request->input('account_number', '')),
+        ]);
+
+        if ($request->input('tipo_documento') === 'PAS') {
+            $request->merge([
+                'numero_documento' => strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $rawNumeroDocumento)),
+            ]);
+        }
+
+        $phoneValidationByCountry = [
+            'colombia' => ['exact' => 10],
+            // Estructura preparada para más países:
+            // 'mexico' => ['min' => 10, 'max' => 10],
+            // 'argentina' => ['min' => 10, 'max' => 11],
+        ];
+
         // Validar datos de envío y pago
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
+            'pais' => 'required|string|max:100|regex:/^[\pL\s\.-]+$/u',
+            'departamento' => 'required|string|max:120',
+            'ciudad' => 'required|string|max:120|regex:/^[\pL\s\.-]+$/u',
             'direccion' => 'required|string|max:1000',
-            'tipo_documento' => 'required|string|max:30',
-            'numero_documento' => 'required|string|max:50',
-            'metodo_pago' => 'required|string|max:50',
-            'telefono' => 'nullable|string|max:30',
+            'tipo_documento' => 'required|string|in:CC,NIT,CE,PAS',
+            'numero_documento' => 'required|string|min:7|max:10',
+            'metodo_pago' => 'required|string|in:efectivo,tarjeta,transferencia',
+            'telefono' => 'required|regex:/^[0-9]+$/',
+            'card_number' => 'nullable|regex:/^[0-9]+$/|digits_between:13,19',
+            'card_cvv' => 'nullable|regex:/^[0-9]+$/|digits_between:3,4',
+            'card_expiry' => ['nullable', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
+            'payment_provider' => 'nullable|string|in:nequi,bancolombia,daviplata,otro',
+            'account_number' => 'nullable|regex:/^[0-9]+$/',
             'referencia' => 'nullable|string|max:255',
             'selected_items' => 'required|array|min:1',
             'selected_items.*' => 'string',
+            'guardar_direccion_perfil' => 'nullable|boolean',
+        ], [
+            'pais.required' => 'El país es obligatorio.',
+            'pais.regex' => 'El país solo puede contener letras.',
+            'departamento.required' => 'El departamento/estado es obligatorio.',
+            'ciudad.required' => 'La ciudad es obligatoria.',
+            'ciudad.regex' => 'La ciudad solo puede contener letras.',
+            'direccion.required' => 'La dirección completa es obligatoria.',
+            'numero_documento.required' => 'El número de documento es obligatorio.',
+            'numero_documento.min' => 'El documento debe tener al menos 7 caracteres.',
+            'numero_documento.max' => 'El documento no puede superar 10 caracteres.',
+            'telefono.required' => 'El teléfono es obligatorio.',
+            'telefono.regex' => 'El teléfono solo debe contener números.',
+            'card_number.digits_between' => 'El número de tarjeta debe tener entre 13 y 19 dígitos.',
+            'card_cvv.digits_between' => 'El CVV debe tener 3 o 4 dígitos.',
+            'card_expiry.regex' => 'La fecha de vencimiento debe tener formato MM/AA.',
+            'account_number.regex' => 'El número de cuenta debe contener solo números.',
         ]);
+
+        $validator->after(function ($validator) use ($request, $phoneValidationByCountry) {
+            $pais = mb_strtolower(trim((string) $request->input('pais', '')));
+            $telefono = preg_replace('/\D+/', '', (string) $request->input('telefono', ''));
+            $len = strlen($telefono);
+            $tipoDocumento = (string) $request->input('tipo_documento');
+            $numeroDocumento = (string) $request->input('numero_documento', '');
+            $metodoPago = (string) $request->input('metodo_pago', '');
+            $paymentProvider = (string) $request->input('payment_provider', '');
+            $accountNumber = preg_replace('/\D+/', '', (string) $request->input('account_number', ''));
+
+            if ($tipoDocumento === 'PAS') {
+                if (!preg_match('/^[A-Za-z0-9]{7,10}$/', $numeroDocumento)) {
+                    $validator->errors()->add('numero_documento', 'El pasaporte debe ser alfanumérico y tener entre 7 y 10 caracteres.');
+                }
+            } else {
+                if (!preg_match('/^[0-9]{7,10}$/', $numeroDocumento)) {
+                    $validator->errors()->add('numero_documento', 'La cédula debe tener entre 7 y 10 dígitos numéricos.');
+                }
+            }
+
+            $rule = $phoneValidationByCountry[$pais] ?? ['min' => 10, 'max' => 15];
+
+            if (isset($rule['exact'])) {
+                if ($len !== (int) $rule['exact']) {
+                    $validator->errors()->add('telefono', 'El teléfono para ' . ucfirst($pais) . ' debe tener exactamente ' . $rule['exact'] . ' dígitos.');
+                }
+                return;
+            }
+
+            $min = (int) ($rule['min'] ?? 10);
+            $max = (int) ($rule['max'] ?? 15);
+
+            if ($len < $min || $len > $max) {
+                $validator->errors()->add('telefono', 'El teléfono debe tener entre ' . $min . ' y ' . $max . ' dígitos.');
+            }
+
+            if ($metodoPago === 'tarjeta') {
+                $cardNumber = preg_replace('/\D+/', '', (string) $request->input('card_number', ''));
+                $cardCvv = preg_replace('/\D+/', '', (string) $request->input('card_cvv', ''));
+                $cardExpiry = (string) $request->input('card_expiry', '');
+
+                if (!preg_match('/^[0-9]{13,19}$/', $cardNumber)) {
+                    $validator->errors()->add('card_number', 'El número de tarjeta debe tener entre 13 y 19 dígitos.');
+                }
+                if (!preg_match('/^[0-9]{3,4}$/', $cardCvv)) {
+                    $validator->errors()->add('card_cvv', 'El CVV debe tener 3 o 4 dígitos.');
+                }
+                if (!preg_match('/^(0[1-9]|1[0-2])\/\d{2}$/', $cardExpiry)) {
+                    $validator->errors()->add('card_expiry', 'La fecha de vencimiento debe tener formato MM/AA.');
+                }
+            }
+
+            if ($metodoPago === 'transferencia') {
+                if (!in_array($paymentProvider, ['nequi', 'bancolombia', 'daviplata', 'otro'], true)) {
+                    $validator->errors()->add('payment_provider', 'Debes seleccionar una entidad para transferencia.');
+                }
+
+                $accountRules = [
+                    'nequi' => ['exact' => 10],
+                    'daviplata' => ['exact' => 10],
+                    'bancolombia' => ['min' => 10, 'max' => 16],
+                    'otro' => ['min' => 6, 'max' => 20],
+                ];
+                $rule = $accountRules[$paymentProvider] ?? ['min' => 6, 'max' => 20];
+                $accountLen = strlen($accountNumber);
+
+                if (isset($rule['exact'])) {
+                    if ($accountLen !== (int) $rule['exact']) {
+                        $validator->errors()->add('account_number', 'El número para ' . ucfirst($paymentProvider) . ' debe tener exactamente ' . $rule['exact'] . ' dígitos.');
+                    }
+                } else {
+                    $minAcc = (int) $rule['min'];
+                    $maxAcc = (int) $rule['max'];
+                    if ($accountLen < $minAcc || $accountLen > $maxAcc) {
+                        $validator->errors()->add('account_number', 'El número de cuenta debe tener entre ' . $minAcc . ' y ' . $maxAcc . ' dígitos.');
+                    }
+                }
+            }
+        });
+
+        $validated = $validator->validate();
 
         $selectedItems = collect($validated['selected_items'] ?? [])
             ->map(fn ($item) => (string) $item)
@@ -103,15 +235,34 @@ class PedidoController extends Controller
             // 2. Crear el pedido incluyendo datos de envío/pago
             $pedidoData = [
                 'user_id' => auth()->id(),
+                'nombre_cliente' => auth()->user()->name ?? null,
                 'total' => $total,
                 'estado' => 'pendiente',
                 'direccion' => $validated['direccion'] ?? null,
+                'pais' => $validated['pais'] ?? null,
+                'departamento' => $validated['departamento'] ?? null,
+                'ciudad' => $validated['ciudad'] ?? null,
                 'tipo_documento' => $validated['tipo_documento'] ?? null,
                 'numero_documento' => $validated['numero_documento'] ?? null,
                 'metodo_pago' => $validated['metodo_pago'] ?? null,
+                'payment_provider' => $validated['payment_provider'] ?? null,
+                'account_number' => $validated['account_number'] ?? null,
+                'card_last4' => !empty($validated['card_number']) ? substr($validated['card_number'], -4) : null,
+                'card_cvv_hash' => !empty($validated['card_cvv']) ? Hash::make($validated['card_cvv']) : null,
                 'telefono' => $validated['telefono'] ?? null,
                 'referencia' => $validated['referencia'] ?? null,
             ];
+
+            if (!empty($validated['guardar_direccion_perfil']) && auth()->check()) {
+                $user = auth()->user();
+                $user->pais = $validated['pais'];
+                $user->ciudad = $validated['pais'];
+                $user->departamento = $validated['departamento'];
+                $user->municipio = $validated['ciudad'];
+                $user->direccion = $validated['direccion'];
+                $user->telefono = $validated['telefono'];
+                $user->save();
+            }
 
             $pedido = Pedido::create($pedidoData);
             // 3. Crear los detalles del pedido
@@ -207,6 +358,15 @@ class PedidoController extends Controller
             return redirect()->back()->with('error', 'Solo se pueden cancelar pedidos en estado pendiente.');
         }
 
+        // Si cualquier detalle ya fue enviado o entregado, no permitir cancelación
+        $tieneEnvioIniciado = $pedido->detalles()
+            ->whereIn('envio_estado', ['enviado', 'entregado'])
+            ->exists();
+
+        if ($tieneEnvioIniciado) {
+            return redirect()->back()->with('error', 'No puedes cancelar este pedido porque ya fue enviado por el vendedor.');
+        }
+
         $pedido->estado = 'cancelado';
         $pedido->save();
 
@@ -217,6 +377,49 @@ class PedidoController extends Controller
         ]);
 
         return redirect()->back()->with('mensaje', 'Pedido cancelado correctamente.');
+    }
+
+    public function actualizarDireccion(Request $request, $id)
+    {
+        $pedido = Pedido::with('detalles')->findOrFail($id);
+
+        if ($pedido->user_id !== auth()->id()) {
+            abort(403, 'No puedes editar este pedido.');
+        }
+
+        $estadosBloqueados = ['enviado', 'entregado', 'anulado', 'cancelado'];
+        $tieneEnvioIniciado = $pedido->detalles->contains(function ($detalle) {
+            return in_array($detalle->envio_estado, ['enviado', 'entregado'], true);
+        });
+
+        if (in_array($pedido->estado, $estadosBloqueados, true) || $tieneEnvioIniciado) {
+            return redirect()->back()->with('error', 'No puedes editar la dirección porque el pedido ya fue enviado o gestionado.');
+        }
+
+        $validated = $request->validate([
+            'pais' => 'required|string|max:100|regex:/^[\pL\s\.-]+$/u',
+            'departamento' => 'required|string|max:120|regex:/^[\pL\s\.-]+$/u',
+            'ciudad' => 'required|string|max:120|regex:/^[\pL\s\.-]+$/u',
+            'direccion' => 'required|string|max:1000',
+            'referencia' => 'nullable|string|max:255',
+        ], [
+            'pais.required' => 'El país es obligatorio.',
+            'pais.regex' => 'El país solo puede contener letras.',
+            'departamento.required' => 'El departamento/estado es obligatorio.',
+            'departamento.regex' => 'El departamento/estado solo puede contener letras.',
+            'ciudad.required' => 'La ciudad es obligatoria.',
+            'ciudad.regex' => 'La ciudad solo puede contener letras.',
+            'direccion.required' => 'La dirección completa es obligatoria.',
+        ]);
+
+        $pedido->pais = $validated['pais'];
+        $pedido->departamento = $validated['departamento'];
+        $pedido->ciudad = $validated['ciudad'];
+        $pedido->direccion = $validated['direccion'];
+        $pedido->referencia = $validated['referencia'] ?? null;
+        $pedido->save();
+
+        return redirect()->back()->with('mensaje', 'Dirección del pedido actualizada correctamente.');
     }
 
     /**

@@ -8,10 +8,13 @@ use App\Models\Producto;
 class WebController extends Controller
 {
     public function index(Request $request){
+        // Obtener los productos más vendidos para el carrusel
+        $topProducts = \App\Http\Controllers\HeaderController::topProductos(5);
+        
         $query = Producto::with('empresa')
             ->whereNotNull('empresa_id')
             ->whereHas('empresa', function ($q) {
-                $q->where('estado', 'aprobada');
+                $q->where('estado', 'activo');
             });
         // Búsqueda por nombre
         if ($request->has('search') && $request->search) {
@@ -43,7 +46,7 @@ class WebController extends Controller
         }
         // Obtener productos filtrados
         $productos = $query->paginate(10);    
-        return view('web.index', compact('productos'));
+        return view('web.index', compact('productos', 'topProducts'));
 
     }
 

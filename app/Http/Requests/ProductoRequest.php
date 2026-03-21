@@ -26,6 +26,7 @@ class ProductoRequest extends FormRequest
         $method = $this->method();
         $id = $this->route('producto');
         $ownerId = auth()->id();
+        $isAdmin = auth()->check() && auth()->user()->hasRole('admin');
 
         if ($id && auth()->check() && auth()->user()->hasRole('admin')) {
             $producto = Producto::find($id);
@@ -34,18 +35,24 @@ class ProductoRequest extends FormRequest
             }
         }
 
+        $empresaRules = [
+            'nullable',
+            'integer',
+            Rule::exists('empresas', 'id')->where(function ($query) use ($ownerId) {
+                $query->where('estado', 'activo')
+                      ->where('user_id', $ownerId);
+            }),
+        ];
+
+        if ($isAdmin) {
+            $empresaRules[0] = 'required';
+        }
+
         $rules = [
             'codigo' => ['required', 'string', 'max:16', 'unique:productos,codigo,' . $id],
             'nombre' => ['required', 'string', 'max:100'],
-            'empresa_id' => [
-                'required',
-                'integer',
-                Rule::exists('empresas', 'id')->where(function ($query) use ($ownerId) {
-                    $query->where('estado', 'aprobada')
-                          ->where('user_id', $ownerId);
-                }),
-            ],
-            'categoria' => ['nullable', 'string', 'max:100'],
+            'empresa_id' => $empresaRules,
+            'categoria' => ['nullable', 'string', 'max:100', Rule::exists('categories', 'name')],
             'precio' => ['required', 'numeric', 'min:0'],
             'cantidad_almacen' => ['required', 'integer', 'min:0'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
@@ -77,6 +84,7 @@ class ProductoRequest extends FormRequest
             'descripcion.max' => 'La descripción no puede tener más de 1000 caracteres.',
 
             'categoria.max' => 'La categoría no puede tener más de 100 caracteres.',
+            'categoria.exists' => 'La categoría seleccionada no es válida.',
 
             'imagen.required' => 'La imagen del producto es obligatoria.',
             'imagen.image' => 'El archivo debe ser una imagen.',

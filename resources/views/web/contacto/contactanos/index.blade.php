@@ -50,11 +50,31 @@
                     <option value="">— Todos los vendedores —</option>
                     @if($vendedores->isNotEmpty())
                       @foreach($vendedores as $v)
-                        <option value="{{ $v->id }}" {{ old('vendedor') == $v->id ? 'selected' : '' }}>{{ $v->name }}@if($v->empresa) - {{ $v->empresa }}@endif</option>
+                        <option value="{{ $v->id }}" {{ old('vendedor') == $v->id ? 'selected' : '' }}>{{ $v->name }}@if($v->empresa) - {{ $v->empresa->nombre }}@endif</option>
                       @endforeach
                     @endif
                   </select>
                   @error('vendedor') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="empresa_id" class="form-label">Empresa (opcional)</label>
+                  @php
+                    try {
+                        $empresas = \App\Models\Empresa::where('estado', 'activo')->orderBy('nombre')->get();
+                    } catch (\Throwable $e) {
+                        $empresas = collect();
+                    }
+                  @endphp
+                  <select id="empresa_id" name="empresa_id" class="form-select @error('empresa_id') is-invalid @enderror">
+                    <option value="">— Selecciona una empresa —</option>
+                    @if($empresas->isNotEmpty())
+                      @foreach($empresas as $e)
+                        <option value="{{ $e->id }}" {{ old('empresa_id') == $e->id ? 'selected' : '' }}>{{ $e->nombre }}</option>
+                      @endforeach
+                    @endif
+                  </select>
+                  @error('empresa_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
               </div>
 

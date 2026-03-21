@@ -9,20 +9,13 @@
 @php
     // Productos destacados para el carrusel
     $topProducts = \App\Http\Controllers\HeaderController::topProductos(5);
-    // Lista de categorias a partir de productos existentes
-  $categorias = \App\Models\Producto::query()
-    ->whereNotNull('empresa_id')
-    ->whereHas('empresa', function($q){
-      $q->where('estado', 'aprobada');
-    })
-    ->select('categoria')
-    ->distinct()
-    ->pluck('categoria')
-    ->filter()
-    ->values();
+    // Lista de categorías principales desde base de datos
+  $categorias = \App\Models\Category::query()
+    ->orderBy('name')
+    ->pluck('name');
 
   $empresasFiltro = \App\Models\Empresa::query()
-    ->where('estado', 'aprobada')
+    ->where('estado', 'activo')
     ->whereHas('productos')
     ->orderBy('nombre')
     ->get(['id', 'nombre']);
@@ -35,7 +28,7 @@
   $productosQuery = \App\Models\Producto::with('empresa')
     ->whereNotNull('empresa_id')
     ->whereHas('empresa', function($q){
-      $q->where('estado', 'aprobada');
+      $q->where('estado', 'activo');
     });
 
     if($selectedCategory){
@@ -71,15 +64,6 @@
         <ul class="list-unstyled mb-0">
           @foreach($categorias as $cat)
             <li class="mb-2"><a href="{{ route('web.tienda', ['category' => $cat]) }}" class="text-decoration-none categoria-link">{{ $cat }}</a></li>
-          @endforeach
-          {{-- Añadir algunas categorías adicionales si no están en la lista (fallback) --}}
-          @php
-              $extra = ['Oficina','Belleza','Deportes'];
-          @endphp
-          @foreach($extra as $ecat)
-            @if(! $categorias->contains($ecat))
-              <li class="mb-2"><a href="{{ route('web.tienda', ['category' => $ecat]) }}" class="text-decoration-none categoria-link">{{ $ecat }}</a></li>
-            @endif
           @endforeach
         </ul>
       </div>

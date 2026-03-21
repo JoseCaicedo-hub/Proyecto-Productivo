@@ -1,66 +1,184 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# StartPlace.com
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Marketplace multi-vendedor para emprendimientos, tiendas y compradores, desarrollado en Laravel.
 
-## About Laravel
+Este README describe el estado real del software en este repositorio: arquitectura, módulos, reglas de negocio, seguridad y cómo ejecutarlo.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Resumen funcional
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+StartPlace permite:
+- Publicar y vender productos de múltiples empresas.
+- Gestionar roles de usuario (admin, vendedor, cliente).
+- Comprar con carrito, checkout y seguimiento de envío por detalle de pedido.
+- Recibir solicitudes de emprendimiento para aprobar nuevos vendedores.
+- Procesar solicitudes de compra mayorista por empresa.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Stack tecnológico
 
-## Learning Laravel
+- Backend: Laravel 12, PHP 8.2+
+- ORM: Eloquent
+- Vistas: Blade
+- Frontend build: Vite
+- UI: Bootstrap + estilos personalizados
+- Autorización: Spatie Laravel Permission
+- PDF: barryvdh/laravel-dompdf
+- Tests: PHPUnit
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Módulos del sistema
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 1) Sitio público
+- Inicio, tienda, detalle de producto, preguntas, contacto y página de equipo/acerca.
+- Navegación con carrito y autenticación.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 2) Autenticación y perfil
+- Registro/login, edición de perfil y avatar.
+- Diferenciación por roles para mostrar paneles y accesos.
 
-## Laravel Sponsors
+### 3) Catálogo y productos
+- CRUD de productos con categoría, precio, stock e imagen.
+- Relación producto-empresa-vendedor.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 4) Carrito
+- Agregar/quitar/sumar/restar productos.
+- Persistencia por sesión y soporte de flujo a pedido.
 
-### Premium Partners
+### 5) Checkout y pedidos
+- Creación de pedido desde carrito con datos de envío y pago.
+- Métodos: efectivo, tarjeta, transferencia.
+- Validaciones condicionales por método y documento.
+- Edición de dirección solo en estados permitidos.
+- Cancelación restringida cuando ya hay envío iniciado.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 6) Almacén vendedor
+- El vendedor gestiona entregas de sus detalles de pedido.
+- Estados de envío por ítem y registro de fechas.
 
-## Contributing
+### 7) Solicitudes de emprendimiento
+- Formulario público para aplicar como vendedor.
+- Adjuntos obligatorios (imagen representativa y carta).
+- Revisión en panel admin con aprobar/rechazar.
+- Notificación y correos de estado.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 8) Solicitudes mayoristas
+- Clientes envían solicitudes a empresas.
+- Vendedores ven, marcan vistas y actualizan estado.
 
-## Code of Conduct
+### 9) Administración
+- Gestión de usuarios, roles, productos y solicitudes.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Reglas de negocio clave (estado actual)
 
-## Security Vulnerabilities
+### Solicitudes de emprendimiento
+- Un usuario con solicitud pendiente no puede enviar otra.
+- Si el usuario ya tiene rol vendedor, no puede volver a enviar solicitud.
+- Antes de enviar, se muestra modal de confirmación.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Formulario de solicitud (ubicación y contacto)
+- País, departamento/estado y ciudad son dependientes.
+- Para Colombia se usa dataset extenso de departamentos/ciudades.
+- Teléfono:
+  - Solo números.
+  - Validación visual en tiempo real (Válido/Inválido).
+  - Longitud por país (Colombia exacto 10, otros rango general).
 
-## License
+### Pedidos y envíos
+- Si un detalle ya fue enviado/entregado, el comprador no puede cancelar el pedido.
+- Dirección editable solo antes de estados bloqueados.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Pagos
+- Tarjeta: número, expiración y CVV validados.
+- Transferencia: proveedor y número con reglas por proveedor.
+- Seguridad: CVV no se guarda en texto plano, se almacena hash.
+
+## Modelo de datos principal
+
+Entidades más importantes:
+- User
+- Empresa
+- Producto
+- ProductoImagen
+- Carrito
+- Pedido
+- PedidoDetalle
+- Solicitud
+- SolicitudCompraMayorista
+- Review
+- Category
+
+Relaciones principales:
+- Un usuario puede tener empresa(s), productos, pedidos y solicitudes.
+- Una empresa tiene productos y solicitudes mayoristas.
+- Un pedido tiene muchos detalles y cada detalle referencia producto.
+
+## Estructura del proyecto
+
+- app/Http/Controllers: lógica de negocio y endpoints web
+- app/Models: entidades Eloquent
+- resources/views: vistas Blade (web, admin, pedidos, solicitudes)
+- routes/web.php: rutas del sistema
+- database/migrations: evolución de esquema
+- database/seeders: carga inicial de roles/permisos/categorías
+- public/images, public/data: assets e información estática
+
+## Migraciones recientes destacadas
+
+- Categorías en base de datos.
+- Campos de dirección en users y pedidos.
+- Campos de pago en pedidos (incluye card_last4 y hash de CVV).
+- Ampliación de solicitud de emprendimiento con datos de negocio.
+- Campo departamento en solicitudes.
+
+## Seguridad y validaciones
+
+- Validación backend obligatoria (además de validación frontend).
+- Autorización por rol y permisos.
+- Restricciones de estado para operaciones sensibles.
+- Sanitización de campos numéricos en checkout.
+- Hash de CVV para evitar exposición de datos críticos.
+
+## Ejecución local
+
+1. Instalar dependencias:
+	- composer install
+	- npm install
+
+2. Configurar entorno:
+	- copiar .env
+	- php artisan key:generate
+	- configurar conexión a BD
+
+3. Base de datos:
+	- php artisan migrate
+	- php artisan db:seed
+
+4. Ejecutar proyecto:
+	- php artisan serve
+	- npm run dev
+
+## Despliegue (referencia)
+
+- npm run build
+- php artisan migrate --force
+- php artisan config:cache
+- php artisan route:cache
+- php artisan view:clear
+
+Nota de producción Linux/AWS:
+- Respetar mayúsculas/minúsculas en nombres de archivos (ejemplo: Logo.png vs logo.png).
+- Verificar que assets de public/images estén presentes tras deploy.
+
+## Estado actual del producto
+
+Fortalezas actuales:
+- Flujo completo marketplace (catálogo, carrito, pedidos, paneles por rol).
+- Solicitudes de emprendimiento con control de duplicados y estados.
+- Validaciones robustas de checkout y formulario de solicitud.
+
+Pendientes recomendados:
+- Integrar pasarela de pago real.
+- Mejorar cobertura de pruebas automáticas.
+- Endurecer rate limiting y auditoría de acciones administrativas.
+
+## Licencia
+
+Uso interno del proyecto StartPlace.

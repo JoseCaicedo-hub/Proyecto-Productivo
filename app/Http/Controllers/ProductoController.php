@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Producto;
 use App\Models\Empresa;
+use App\Models\Category;
 use App\Http\Requests\ProductoRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
@@ -42,17 +43,14 @@ class ProductoController extends Controller
     public function create()
     {
         $this->authorize('producto-create'); 
-        $categorias = ['Electrónica','Ropa','Hogar','Accesorios','Alimentos','Otros'];
-        $empresas = Empresa::where('user_id', auth()->id())
-            ->where('estado', 'aprobada')
-            ->orderBy('nombre')
-            ->get();
-
-        if ($empresas->isEmpty()) {
-            return redirect()->route('empresas.index')->with('mensaje', 'Debes tener al menos una empresa aprobada para crear productos.');
+        $categorias = Category::orderBy('name')->pluck('name')->toArray();
+        
+        // Verificar que el vendedor tenga una empresa asignada
+        if (auth()->check() && !auth()->user()->empresa_id) {
+            return redirect()->route('dashboard')->with('error', 'Debes completar tu perfil como vendedor y tener una empresa asignada para crear productos.');
         }
 
-        return view('producto.action', compact('categorias', 'empresas'));
+        return view('producto.action', compact('categorias'));
     }
 
     /**
@@ -61,22 +59,28 @@ class ProductoController extends Controller
     public function store(ProductoRequest $request)
     {
         $this->authorize('producto-create'); 
-        $registro = new Producto();
-        // Asociar el producto al usuario que lo publica (si hay sesión)
-        if (auth()->check()) {
-            $registro->user_id = auth()->id();
+        
+        // Verificar que el usuario tenga empresa asignada
+        if (!auth()->user()->empresa_id) {
+            return redirect()->route('dashboard')->with('error', 'No tienes una empresa asignada. Por favor completa tu perfil.');
         }
-        $registro->codigo=$request->input('codigo');
-        $registro->nombre=$request->input('nombre');
-        $registro->empresa_id=$request->input('empresa_id');
-        $registro->categoria=$request->input('categoria');
-        $registro->precio=$request->input('precio');
-        $registro->cantidad_almacen=$request->input('cantidad_almacen');
-        $registro->descripcion=$request->input('descripcion');
-        $sufijo=strtolower(Str::random(2));
+
+        $registro = new Producto();
+        // Asociar el producto al usuario que lo publica
+        $registro->user_id = auth()->id();
+        // Automáticamente asignar la empresa del vendedor
+        $registro->empresa_id = auth()->user()->empresa_id;
+        
+        $registro->codigo = $request->input('codigo');
+        $registro->nombre = $request->input('nombre');
+        $registro->categoria = $request->input('categoria');
+        $registro->precio = $request->input('precio');
+        $registro->cantidad_almacen = $request->input('cantidad_almacen');
+        $registro->descripcion = $request->input('descripcion');
+        $sufijo = strtolower(Str::random(2));
         $image = $request->file('imagen');
         if (!is_null($image)){            
-            $nombreImagen=$sufijo.'-'.$image->getClientOriginalName();
+            $nombreImagen = $sufijo.'-'.$image->getClientOriginalName();
             $image->move('uploads/productos', $nombreImagen);
             $registro->imagen = $nombreImagen;
         }
@@ -98,19 +102,27 @@ class ProductoController extends Controller
      */
     public function edit(string $id)
     {
-        $this->authorize('producto-edit'); 
+        $user = auth()->user();
+        if (!$user->can('producto-edit') && !$user->hasRole('vendedor')) {
+            abort(403, 'No autorizado para editar productos.');
+        }
+
         $registro=Producto::findOrFail($id);
         // Si el usuario es vendedor, sólo puede editar sus propios productos
         if (auth()->check() && auth()->user()->hasRole('vendedor')) {
-            if ($registro->user_id !== auth()->id()) {
+            $empresaId = auth()->user()->empresa_id;
+            $esPropioPorUsuario = ((int) $registro->user_id === (int) auth()->id());
+            $esPropioPorEmpresa = ($empresaId && (int) $registro->empresa_id === (int) $empresaId);
+
+            if (!$esPropioPorUsuario && !$esPropioPorEmpresa) {
                 abort(403, 'No autorizado a editar este producto');
             }
         }
-        $categorias = ['Electrónica','Ropa','Hogar','Accesorios','Alimentos','Otros'];
+        $categorias = Category::orderBy('name')->pluck('name')->toArray();
         $ownerId = auth()->user()->hasRole('admin') ? ($registro->user_id ?? auth()->id()) : auth()->id();
 
         $empresas = Empresa::where('user_id', $ownerId)
-            ->where('estado', 'aprobada')
+            ->where('estado', 'activo')
             ->orderBy('nombre')
             ->get();
 
@@ -129,17 +141,29 @@ class ProductoController extends Controller
      */
     public function update(ProductoRequest $request, $id)
     {
-        $this->authorize('producto-edit'); 
+        $user = auth()->user();
+        if (!$user->can('producto-edit') && !$user->hasRole('vendedor')) {
+            abort(403, 'No autorizado para actualizar productos.');
+        }
+
         $registro=Producto::findOrFail($id);
         // Si el usuario es vendedor, sólo puede actualizar sus propios productos
         if (auth()->check() && auth()->user()->hasRole('vendedor')) {
-            if ($registro->user_id !== auth()->id()) {
+            $empresaId = auth()->user()->empresa_id;
+            $esPropioPorUsuario = ((int) $registro->user_id === (int) auth()->id());
+            $esPropioPorEmpresa = ($empresaId && (int) $registro->empresa_id === (int) $empresaId);
+
+            if (!$esPropioPorUsuario && !$esPropioPorEmpresa) {
                 abort(403, 'No autorizado a actualizar este producto');
             }
         }
         $registro->codigo=$request->input('codigo');
         $registro->nombre=$request->input('nombre');
-        $registro->empresa_id=$request->input('empresa_id');
+        if ($user->hasRole('vendedor')) {
+            $registro->empresa_id = $user->empresa_id ?: $registro->empresa_id;
+        } else {
+            $registro->empresa_id = $request->input('empresa_id', $registro->empresa_id);
+        }
         $registro->categoria=$request->input('categoria');
         $registro->precio=$request->input('precio');
         $registro->cantidad_almacen=$request->input('cantidad_almacen');

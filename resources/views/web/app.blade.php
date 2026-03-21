@@ -152,6 +152,109 @@
                 background: rgba(11, 18, 32, 0.96);
                 border: 1px solid rgba(148, 163, 184, 0.25);
             }
+
+            .chatbot-fab {
+                position: fixed;
+                right: 20px;
+                bottom: 20px;
+                z-index: 1050;
+                width: 56px;
+                height: 56px;
+                border-radius: 999px;
+                border: 0;
+                background: #0d6efd;
+                color: #fff;
+                box-shadow: 0 10px 24px rgba(13, 110, 253, .35);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .chatbot-panel {
+                position: fixed;
+                right: 20px;
+                bottom: 88px;
+                width: 340px;
+                max-width: calc(100vw - 24px);
+                height: 460px;
+                z-index: 1050;
+                border-radius: 14px;
+                border: 1px solid rgba(15, 23, 42, .08);
+                background: #fff;
+                box-shadow: 0 14px 38px rgba(2, 6, 23, .2);
+                overflow: hidden;
+                transform: translateY(12px) scale(.98);
+                opacity: 0;
+                pointer-events: none;
+                transition: .18s ease;
+            }
+
+            .chatbot-panel.open {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .chatbot-header {
+                background: #0d6efd;
+                color: #fff;
+                padding: 10px 12px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-weight: 600;
+            }
+
+            .chatbot-messages {
+                height: 330px;
+                overflow-y: auto;
+                padding: 12px;
+                background: #f8fafc;
+            }
+
+            .chat-msg {
+                margin-bottom: 10px;
+                display: flex;
+            }
+
+            .chat-msg.user { justify-content: flex-end; }
+            .chat-msg.bot { justify-content: flex-start; }
+
+            .chat-bubble {
+                max-width: 82%;
+                padding: 8px 10px;
+                border-radius: 10px;
+                font-size: .93rem;
+                white-space: pre-line;
+            }
+
+            .chat-msg.user .chat-bubble {
+                background: #0d6efd;
+                color: #fff;
+            }
+
+            .chat-msg.bot .chat-bubble {
+                background: #fff;
+                color: #0f172a;
+                border: 1px solid rgba(15, 23, 42, .08);
+            }
+
+            .chatbot-input {
+                border-top: 1px solid rgba(15, 23, 42, .08);
+                background: #fff;
+                padding: 10px;
+                display: flex;
+                gap: 8px;
+            }
+
+            .chatbot-input input {
+                flex: 1;
+            }
+
+            html.dark-mode .chatbot-panel { background: #111827; border-color: rgba(148,163,184,.25); }
+            html.dark-mode .chatbot-messages { background: #0b1220; }
+            html.dark-mode .chat-msg.bot .chat-bubble { background: #111827; color: #e2e8f0; border-color: rgba(148,163,184,.25); }
+            html.dark-mode .chatbot-input { background: #111827; border-top-color: rgba(148,163,184,.25); }
         </style>
         @stack('estilos')
     </head>
@@ -169,6 +272,22 @@
             <div class="add-cart-loading-box">
                 <div class="spinner-border text-light" role="status" aria-label="Cargando"></div>
                 <p>Agregando producto...</p>
+            </div>
+        </div>
+
+        <button type="button" id="chatbotFab" class="chatbot-fab" aria-label="Abrir chat de ayuda" title="Chat de ayuda">
+            <i class="bi bi-chat-dots-fill"></i>
+        </button>
+
+        <div id="chatbotPanel" class="chatbot-panel" aria-hidden="true">
+            <div class="chatbot-header">
+                <span><i class="bi bi-robot me-1"></i> Asistente StartPlace</span>
+                <button type="button" id="chatbotClose" class="btn btn-sm btn-light">Cerrar</button>
+            </div>
+            <div id="chatbotMessages" class="chatbot-messages"></div>
+            <div class="chatbot-input">
+                <input type="text" id="chatbotInput" class="form-control" placeholder="Escribe tu pregunta...">
+                <button type="button" id="chatbotSend" class="btn btn-primary">Enviar</button>
             </div>
         </div>
 
@@ -297,6 +416,101 @@
                         applyTheme(nextTheme, true);
                     });
                 }
+            })();
+        </script>
+        <script>
+            (function () {
+                var fab = document.getElementById('chatbotFab');
+                var panel = document.getElementById('chatbotPanel');
+                var closeBtn = document.getElementById('chatbotClose');
+                var messages = document.getElementById('chatbotMessages');
+                var input = document.getElementById('chatbotInput');
+                var sendBtn = document.getElementById('chatbotSend');
+                var endpoint = "{{ route('chatbot.message') }}";
+                var csrf = "{{ csrf_token() }}";
+                var welcomed = false;
+
+                if (!fab || !panel || !messages || !input || !sendBtn) {
+                    return;
+                }
+
+                function addMessage(text, role) {
+                    var wrap = document.createElement('div');
+                    wrap.className = 'chat-msg ' + role;
+                    var bubble = document.createElement('div');
+                    bubble.className = 'chat-bubble';
+                    bubble.textContent = text;
+                    wrap.appendChild(bubble);
+                    messages.appendChild(wrap);
+                    messages.scrollTop = messages.scrollHeight;
+                }
+
+                function openPanel() {
+                    panel.classList.add('open');
+                    panel.setAttribute('aria-hidden', 'false');
+                    if (!welcomed) {
+                        addMessage('Hola 👋 ¿En qué puedo ayudarte hoy?', 'bot');
+                        welcomed = true;
+                    }
+                    input.focus();
+                }
+
+                function closePanel() {
+                    panel.classList.remove('open');
+                    panel.setAttribute('aria-hidden', 'true');
+                }
+
+                async function sendMessage() {
+                    var text = (input.value || '').trim();
+                    if (!text) {
+                        return;
+                    }
+
+                    addMessage(text, 'user');
+                    input.value = '';
+                    sendBtn.disabled = true;
+
+                    try {
+                        var response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrf,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ message: text })
+                        });
+
+                        if (!response.ok) {
+                            addMessage('No pude procesar tu mensaje en este momento. Intenta nuevamente.', 'bot');
+                        } else {
+                            var payload = await response.json();
+                            addMessage((payload && payload.reply) ? payload.reply : 'No tengo respuesta para eso todavía.', 'bot');
+                        }
+                    } catch (error) {
+                        addMessage('Ocurrió un error de conexión con el asistente.', 'bot');
+                    } finally {
+                        sendBtn.disabled = false;
+                        input.focus();
+                    }
+                }
+
+                fab.addEventListener('click', function () {
+                    if (panel.classList.contains('open')) {
+                        closePanel();
+                    } else {
+                        openPanel();
+                    }
+                });
+
+                closeBtn.addEventListener('click', closePanel);
+                sendBtn.addEventListener('click', sendMessage);
+                input.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        sendMessage();
+                    }
+                });
             })();
         </script>
         @stack('scripts')

@@ -22,6 +22,9 @@ class PerfilController extends Controller
         $registro->email = $request->email;
         // nuevos campos de contacto
         $registro->telefono = $request->telefono;
+        $registro->pais = $request->pais ?? $request->ciudad;
+        $registro->departamento = $request->departamento;
+        $registro->direccion = $request->direccion;
         $registro->ciudad = $request->ciudad;
         $registro->municipio = $request->municipio;
         if ($request->filled('password')) {

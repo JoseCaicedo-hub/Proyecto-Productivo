@@ -37,9 +37,17 @@
                             <td>{{ $s->email }}</td>
                             <td>{{ $s->titulo }}</td>
                             <td style="max-width:340px">
+                                <div class="small mb-1"><strong>Emprendimiento:</strong> {{ $s->nombre_emprendimiento ?? '—' }}</div>
+                                <div class="small mb-1"><strong>Tipo/Categoría:</strong> {{ $s->tipo_negocio ?? '—' }} / {{ $s->categoria_negocio ?? '—' }}</div>
+                                <div class="small mb-1"><strong>Ubicación:</strong> {{ $s->pais ?? '—' }} - {{ $s->ciudad ?? '—' }}</div>
+                                <div class="small mb-1"><strong>Teléfono:</strong> {{ $s->telefono ?? '—' }}</div>
+                                <div class="small mb-1"><strong>Legalmente registrada:</strong> {{ $s->empresa_registrada_legalmente ? strtoupper($s->empresa_registrada_legalmente) : '—' }}</div>
                                 <div>{{ Str::limit($s->idea, 120) }}</div>
                                 @if(!empty($s->detalle))
                                     <div class="text-muted small mt-2">{{ Str::limit($s->detalle, 120) }}</div>
+                                @endif
+                                @if(!empty($s->redes_sociales_web))
+                                    <div class="small mt-2"><strong>Web/Redes:</strong> {{ $s->redes_sociales_web }}</div>
                                 @endif
                             </td>
                             <td>

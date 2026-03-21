@@ -71,7 +71,15 @@
                 @php
                   $roleLabel = 'User';
                   if (auth()->check()) {
-                      $roleLabel = auth()->user()->hasAnyRole(['admin', 'administrator', 'Admin', 'Administrador']) ? 'Admin' : 'Usuario';
+                    if (auth()->user()->hasAnyRole(['admin', 'administrator', 'Admin', 'Administrador'])) {
+                      $roleLabel = 'Admin';
+                    } elseif (auth()->user()->hasRole('vendedor')) {
+                      $roleLabel = 'Vendedor';
+                    } elseif (auth()->user()->hasRole('cliente')) {
+                      $roleLabel = 'Cliente';
+                    } else {
+                      $roleLabel = 'Usuario';
+                    }
                   }
                 @endphp
                 <h1 class="h4 mb-0">@yield('titulo', $roleLabel)</h1>
