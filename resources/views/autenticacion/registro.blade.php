@@ -41,48 +41,8 @@
     @endif
 
     <form action="{{route('registro.store')}}" method="post">
+
       @csrf
-
-      <div class="form-group">
-        <div class="input-wrapper">
-          <select id="tipo_usuario" name="tipo_usuario" class="form-control @error('tipo_usuario') is-invalid @enderror">
-            <option value="">Selecciona tipo de usuario</option>
-            <option value="cliente" {{ old('tipo_usuario') == 'cliente' ? 'selected' : '' }}>Cliente</option>
-            <option value="vendedor" {{ old('tipo_usuario') == 'vendedor' ? 'selected' : '' }}>Vendedor</option>
-          </select>
-          <i class="bi bi-person-check input-icon"></i>
-          <label for="tipo_usuario" class="form-label">Tipo de Usuario</label>
-        </div>
-        @error('tipo_usuario')
-          <div class="invalid-feedback d-block">{{ $message }}</div>
-        @enderror
-      </div>
-
-      <!-- Campos para vendedores (ocultos inicialmente) -->
-      <div id="vendedor-fields" class="d-none">
-        <div class="form-group">
-          <div class="input-wrapper">
-            <input id="empresa_nombre" type="text" name="empresa_nombre" value="{{old('empresa_nombre')}}" class="form-control @error('empresa_nombre') is-invalid @enderror" placeholder=" " />
-            <i class="bi bi-building input-icon"></i>
-            <label for="empresa_nombre" class="form-label">Nombre de la Empresa</label>
-          </div>
-          @error('empresa_nombre')
-            <div class="invalid-feedback d-block">{{ $message }}</div>
-          @enderror
-        </div>
-
-        <div class="form-group">
-          <div class="input-wrapper">
-            <input id="empresa_logo" type="file" name="empresa_logo" class="form-control @error('empresa_logo') is-invalid @enderror" accept="image/*" />
-            <i class="bi bi-image input-icon"></i>
-            <label for="empresa_logo" class="form-label">Logo de la Empresa</label>
-          </div>
-          <small class="text-muted">Formatos: JPEG, PNG, JPG, GIF (máx. 2MB)</small>
-          @error('empresa_logo')
-            <div class="invalid-feedback d-block">{{ $message }}</div>
-          @enderror
-        </div>
-      </div>
 
       <div class="form-group">
         <div class="input-wrapper">
@@ -373,29 +333,6 @@
           }
         });
       });
-
-      // Mostrar/ocultar campos de vendedor
-      const tipoUsuarioSelect = document.getElementById('tipo_usuario');
-      const vendedorFields = document.getElementById('vendedor-fields');
-
-      if (tipoUsuarioSelect && vendedorFields) {
-        const toggleVendedorFields = () => {
-          if (tipoUsuarioSelect.value === 'vendedor') {
-            vendedorFields.classList.remove('d-none');
-            document.getElementById('empresa_nombre').setAttribute('required', 'required');
-            document.getElementById('empresa_logo').setAttribute('required', 'required');
-          } else {
-            vendedorFields.classList.add('d-none');
-            document.getElementById('empresa_nombre').removeAttribute('required');
-            document.getElementById('empresa_logo').removeAttribute('required');
-          }
-        };
-
-        tipoUsuarioSelect.addEventListener('change', toggleVendedorFields);
-        
-        // Inicializar al cargar
-        toggleVendedorFields();
-      }
     });
   </script>
 @endsection
