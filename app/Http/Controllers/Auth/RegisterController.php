@@ -46,7 +46,7 @@ class RegisterController extends Controller
         }
 
         Auth::login($usuario);
-        return redirect()->route('dashboard')->with('mensaje', 'Registro exitoso. ¡Bienvenido!');
+        return redirect()->route('web.index')->with('mensaje', 'Registro exitoso. ¡Bienvenido!');
     }
 }
 
