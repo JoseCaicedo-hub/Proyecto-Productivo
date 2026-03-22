@@ -18,13 +18,26 @@ class RegisterController extends Controller
 
     public function registrar(Request $request){
         // Validar datos básicos
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|confirmed|min:8',
             'telefono' => 'required|string',
             'pais' => 'required|string',
             'ciudad' => 'required|string',
+        ], [
+            'name.required' => 'El nombre es obligatorio.',
+            'name.string' => 'El nombre debe ser texto.',
+            'name.max' => 'El nombre no puede exceder 255 caracteres.',
+            'email.required' => 'El email es obligatorio.',
+            'email.email' => 'El email debe ser válido.',
+            'email.unique' => 'Este email ya está registrado.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'telefono.required' => 'El teléfono es obligatorio.',
+            'pais.required' => 'El país es obligatorio.',
+            'ciudad.required' => 'La ciudad es obligatoria.',
         ]);
 
         // Crear usuario como cliente
