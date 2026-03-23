@@ -22,7 +22,7 @@ class SolicitudAceptada extends Mailable
 
     public function build()
     {
-        return $this->subject('Tu solicitud ha sido aceptada')
+        return $this->subject('✅ Has sido aprobado como vendedor oficial en StartPlace')
                     ->view('emails.solicitud_aceptada')
                     ->with(['solicitud' => $this->solicitud, 'user' => $this->user]);
     }

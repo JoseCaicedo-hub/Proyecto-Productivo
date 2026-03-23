@@ -12,6 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         // Cambiar el estado de empresas 'aprobada' a 'activo'
+        if (!Schema::hasTable('empresas')) {
+            return;
+        }
+
         \Illuminate\Support\Facades\DB::table('empresas')
             ->where('estado', 'aprobada')
             ->update(['estado' => 'activo']);

@@ -171,6 +171,14 @@
             .review-form-card { border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
             .reviews-list { max-height: 420px; overflow-y: auto; padding-right: 8px; }
             .review-item { border-radius:8px; border:1px solid #eef2f6; padding:12px; background:#fff; }
+            .review-photo-trigger { width:52px; height:52px; border-radius:999px; border:2px dashed #cbd5e1; background:#f8fafc; color:#2563eb; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s ease; }
+            .review-photo-trigger:hover { background:#eff6ff; border-color:#93c5fd; color:#1d4ed8; transform:translateY(-1px); }
+            .review-photo-trigger .bi-plus-lg { font-size:1rem; margin-right:2px; }
+            .review-photo-trigger .bi-camera { font-size:1.05rem; }
+            .review-photo-preview { display:none; margin-top:10px; }
+            .review-photo-preview img { max-width:100%; max-height:170px; border-radius:10px; object-fit:cover; border:1px solid #e5e7eb; }
+            .review-item-image { margin-top:10px; }
+            .review-item-image img { width:100%; max-width:220px; max-height:180px; object-fit:cover; border-radius:10px; border:1px solid #e5e7eb; }
             .rating-stars .bi { font-size:1.2rem; cursor:pointer; color:#d1d5db; }
             .rating-stars .bi.filled { color:#f59e0b; }
             .reviews-tools { display:flex; gap:8px; align-items:center; }
@@ -187,7 +195,7 @@
                 <div class="card p-3 review-form-card">
                     <h5 class="mb-3">Dejar una reseña</h5>
                     @if(auth()->check())
-                        <form action="{{ route('producto.review.store', $producto->id) }}" method="POST">
+                        <form action="{{ route('producto.review.store', $producto->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="rating" id="reviewRating" required>
                             <div class="mb-3">
@@ -202,7 +210,21 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Tu opinión</label>
-                                <textarea name="comment" class="form-control" rows="5" placeholder="Comparte qué te gustó o qué mejorarías (opcional)"></textarea>
+                                <textarea name="comment" class="form-control" rows="5" placeholder="Comparte qué te gustó o qué mejorarías (opcional)">{{ old('comment') }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label d-block">Foto del producto (opcional)</label>
+                                <input type="file" name="foto_producto" id="reviewPhotoInput" class="d-none" accept="image/*">
+                                <label for="reviewPhotoInput" class="review-photo-trigger" title="Agregar foto" aria-label="Agregar foto de reseña">
+                                    <i class="bi bi-plus-lg"></i>
+                                    <i class="bi bi-camera"></i>
+                                </label>
+                                <div class="review-photo-preview" id="reviewPhotoPreview">
+                                    <img src="#" alt="Vista previa de la foto de reseña" id="reviewPhotoPreviewImg">
+                                </div>
+                                @error('foto_producto')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button class="btn btn-primary" type="submit">Enviar reseña</button>
@@ -240,6 +262,11 @@
                                 </div>
                                 @if($r->comment)
                                     <div class="mt-2">{{ $r->comment }}</div>
+                                @endif
+                                @if(!empty($r->foto_producto))
+                                    <div class="review-item-image">
+                                        <img src="{{ asset('storage/' . $r->foto_producto) }}" alt="Foto del producto reseñado">
+                                    </div>
                                 @endif
                             </div>
                         @endforeach
@@ -441,6 +468,26 @@
             if (reviewsList) {
                 if (scrollUp) scrollUp.addEventListener('click', (ev) => { ev.preventDefault(); reviewsList.scrollBy({ top: -120, behavior: 'smooth' }); });
                 if (scrollDown) scrollDown.addEventListener('click', (ev) => { ev.preventDefault(); reviewsList.scrollBy({ top: 120, behavior: 'smooth' }); });
+            }
+
+            const reviewPhotoInput = document.getElementById('reviewPhotoInput');
+            const reviewPhotoPreview = document.getElementById('reviewPhotoPreview');
+            const reviewPhotoPreviewImg = document.getElementById('reviewPhotoPreviewImg');
+            if (reviewPhotoInput && reviewPhotoPreview && reviewPhotoPreviewImg) {
+                reviewPhotoInput.addEventListener('change', function(e) {
+                    const file = e.target.files && e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            reviewPhotoPreviewImg.src = ev.target.result;
+                            reviewPhotoPreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        reviewPhotoPreview.style.display = 'none';
+                        reviewPhotoPreviewImg.src = '#';
+                    }
+                });
             }
     });
 </script>

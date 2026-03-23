@@ -46,6 +46,36 @@ class ChatbotController extends Controller
             ]);
         }
 
+        if ($this->containsAny($message, ['perfil', 'mi perfil', 'foto', 'avatar', 'imagen de perfil', 'cambiar foto', 'actualizar foto'])) {
+            return response()->json([
+                'reply' => $this->replyPerfil(),
+            ]);
+        }
+
+        if ($this->containsAny($message, ['contraseña', 'password', 'clave', 'cambiar contraseña', 'recuperar contraseña'])) {
+            return response()->json([
+                'reply' => $this->replyContrasena(),
+            ]);
+        }
+
+        if ($this->containsAny($message, ['datos', 'telefono', 'teléfono', 'direccion', 'dirección', 'ciudad', 'actualizar datos'])) {
+            return response()->json([
+                'reply' => $this->replyDatosCuenta(),
+            ]);
+        }
+
+        if ($this->containsAny($message, ['rol', 'roles', 'cliente', 'admin', 'administrador'])) {
+            return response()->json([
+                'reply' => $this->replyRoles(),
+            ]);
+        }
+
+        if ($this->containsAny($message, ['hola', 'buenas', 'buenos dias', 'buenas tardes', 'buenas noches', 'inicio'])) {
+            return response()->json([
+                'reply' => "¡Hola! 👋 Estoy para ayudarte. Puedes preguntarme por: pedidos, comprar, vender, perfil/foto, contraseña y soporte.",
+            ]);
+        }
+
         if ($this->containsAny($message, ['problema', 'error', 'reclamo', 'devolucion', 'cancelar'])) {
             return response()->json([
                 'reply' => $this->replyProblemasPedido(),
@@ -53,7 +83,7 @@ class ChatbotController extends Controller
         }
 
         return response()->json([
-            'reply' => "Puedo ayudarte con: estado de pedidos, cómo comprar, cómo vender, empresas/vendedores y soporte. Escríbeme una de esas opciones 😊",
+            'reply' => "Puedo ayudarte con: estado de pedidos, cómo comprar, cómo vender, perfil/foto, contraseña, datos de cuenta, empresas/vendedores y soporte. Escríbeme una de esas opciones 😊",
         ]);
     }
 
@@ -92,6 +122,55 @@ class ChatbotController extends Controller
         }
 
         return "Si tienes problemas con un pedido, revisa primero /perfil/pedidos. Si el problema continúa, envía el caso por /contactanos con el ID del pedido.";
+    }
+
+    private function replyPerfil(): string
+    {
+        if (!auth()->check()) {
+            return "Para cambiar tu foto o datos de perfil, primero inicia sesión y entra a /perfil.";
+        }
+
+        return "Para cambiar tu foto de perfil:
+1) Ve a /perfil
+2) Selecciona una nueva imagen (avatar)
+3) Guarda los cambios
+
+Desde esa misma pantalla también puedes actualizar tus datos personales.";
+    }
+
+    private function replyContrasena(): string
+    {
+        if (!auth()->check()) {
+            return "Si olvidaste tu contraseña, usa '¿Olvidaste tu contraseña?' en /login o entra a /password/reset para recuperarla.";
+        }
+
+        return "Si deseas cambiar tu contraseña actual, ve a /perfil y actualiza tus credenciales. Si no recuerdas la contraseña, cierra sesión y usa /password/reset.";
+    }
+
+    private function replyDatosCuenta(): string
+    {
+        if (!auth()->check()) {
+            return "Para actualizar datos como teléfono, dirección o ciudad, inicia sesión y entra a /perfil.";
+        }
+
+        return "Puedes actualizar tus datos personales en /perfil (teléfono, ciudad, dirección y más). Guarda los cambios al finalizar.";
+    }
+
+    private function replyRoles(): string
+    {
+        if (!auth()->check()) {
+            return "Al registrarte inicias como cliente. Si quieres vender, inicia sesión y envía tu solicitud en /solicitud.";
+        }
+
+        if (auth()->user()->hasRole('vendedor')) {
+            return "Actualmente tienes rol de vendedor ✅. Puedes gestionar tus productos desde /productos y tus entregas desde /almacen.";
+        }
+
+        if (auth()->user()->hasRole('admin')) {
+            return "Actualmente tienes rol administrador ✅. Puedes gestionar usuarios, roles, solicitudes y módulos del sistema desde el panel.";
+        }
+
+        return "Tu cuenta está como cliente. Si deseas vender, envía tu solicitud en /solicitud para revisión del administrador.";
     }
 
     private function containsAny(string $message, array $keywords): bool

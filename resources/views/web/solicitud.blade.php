@@ -35,7 +35,15 @@
             </div>
           @endif
 
-          @if($esVendedor)
+          @if(!auth()->check())
+            <div class="alert alert-info border-0 shadow-sm mb-0">
+              <h5 class="mb-2">No has iniciado sesión</h5>
+              <p class="mb-3">Para enviar una solicitud y convertirte en vendedor, primero debes iniciar sesión en tu cuenta.</p>
+              <a href="{{ route('login') }}" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar sesión
+              </a>
+            </div>
+          @elseif($esVendedor)
             <div class="alert alert-success mb-0">
               Tu solicitud ya fue <strong>aprobada</strong> y actualmente tienes el rol de vendedor.
             </div>
@@ -51,11 +59,13 @@
             <div class="row g-3 mb-2">
               <div class="col-md-6">
                 <label for="nombre" class="form-label">Nombre completo</label>
-                <input name="nombre" id="nombre" class="form-control" value="{{ auth()->user()->name ?? old('nombre') }}" required>
+                <input name="nombre" id="nombre" class="form-control" value="{{ auth()->user()->name }}" readonly required>
+                <small class="text-muted">Este dato corresponde a tu cuenta y no se puede editar.</small>
               </div>
               <div class="col-md-6">
                 <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" name="email" id="email" class="form-control" value="{{ auth()->user()->email ?? old('email') }}" required>
+                <input type="email" name="email" id="email" class="form-control" value="{{ auth()->user()->email }}" readonly required>
+                <small class="text-muted">Este correo corresponde a tu cuenta y no se puede editar.</small>
               </div>
             </div>
 

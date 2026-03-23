@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Solicitud;
 use App\Models\User;
+use App\Models\Empresa;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SolicitudRecibida;
 use App\Notifications\NuevaSolicitudNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -17,6 +19,15 @@ class SolicitudController extends Controller
     // Guardar solicitud enviada desde el formulario público
     public function store(Request $request)
     {
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Debes iniciar sesión para enviar tu solicitud de vendedor.');
+        }
+
+        $request->merge([
+            'nombre' => auth()->user()->name,
+            'email' => auth()->user()->email,
+        ]);
+
         if (auth()->check() && auth()->user()->hasRole('vendedor')) {
             return redirect()->back()->with('error', 'Tu solicitud ya fue aprobada y ya cuentas con rol de vendedor.');
         }
@@ -158,6 +169,27 @@ class SolicitudController extends Controller
         if ($user) {
             try {
                 $user->assignRole('vendedor');
+
+                $empresa = Empresa::where('user_id', $user->id)
+                    ->whereIn('estado', ['activo', 'aprobada'])
+                    ->orderByDesc('id')
+                    ->first();
+
+                if (!$empresa) {
+                    $empresa = Empresa::create([
+                        'user_id' => $user->id,
+                        'nombre' => $sol->nombre_emprendimiento ?: ($sol->titulo ?: ('Empresa de ' . $user->name)),
+                        'logo' => null,
+                        'descripcion' => $sol->productos_servicios ?: $sol->idea,
+                        'contacto' => $sol->telefono ?: $sol->email,
+                        'estado' => 'activo',
+                    ]);
+                }
+
+                if (!$user->empresa_id && $empresa) {
+                    $user->empresa_id = $empresa->id;
+                    $user->save();
+                }
             } catch (\Exception $e) {
                 // Si falla la asignación de rol no bloqueamos el flujo
             }
@@ -182,13 +214,21 @@ class SolicitudController extends Controller
         $sol->estado = 'rechazada';
         $sol->admin_id = auth()->id();
         $sol->respuesta = $request->input('respuesta');
-        $sol->save();
 
         // Notificar al solicitante por correo
         try {
             Mail::to($sol->email)->send(new \App\Mail\SolicitudRechazada($sol));
         } catch (\Exception $e) {}
 
-        return redirect()->back()->with('mensaje', 'Solicitud rechazada.');
+        if (!empty($sol->producto_img)) {
+            Storage::disk('public')->delete($sol->producto_img);
+        }
+        if (!empty($sol->carta)) {
+            Storage::disk('public')->delete($sol->carta);
+        }
+
+        $sol->delete();
+
+        return redirect()->back()->with('mensaje', 'Solicitud rechazada y eliminada correctamente.');
     }
 }

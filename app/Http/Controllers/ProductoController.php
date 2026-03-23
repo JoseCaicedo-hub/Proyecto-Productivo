@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Producto;
 use App\Models\Empresa;
+use App\Models\Solicitud;
 use App\Models\Category;
 use App\Http\Requests\ProductoRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -233,6 +234,24 @@ class ProductoController extends Controller
             ->whereIn('estado', ['activo', 'aprobada'])
             ->orderByDesc('id')
             ->first();
+
+        if (!$empresa) {
+            $solicitudAceptada = Solicitud::where('user_id', $user->id)
+                ->whereIn('estado', ['aceptada', 'aprobada'])
+                ->latest('id')
+                ->first();
+
+            if ($solicitudAceptada) {
+                $empresa = Empresa::create([
+                    'user_id' => $user->id,
+                    'nombre' => $solicitudAceptada->nombre_emprendimiento ?: ($solicitudAceptada->titulo ?: ('Empresa de ' . $user->name)),
+                    'logo' => null,
+                    'descripcion' => $solicitudAceptada->productos_servicios ?: $solicitudAceptada->idea,
+                    'contacto' => $solicitudAceptada->telefono ?: $solicitudAceptada->email,
+                    'estado' => 'activo',
+                ]);
+            }
+        }
 
         if (!$empresa) {
             return null;

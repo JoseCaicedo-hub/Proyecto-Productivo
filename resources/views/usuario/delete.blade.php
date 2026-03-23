@@ -7,7 +7,7 @@
                 @method('DELETE')
                 <div class="modal-header">
                     <h4 class="modal-title">Eliminar registro</h4>
-                    </button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     ¿Usted desea eliminar el registro {{$reg->name}} ?

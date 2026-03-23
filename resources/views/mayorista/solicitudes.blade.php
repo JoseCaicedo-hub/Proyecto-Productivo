@@ -18,6 +18,38 @@
         @endif
 
         @if($solicitudes->count() > 0)
+        <style>
+            .acciones-wrap {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .acciones-wrap .btn {
+                border-radius: 8px;
+                padding: 4px 10px;
+                font-size: .85rem;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .acciones-wrap .btn i {
+                font-size: .85rem;
+            }
+
+            .empresa-col {
+                min-width: 190px;
+            }
+
+            .empresa-cell {
+                max-width: 240px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        </style>
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -29,18 +61,21 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th class="empresa-col">Empresa</th>
                                     <th>Nombre Cliente</th>
                                     <th>Email</th>
                                     <th>Teléfono</th>
+                                    <th>Descripción</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
-                                    <th>Acciones</th>
+                                    <th style="min-width: 210px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($solicitudes as $solicitud)
                                 <tr>
                                     <td>#{{ $solicitud->id }}</td>
+                                    <td class="empresa-cell" title="{{ $solicitud->empresa->nombre ?? '—' }}">{{ $solicitud->empresa->nombre ?? '—' }}</td>
                                     <td>
                                         <strong>{{ $solicitud->nombre_cliente }}</strong>
                                         @if(!$solicitud->visto_en)
@@ -49,6 +84,7 @@
                                     </td>
                                     <td>{{ $solicitud->email_cliente }}</td>
                                     <td>{{ $solicitud->telefono_cliente }}</td>
+                                    <td>{{ \Illuminate\Support\Str::limit($solicitud->descripcion, 80) }}</td>
                                     <td>{{ $solicitud->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
                                         @if($solicitud->estado === 'pendiente')
@@ -62,14 +98,42 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('mayorista.solicitud.show', $solicitud->id) }}" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-eye me-1"></i>Ver
-                                        </a>
-                                        @if($solicitud->documento)
-                                            <a href="{{ asset('storage/' . $solicitud->documento) }}" class="btn btn-sm btn-secondary" target="_blank">
-                                                <i class="bi bi-file-earmark-pdf me-1"></i>Descargar
+                                        <div class="acciones-wrap">
+                                            <a href="{{ route('mayorista.solicitud.show', $solicitud->id) }}" class="btn btn-primary">
+                                                <i class="bi bi-eye"></i>Ver
                                             </a>
-                                        @endif
+                                            @if($solicitud->documento)
+                                                <a href="{{ asset('storage/' . $solicitud->documento) }}" class="btn btn-secondary" target="_blank">
+                                                    <i class="bi bi-file-earmark-pdf"></i>PDF
+                                                </a>
+                                            @endif
+                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modal-eliminar-solicitud-{{ $solicitud->id }}" title="Eliminar" aria-label="Eliminar">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="modal fade" id="modal-eliminar-solicitud-{{ $solicitud->id }}" tabindex="-1" aria-labelledby="modalEliminarSolicitudLabel-{{ $solicitud->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="modalEliminarSolicitudLabel-{{ $solicitud->id }}">Confirmar eliminación</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        ¿Seguro de eliminar este registro?
+                                                        <div class="small text-muted mt-2">Esta acción no se puede deshacer.</div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <form action="{{ route('mayorista.solicitud.destroy', $solicitud->id) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -99,3 +163,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    const mnuAlmacen = document.getElementById('mnuAlmacen');
+    if (mnuAlmacen) {
+        mnuAlmacen.classList.add('menu-open');
+    }
+    const itemGranPedido = document.getElementById('itemGranPedido');
+    if (itemGranPedido) {
+        itemGranPedido.classList.add('active');
+    }
+</script>
+@endpush

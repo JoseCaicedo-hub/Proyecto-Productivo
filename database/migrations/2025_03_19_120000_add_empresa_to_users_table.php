@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Agregar foreign key a empresa para vendedores
-            $table->unsignedBigInteger('empresa_id')->nullable()->after('activo');
-            $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('set null');
+            // Agregar columna para asociar empresa al usuario vendedor.
+            // No se define FK aquí porque la tabla `empresas` se crea en una migración posterior.
+            $table->unsignedBigInteger('empresa_id')->nullable();
         });
     }
 
@@ -24,7 +24,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['empresa_id']);
             $table->dropColumn('empresa_id');
         });
     }

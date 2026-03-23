@@ -125,3 +125,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    const mnuAlmacen = document.getElementById('mnuAlmacen');
+    if (mnuAlmacen) {
+        mnuAlmacen.classList.add('menu-open');
+    }
+    const itemGranPedido = document.getElementById('itemGranPedido');
+    if (itemGranPedido) {
+        itemGranPedido.classList.add('active');
+    }
+</script>
+@endpush

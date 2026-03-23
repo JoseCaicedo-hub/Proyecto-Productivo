@@ -105,13 +105,12 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(User $usuario)
     {
         $this->authorize('user-delete');
-        $registro=User::findOrFail($id);
-        $registro->delete();
+        $usuario->delete();
 
-        return redirect()->route('usuarios.index')->with('mensaje', $registro->name. ' eliminado correctamente.');
+        return redirect()->route('usuarios.index')->with('mensaje', $usuario->name. ' eliminado correctamente.');
     }
 
     public function toggleStatus(User $usuario){

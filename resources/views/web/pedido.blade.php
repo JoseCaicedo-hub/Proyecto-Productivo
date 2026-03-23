@@ -535,19 +535,20 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="nombre_cliente" class="form-label">Tu Nombre *</label>
-                            <input type="text" name="nombre_cliente" id="nombre_cliente" class="form-control" value="{{ auth()->user()->name }}" required>
+                            <input type="text" name="nombre_cliente" id="nombre_cliente" class="form-control" value="{{ auth()->user()->name }}" readonly required>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="email_cliente" class="form-label">Tu Email *</label>
-                            <input type="email" name="email_cliente" id="email_cliente" class="form-control" value="{{ auth()->user()->email }}" required>
+                            <input type="email" name="email_cliente" id="email_cliente" class="form-control" value="{{ auth()->user()->email }}" readonly required>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="telefono_cliente" class="form-label">Tu Teléfono *</label>
-                            <input type="tel" name="telefono_cliente" id="telefono_cliente" class="form-control" value="{{ auth()->user()->telefono }}" required>
+                            <input type="text" name="telefono_cliente" id="telefono_cliente" class="form-control" value="{{ auth()->user()->telefono }}" inputmode="numeric" pattern="[0-9]+" readonly required>
+                            <small class="text-muted">Estos datos se toman de tu cuenta y no se pueden editar aquí.</small>
                         </div>
                     </div>
 

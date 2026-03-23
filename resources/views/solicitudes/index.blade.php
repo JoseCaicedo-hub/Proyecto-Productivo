@@ -72,18 +72,54 @@
                             <td>
                                 @if($s->estado === 'pendiente')
                                     <div class="d-flex gap-2">
-                                        <form action="{{ route('admin.solicitudes.accept', $s->id) }}" method="POST" style="display:inline-block">
-                                            @csrf
-                                            <button class="btn btn-sm btn-success d-inline-flex align-items-center justify-content-center" title="Aceptar" aria-label="Aceptar">
-                                                <i class="bi bi-check" aria-hidden="true"></i>
-                                            </button>
-                                        </form>
-                                        <form action="{{ route('admin.solicitudes.reject', $s->id) }}" method="POST" style="display:inline-block">
-                                            @csrf
-                                            <button class="btn btn-sm btn-danger d-inline-flex align-items-center justify-content-center" title="Rechazar" aria-label="Rechazar">
+                                        <button type="button" class="btn btn-sm btn-success d-inline-flex align-items-center justify-content-center" title="Aceptar" aria-label="Aceptar" data-bs-toggle="modal" data-bs-target="#modal-aceptar-{{ $s->id }}">
+                                            <i class="bi bi-check" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center justify-content-center" title="Rechazar" aria-label="Rechazar" data-bs-toggle="modal" data-bs-target="#modal-rechazar-{{ $s->id }}">
                                                 <i class="bi bi-x" aria-hidden="true"></i>
-                                            </button>
-                                        </form>
+                                        </button>
+                                    </div>
+
+                                    <div class="modal fade" id="modal-aceptar-{{ $s->id }}" tabindex="-1" aria-labelledby="modalAceptarLabel-{{ $s->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalAceptarLabel-{{ $s->id }}">Confirmar aprobación</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    ¿Estás seguro de convertir a este usuario en vendedor?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <form action="{{ route('admin.solicitudes.accept', $s->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-success">Sí, convertir en vendedor</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal fade" id="modal-rechazar-{{ $s->id }}" tabindex="-1" aria-labelledby="modalRechazarLabel-{{ $s->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalRechazarLabel-{{ $s->id }}">Confirmar rechazo</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    ¿Estás seguro de borrar esta solicitud? Esta acción rechazará y eliminará el registro.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <form action="{{ route('admin.solicitudes.reject', $s->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-danger">Sí, borrar solicitud</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 @else
                                     <span class="text-muted">Procesada</span>

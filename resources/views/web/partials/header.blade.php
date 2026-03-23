@@ -9,7 +9,7 @@
         /* Hacemos que el contenido del slide use flex para alinear imagen y texto sin mostrar slides inactivos */
         #heroCarousel .carousel-item .container { min-height: inherit; display:flex; align-items:center; padding-top:.5rem; padding-bottom:.5rem; }
         #heroCarousel .carousel-item .col-md-6 { display: flex; align-items: center; }
-        #heroCarousel .carousel-item img { width: 100%; height: clamp(180px, 30vw, 280px); object-fit: cover; }
+        #heroCarousel .carousel-item img { width: 100%; height: clamp(180px, 30vw, 280px); object-fit: contain; object-position: center; background:#fff; }
         #heroCarousel .carousel-item .text-dark { min-height: auto; display:flex; flex-direction:column; justify-content:center; }
         @media (max-width: 767.98px) {
             #heroCarousel .carousel-inner, #heroCarousel .carousel-item { min-height: 180px; }
@@ -36,7 +36,7 @@
                         <img src="{{ asset('uploads/productos/' . $producto->imagen) }}"
                              alt="{{ $producto->nombre }}"
                              class="img-fluid rounded shadow-lg miclase"
-                                style="max-height: 280px; object-fit: cover;">
+                                style="max-height: 280px; object-fit: contain; object-position: center; background:#fff;">
                     </div>
 
                     <!-- Información -->

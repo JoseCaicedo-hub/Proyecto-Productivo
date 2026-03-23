@@ -127,6 +127,45 @@ Relaciones principales:
 - Campos de pago en pedidos (incluye card_last4 y hash de CVV).
 - Ampliación de solicitud de emprendimiento con datos de negocio.
 - Campo departamento en solicitudes.
+- Foto opcional en reseñas (`reviews.foto_producto`).
+
+## Actualizaciones recientes (marzo 2026)
+
+### Solicitudes de emprendimiento
+- El envío requiere sesión iniciada (ruta POST protegida).
+- `nombre` y `email` de la solicitud se fuerzan desde la cuenta autenticada (no editables).
+- En panel admin, aceptar/rechazar usa modales de confirmación.
+- Al rechazar, la solicitud se elimina del registro junto con sus adjuntos.
+- Al aceptar, se asigna rol vendedor y se crea/vincula empresa automáticamente si faltaba.
+
+### Registro y acceso
+- El registro público se simplificó: todos se crean como cliente.
+- Se eliminó creación de empresa durante registro.
+- Tras registrarse, el usuario vuelve al inicio con alerta de éxito.
+- Mensajes de validación de registro en español (incluye email duplicado).
+
+### Productos y vendedores
+- Corrección de creación de productos para vendedores recién aprobados.
+- Resolución automática de empresa para vendedor cuando `empresa_id` no estaba vinculado.
+
+### Compras mayoristas
+- Nombre, email y teléfono del solicitante se toman de su cuenta y no son editables en el formulario.
+- Teléfono validado solo numérico en backend.
+- Nuevo módulo en menú de Almacén: **Gran Pedido** para vendedor y admin.
+- Listado de mayorista mejorado con empresa, descripción y paginación de 8 por página.
+- Acciones por registro: ver, descargar documento y eliminar (con confirmación).
+- Control de acceso por rol: admin ve todas; vendedor solo su empresa.
+
+### Reseñas
+- Soporte para subir foto opcional del producto recibido en la reseña.
+- UI de reseña con selector visual de imagen (botón + cámara), preview y render de imagen en comentarios.
+
+### Chatbot
+- Nuevas respuestas para perfil, cambio de foto/avatar, contraseña, datos de cuenta y roles.
+
+### UI/UX
+- Carrusel principal actualizado para mostrar imagen completa de producto sin recorte (`object-fit: contain`) sin alterar dimensiones del carrusel.
+- Correcciones de modales y botones en vistas administrativas.
 
 ## Seguridad y validaciones
 
@@ -154,6 +193,7 @@ Relaciones principales:
 4. Ejecutar proyecto:
 	- php artisan serve
 	- npm run dev
+	- php artisan storage:link
 
 ## Despliegue (referencia)
 

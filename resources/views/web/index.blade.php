@@ -3,6 +3,15 @@
 @include('web.partials.header')
 @endsection
 @section('contenido')
+@if(session('mensaje'))
+<div class="container px-4 px-lg-5 mt-3">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="register-success-alert">
+        <strong>¡Éxito!</strong> {{ session('mensaje') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+</div>
+@endif
+
 <form method="GET" action="{{route('web.index')}}">
     <style>
         .search-panel{border-radius:14px;background:linear-gradient(180deg,#ffffff,#fbfdff)}
@@ -328,6 +337,19 @@
 </section>
 
 @endsection
+
+<script>
+    // Cerrar automáticamente la alerta de éxito después de 6 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        var alertElement = document.getElementById('register-success-alert');
+        if (alertElement) {
+            setTimeout(function() {
+                var alert = new bootstrap.Alert(alertElement);
+                alert.close();
+            }, 6000);
+        }
+    });
+</script>
 
 <script>
     (function(){

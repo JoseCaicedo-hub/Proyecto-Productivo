@@ -65,7 +65,7 @@
                 @endcanany
                 @canany(['producto-list', 'empresa-list'])
                 @php
-                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*') || request()->routeIs('empresas.*');
+                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*') || request()->routeIs('empresas.*') || request()->routeIs('mayorista.*');
                 @endphp
                 <li class="nav-item {{ $almacenOpen ? 'menu-open' : '' }}" id="mnuAlmacen">
                     <a href="#" class="nav-link {{ $almacenOpen ? 'active' : '' }}">
@@ -107,6 +107,14 @@
                                 <p>Entregados</p>
                             </a>
                         </li>
+                        @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('vendedor'))
+                        <li class="nav-item">
+                            <a href="{{ route('mayorista.solicitudes.index') }}" class="nav-link {{ request()->routeIs('mayorista.*') ? 'active' : '' }}" id="itemGranPedido">
+                                <i class="nav-icon bi bi-basket2-fill"></i>
+                                <p>Gran Pedido</p>
+                            </a>
+                        </li>
+                        @endif
                         @role('admin')
                         <li class="nav-item">
                             @php $pendientes = \App\Models\Solicitud::where('estado','pendiente')->count(); @endphp

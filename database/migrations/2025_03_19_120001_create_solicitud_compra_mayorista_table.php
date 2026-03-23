@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
+            // No se define FK a empresas aquí porque esa tabla se crea en una migración posterior.
             $table->index('empresa_id');
             $table->index('estado');
         });

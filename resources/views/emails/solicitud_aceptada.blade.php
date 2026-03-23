@@ -18,19 +18,32 @@
                         <tr>
                             <td style="padding:24px;">
                                 <p style="margin:0 0 12px 0;color:#333;font-size:15px;">Hola {{ $solicitud->nombre }},</p>
-                                <p style="margin:0 0 16px 0;color:#555;line-height:1.5;">Nos complace informarte que tu solicitud ha sido <strong>aceptada</strong>. ¡Bienvenido a StartPlace!</p>
+                                <p style="margin:0 0 16px 0;color:#555;line-height:1.6;">
+                                    Nos complace informarte que tu solicitud fue <strong>aprobada</strong> y desde este momento eres
+                                    <strong>vendedor oficial de StartPlace</strong>. 🎉
+                                </p>
 
-                                @if(!empty($user))
-                                        <p style="margin:8px 0;">Se te ha otorgado el rol de <strong>vendedor</strong> (o administrador según corresponda) en la plataforma con el usuario: <strong>{{ $user->email }}</strong>.</p>
-                                        <div style="text-align:center;margin:18px 0;">
-                                            <a href="{{ url('/login') }}" style="display:inline-block;padding:10px 18px;background:#0b5ed7;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">Iniciar sesión</a>
-                                        </div>
-                                @else
-                                        <p style="margin:8px 0;">Pronto nos pondremos en contacto para completar los detalles de acceso.</p>
-                                @endif
+                                <div style="background:#f8f9fb;padding:14px;border-radius:8px;color:#444;margin:12px 0 16px 0;line-height:1.6;">
+                                    <strong>Cuenta aprobada:</strong><br>
+                                    Nombre: {{ $solicitud->nombre }}<br>
+                                    Correo: {{ $user->email ?? $solicitud->email }}
+                                </div>
 
-                                <p style="color:#777;font-size:13px;margin-top:20px;">Si tienes dudas, responde a este correo y con gusto te ayudaremos.</p>
-                                <p style="color:#777;font-size:13px;margin-top:6px;">Saludos,<br><strong>El equipo de StartPlace</strong></p>
+                                <p style="margin:10px 0 8px 0;color:#333;"><strong>Próximos pasos recomendados:</strong></p>
+                                <ol style="margin:0 0 14px 18px;color:#555;line-height:1.6;padding:0;">
+                                    <li>Inicia sesión en tu cuenta.</li>
+                                    <li>Completa o verifica tu información de perfil.</li>
+                                    <li>Publica tus primeros productos y gestiona tu inventario.</li>
+                                </ol>
+
+                                <div style="text-align:center;margin:18px 0;">
+                                    <a href="{{ url('/login') }}" style="display:inline-block;padding:10px 18px;background:#0b5ed7;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">Ingresar a StartPlace</a>
+                                </div>
+
+                                <p style="color:#777;font-size:13px;margin-top:20px;line-height:1.6;">
+                                    Gracias por confiar en StartPlace. Estamos felices de contar contigo en nuestra comunidad de vendedores.
+                                </p>
+                                <p style="color:#777;font-size:13px;margin-top:6px;">Saludos cordiales,<br><strong>Equipo StartPlace</strong></p>
                             </td>
                         </tr>
                         <tr>

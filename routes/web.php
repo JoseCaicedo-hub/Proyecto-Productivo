@@ -32,8 +32,10 @@ Route::view('/equipo', 'web.equipo.index')->name('web.equipo');
 // Página pública para ver y enviar solicitud
 Route::view('/solicitud', 'web.solicitud')->name('web.solicitud');
 
-// Formulario público para solicitudes de emprendimiento (POST)
-Route::post('/solicitudes', [\App\Http\Controllers\SolicitudController::class, 'store'])->name('solicitudes.store');
+// Formulario de solicitudes de emprendimiento (POST) - requiere autenticación
+Route::post('/solicitudes', [\App\Http\Controllers\SolicitudController::class, 'store'])
+    ->middleware('auth')
+    ->name('solicitudes.store');
 
 // Página tienda
 Route::view('/tienda', 'web.tienda.index')->name('web.tienda');
@@ -258,6 +260,7 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/empresa/solicitudes-mayorista/{id}', [SolicitudCompraMayoristaController::class, 'show'])->name('mayorista.solicitud.show');
     Route::post('/empresa/solicitudes-mayorista/{id}/estado', [SolicitudCompraMayoristaController::class, 'updateEstado'])->name('mayorista.solicitud.updateEstado');
     Route::post('/empresa/solicitudes-mayorista/{id}/visto', [SolicitudCompraMayoristaController::class, 'marcarVisto'])->name('mayorista.solicitud.visto');
+    Route::delete('/empresa/solicitudes-mayorista/{id}', [SolicitudCompraMayoristaController::class, 'destroy'])->name('mayorista.solicitud.destroy');
 });
 
 // Rutas de administración para solicitudes (protección por auth; control de rol en el controlador)
