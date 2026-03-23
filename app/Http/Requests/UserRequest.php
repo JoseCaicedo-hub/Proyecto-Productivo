@@ -25,6 +25,7 @@ class UserRequest extends FormRequest
     {
         $method = $this->method();
         $id = $this->route('usuario') ?? Auth::id(); 
+        $isUserAdminCrud = $this->routeIs('usuarios.store') || $this->routeIs('usuarios.update');
         
         $rules= [
             'name' => 'required|string|max:255',
@@ -33,6 +34,7 @@ class UserRequest extends FormRequest
                 'email',
                 Rule::unique('users', 'email')->ignore($id), // 👈 Correcto, todo en array
             ],
+            'role' => 'nullable|exists:roles,name',
             'telefono' => 'nullable|regex:/^[0-9]+$/|digits_between:7,15',
             'pais' => 'nullable|string|max:100',
             'departamento' => 'nullable|string|max:120',
@@ -42,14 +44,27 @@ class UserRequest extends FormRequest
         ];
 
         if ($method === 'POST') {
+            if ($isUserAdminCrud) {
+                $rules['role'] = 'required|exists:roles,name';
+            }
             $rules['password'] = 'required|min:8|confirmed'; // Requerido solo en POST (crear)
         } else if (in_array($method, ['PUT', 'PATCH'])) {
-            $rules['telefono'] = 'required|regex:/^[0-9]+$/|digits_between:7,15';
-            $rules['pais'] = 'nullable|string|max:100';
-            $rules['departamento'] = 'required|string|max:120';
-            $rules['direccion'] = 'required|string|max:1000';
-            $rules['ciudad'] = 'required|string|max:100';
-            $rules['municipio'] = 'required|string|max:100';
+            if ($isUserAdminCrud) {
+                $rules['role'] = 'required|exists:roles,name';
+                $rules['telefono'] = 'nullable|regex:/^[0-9]+$/|digits_between:7,15';
+                $rules['pais'] = 'nullable|string|max:100';
+                $rules['departamento'] = 'nullable|string|max:120';
+                $rules['direccion'] = 'nullable|string|max:1000';
+                $rules['ciudad'] = 'nullable|string|max:100';
+                $rules['municipio'] = 'nullable|string|max:100';
+            } else {
+                $rules['telefono'] = 'required|regex:/^[0-9]+$/|digits_between:7,15';
+                $rules['pais'] = 'nullable|string|max:100';
+                $rules['departamento'] = 'required|string|max:120';
+                $rules['direccion'] = 'required|string|max:1000';
+                $rules['ciudad'] = 'required|string|max:100';
+                $rules['municipio'] = 'required|string|max:100';
+            }
             $rules['password'] = 'nullable|min:8|confirmed'; // No obligatorio en PUT (editar)
         }
 

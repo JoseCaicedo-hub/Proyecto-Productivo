@@ -3,7 +3,7 @@
 @section('contenido')
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">Mi Empresa</h3>
+        <h3 class="mb-0">Empresas</h3>
         @if(!$user->hasRole('vendedor') || $user->hasRole('admin'))
         <a href="{{ route('empresas.create') }}" class="btn btn-primary btn-sm">Nueva empresa</a>
         @endif
@@ -28,6 +28,7 @@
                 <table class="table table-bordered mb-0">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Logo</th>
                             <th>Nombre</th>
                             <th>Contacto</th>
@@ -39,6 +40,7 @@
                     <tbody>
                         @forelse($empresas as $empresa)
                             <tr class="align-middle">
+                                <td>{{ $empresa->id }}</td>
                                 <td style="width:100px;">
                                     @if($empresa->logo)
                                         <img src="{{ asset($empresa->logo) }}" alt="{{ $empresa->nombre }}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;">
@@ -56,7 +58,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">Aún no tienes empresas aprobadas.</td>
+                                <td colspan="7" class="text-center text-muted">
+                                    {{ $user->hasRole('admin') ? 'Aún no hay empresas aprobadas.' : 'Aún no tienes empresas aprobadas.' }}
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -117,7 +121,7 @@
 
 @push('scripts')
 <script>
-    document.getElementById('mnuAlmacen').classList.add('menu-open');
+    document.getElementById('mnuAutorizacion')?.classList.add('menu-open');
     const itemEmpresa = document.getElementById('itemEmpresa');
     if (itemEmpresa) {
         itemEmpresa.classList.add('active');

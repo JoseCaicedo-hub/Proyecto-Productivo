@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\AssignProductOwners::class,
+        \App\Console\Commands\RepairLegacySellerCompanies::class,
+        \App\Console\Commands\NormalizeUserRoles::class,
     ];
 
     /**

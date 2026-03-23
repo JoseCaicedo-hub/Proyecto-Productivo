@@ -6,7 +6,7 @@
         <h3 class="mb-0">Solicitudes de Empresas</h3>
         <div class="d-flex gap-2">
             <a href="{{ route('admin.empresas.solicitudes.historial') }}" class="btn btn-outline-dark btn-sm">Ver historial</a>
-            <a href="{{ route('empresas.index') }}" class="btn btn-outline-secondary btn-sm">Mi Empresa</a>
+            <a href="{{ route('empresas.index') }}" class="btn btn-outline-secondary btn-sm">Empresas</a>
         </div>
     </div>
 

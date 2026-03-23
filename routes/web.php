@@ -62,13 +62,43 @@ Route::post('/contacto/enviar', function(\Illuminate\Http\Request $request){
 
 // Contactanos (vista marketplace dentro de web/contacto/contactanos)
 Route::get('/contactanos', function () {
-    return view('web.contacto.contactanos.index');
+    $vendedores = collect();
+    $empresas = collect();
+
+    if (Auth::check()) {
+        $userId = Auth::id();
+
+        $empresas = \App\Models\Empresa::query()
+            ->join('productos', 'productos.empresa_id', '=', 'empresas.id')
+            ->join('pedido_detalles', 'pedido_detalles.producto_id', '=', 'productos.id')
+            ->join('pedidos', 'pedidos.id', '=', 'pedido_detalles.pedido_id')
+            ->where('pedidos.user_id', $userId)
+            ->select('empresas.id', 'empresas.nombre')
+            ->distinct()
+            ->orderBy('empresas.nombre')
+            ->get();
+
+        $vendedorIds = DB::table('productos')
+            ->join('pedido_detalles', 'pedido_detalles.producto_id', '=', 'productos.id')
+            ->join('pedidos', 'pedidos.id', '=', 'pedido_detalles.pedido_id')
+            ->where('pedidos.user_id', $userId)
+            ->whereNotNull('productos.user_id')
+            ->distinct()
+            ->pluck('productos.user_id');
+
+        $vendedores = \App\Models\User::role('vendedor')
+            ->whereIn('id', $vendedorIds)
+            ->orderBy('name')
+            ->get(['id', 'name', 'empresa_id']);
+    }
+
+    return view('web.contacto.contactanos.index', compact('vendedores', 'empresas'));
 })->name('web.contactanos');
 
 Route::post('/contactanos', function(\Illuminate\Http\Request $request){
     $data = $request->validate([
         'tipo' => 'required|string',
-        'vendedor' => 'nullable|string',
+        'vendedor' => 'nullable|integer|exists:users,id',
         'empresa_id' => 'nullable|numeric|exists:empresas,id',
         'nombre' => 'required|string|max:120',
         'email' => 'required|email|max:150',
@@ -79,6 +109,41 @@ Route::post('/contactanos', function(\Illuminate\Http\Request $request){
         'adjunto' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         'newsletter' => 'nullable|boolean',
     ]);
+
+    if (Auth::check()) {
+        $userId = Auth::id();
+
+        $empresaIdsPermitidas = DB::table('empresas')
+            ->join('productos', 'productos.empresa_id', '=', 'empresas.id')
+            ->join('pedido_detalles', 'pedido_detalles.producto_id', '=', 'productos.id')
+            ->join('pedidos', 'pedidos.id', '=', 'pedido_detalles.pedido_id')
+            ->where('pedidos.user_id', $userId)
+            ->distinct()
+            ->pluck('empresas.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $vendedorIdsPermitidos = DB::table('productos')
+            ->join('pedido_detalles', 'pedido_detalles.producto_id', '=', 'productos.id')
+            ->join('pedidos', 'pedidos.id', '=', 'pedido_detalles.pedido_id')
+            ->join('model_has_roles', 'model_has_roles.model_id', '=', 'productos.user_id')
+            ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('model_has_roles.model_type', \App\Models\User::class)
+            ->where('roles.name', 'vendedor')
+            ->where('pedidos.user_id', $userId)
+            ->distinct()
+            ->pluck('productos.user_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        if (!empty($data['empresa_id']) && !in_array((int) $data['empresa_id'], $empresaIdsPermitidas, true)) {
+            return back()->withErrors(['empresa_id' => 'Solo puedes seleccionar empresas a las que ya has comprado.'])->withInput();
+        }
+
+        if (!empty($data['vendedor']) && !in_array((int) $data['vendedor'], $vendedorIdsPermitidos, true)) {
+            return back()->withErrors(['vendedor' => 'Solo puedes seleccionar vendedores a los que ya has comprado.'])->withInput();
+        }
+    }
 
     if ($request->hasFile('adjunto')) {
         $path = $request->file('adjunto')->store('contactanos/adjuntos', 'public');
@@ -103,16 +168,14 @@ Route::post('/contactanos', function(\Illuminate\Http\Request $request){
 
     // Resolver nombre del vendedor si se envió un ID
     if (!empty($data['vendedor'])) {
-        $vendedorName = $data['vendedor'];
-        if (is_numeric($vendedorName)) {
-            try {
-                $user = \App\Models\User::find($vendedorName);
-                if ($user) {
-                    $vendedorName = $user->name;
-                }
-            } catch (\Throwable $e) {
-                \Log::warning('No se pudo obtener nombre de vendedor: ' . $e->getMessage());
+        $vendedorName = 'No especificado';
+        try {
+            $user = \App\Models\User::find($data['vendedor']);
+            if ($user) {
+                $vendedorName = $user->name;
             }
+        } catch (\Throwable $e) {
+            \Log::warning('No se pudo obtener nombre de vendedor: ' . $e->getMessage());
         }
         $data['vendedor_name'] = $vendedorName;
     } else {

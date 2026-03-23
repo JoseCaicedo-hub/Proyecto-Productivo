@@ -98,7 +98,7 @@
 
 @push('scripts')
 <script>
-    document.getElementById('mnuAlmacen').classList.add('menu-open');
-    document.getElementById('itemEmpresa').classList.add('active');
+    document.getElementById('mnuAutorizacion')?.classList.add('menu-open');
+    document.getElementById('itemEmpresa')?.classList.add('active');
 </script>
 @endpush

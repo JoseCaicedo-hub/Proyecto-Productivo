@@ -12,6 +12,7 @@ use App\Notifications\NuevaSolicitudNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class SolicitudController extends Controller
@@ -147,7 +148,7 @@ class SolicitudController extends Controller
             abort(403, 'No autorizado');
         }
 
-        $solicitudes = Solicitud::orderBy('created_at', 'desc')->paginate(20);
+        $solicitudes = Solicitud::orderBy('created_at', 'desc')->paginate(4);
         return view('solicitudes.index', compact('solicitudes'));
     }
 
@@ -167,31 +168,73 @@ class SolicitudController extends Controller
         // Intentar asignar rol "vendedor" al usuario (si existe)
         $user = $sol->user ?: User::where('email', $sol->email)->first();
         if ($user) {
-            try {
-                $user->assignRole('vendedor');
+            if (!$sol->user_id || (int) $sol->user_id !== (int) $user->id) {
+                $sol->user_id = $user->id;
+                $sol->save();
+            }
 
+            try {
+                $user->syncRoles(['vendedor']);
+            } catch (\Exception $e) {
+                Log::warning('No se pudo asignar rol vendedor al aprobar solicitud.', [
+                    'solicitud_id' => $sol->id,
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            try {
                 $empresa = Empresa::where('user_id', $user->id)
                     ->whereIn('estado', ['activo', 'aprobada'])
                     ->orderByDesc('id')
                     ->first();
 
                 if (!$empresa) {
-                    $empresa = Empresa::create([
-                        'user_id' => $user->id,
-                        'nombre' => $sol->nombre_emprendimiento ?: ($sol->titulo ?: ('Empresa de ' . $user->name)),
-                        'logo' => null,
-                        'descripcion' => $sol->productos_servicios ?: $sol->idea,
-                        'contacto' => $sol->telefono ?: $sol->email,
-                        'estado' => 'activo',
-                    ]);
+                    $desiredEmpresaId = (int) $sol->id;
+                    $empresaBySolicitudId = Empresa::find($desiredEmpresaId);
+
+                    if ($empresaBySolicitudId && (int) $empresaBySolicitudId->user_id === (int) $user->id) {
+                        $empresa = $empresaBySolicitudId;
+                    } elseif (!$empresaBySolicitudId) {
+                        $empresa = new Empresa([
+                            'user_id' => $user->id,
+                            'nombre' => $sol->nombre_emprendimiento ?: ($sol->titulo ?: ('Empresa de ' . $user->name)),
+                            'logo' => null,
+                            'descripcion' => $sol->productos_servicios ?: $sol->idea,
+                            'contacto' => $sol->telefono ?: $sol->email,
+                            'estado' => 'activo',
+                        ]);
+                        $empresa->id = $desiredEmpresaId;
+                        $empresa->save();
+                    } else {
+                        Log::warning('No se pudo usar ID de solicitud para empresa porque ya está ocupado por otro usuario.', [
+                            'solicitud_id' => $sol->id,
+                            'desired_empresa_id' => $desiredEmpresaId,
+                            'target_user_id' => $user->id,
+                            'existing_empresa_user_id' => $empresaBySolicitudId->user_id,
+                        ]);
+
+                        $empresa = Empresa::create([
+                            'user_id' => $user->id,
+                            'nombre' => $sol->nombre_emprendimiento ?: ($sol->titulo ?: ('Empresa de ' . $user->name)),
+                            'logo' => null,
+                            'descripcion' => $sol->productos_servicios ?: $sol->idea,
+                            'contacto' => $sol->telefono ?: $sol->email,
+                            'estado' => 'activo',
+                        ]);
+                    }
                 }
 
-                if (!$user->empresa_id && $empresa) {
+                if ($empresa && (!$user->empresa_id || (int) $user->empresa_id !== (int) $empresa->id)) {
                     $user->empresa_id = $empresa->id;
                     $user->save();
                 }
             } catch (\Exception $e) {
-                // Si falla la asignación de rol no bloqueamos el flujo
+                Log::error('No se pudo crear o vincular empresa al aprobar solicitud.', [
+                    'solicitud_id' => $sol->id,
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 

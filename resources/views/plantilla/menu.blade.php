@@ -65,7 +65,7 @@
                 @endcanany
                 @canany(['producto-list', 'empresa-list'])
                 @php
-                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*') || request()->routeIs('empresas.*') || request()->routeIs('mayorista.*');
+                    $almacenOpen = request()->routeIs('almacen.*') || request()->routeIs('productos.*') || request()->routeIs('mayorista.*');
                 @endphp
                 <li class="nav-item {{ $almacenOpen ? 'menu-open' : '' }}" id="mnuAlmacen">
                     <a href="#" class="nav-link {{ $almacenOpen ? 'active' : '' }}">
@@ -83,16 +83,6 @@
                                 <p>Mis Productos</p>
                             </a>
                         </li>
-                        @endcan
-                        @can('empresa-list')
-                        @if(!auth()->user()->hasRole('vendedor') || auth()->user()->hasRole('admin'))
-                        <li class="nav-item">
-                            <a href="{{ route('empresas.index') }}" class="nav-link {{ request()->routeIs('empresas.*') ? 'active' : '' }}" id="itemEmpresa">
-                                <i class="nav-icon bi bi-building"></i>
-                                <p>Mi Empresa</p>
-                            </a>
-                        </li>
-                        @endif
                         @endcan
                         @can('producto-list')
                         <li class="nav-item">
@@ -115,9 +105,32 @@
                             </a>
                         </li>
                         @endif
-                        @role('admin')
+                        @endcan
+                    </ul>
+                </li>
+                @endcanany            
+
+                @role('admin')
+                @php
+                    $autorizacionOpen = request()->routeIs('empresas.*') || request()->routeIs('admin.solicitudes.*') || request()->routeIs('admin.empresas.solicitudes.*');
+                    $pendientes = \App\Models\Solicitud::where('estado','pendiente')->count();
+                @endphp
+                <li class="nav-item {{ $autorizacionOpen ? 'menu-open' : '' }}" id="mnuAutorizacion">
+                    <a href="#" class="nav-link {{ $autorizacionOpen ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-check2-square"></i>
+                        <p>
+                            Autorización
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            @php $pendientes = \App\Models\Solicitud::where('estado','pendiente')->count(); @endphp
+                            <a href="{{ route('empresas.index') }}" class="nav-link {{ request()->routeIs('empresas.*') ? 'active' : '' }}" id="itemEmpresa">
+                                <i class="nav-icon bi bi-building"></i>
+                                <p>Empresas</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('admin.solicitudes.index') }}" class="nav-link {{ request()->routeIs('admin.solicitudes.*') ? 'active' : '' }}" id="itemSolicitudes">
                                 <i class="nav-icon bi bi-list-check"></i>
                                 <p>
@@ -128,11 +141,9 @@
                                 </p>
                             </a>
                         </li>
-                        @endrole
-                        @endcan
                     </ul>
                 </li>
-                @endcanany            
+                @endrole
             </ul>
             <!--end::Sidebar Menu-->
         </nav>
