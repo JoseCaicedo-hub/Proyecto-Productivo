@@ -173,7 +173,7 @@
                             <div class="user-dropdown-body">
                                 <div class="user-links mb-2">
                                     @if($user->hasAnyRole(['admin', 'vendedor']))
-                                        <a href="{{ route('almacen.index') }}"><i class="bi bi-speedometer2 me-2"></i>Panel de control</a>
+                                        <a href="{{ route('dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Panel de control</a>
                                     @endif
                                     <a href="{{route('perfil.pedidos')}}"><i class="bi bi-bag me-2"></i>Mis pedidos</a>
                                     <a href="{{ route('plantilla.profile') }}"><i class="bi bi-person me-2"></i>Mi perfil</a>

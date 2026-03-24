@@ -47,6 +47,162 @@
     <!--begin::Custom Themes-->
     <link rel="stylesheet" href="{{asset('css/custom-themes.css')}}" />
     <!--end::Custom Themes-->
+    <script>
+      (function () {
+        try {
+          var savedTheme = localStorage.getItem('theme');
+          if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      html.dark-mode body,
+      html.dark-mode .app-wrapper,
+      html.dark-mode .app-main,
+      html.dark-mode .app-content {
+        background-color: #0b1220 !important;
+        color: #e2e8f0;
+      }
+      html.dark-mode .app-header,
+      html.dark-mode .app-content-header,
+      html.dark-mode .card,
+      html.dark-mode .dropdown-menu,
+      html.dark-mode .app-footer,
+      html.dark-mode .app-sidebar,
+      html.dark-mode .sidebar-brand,
+      html.dark-mode .sidebar-wrapper,
+      html.dark-mode .nav-treeview,
+      html.dark-mode .bg-white {
+        background-color: #111827 !important;
+        color: #e2e8f0 !important;
+        border-color: rgba(148,163,184,.2) !important;
+      }
+      html.dark-mode .nav-link,
+      html.dark-mode .breadcrumb-item,
+      html.dark-mode .text-muted,
+      html.dark-mode .small {
+        color: #cbd5e1 !important;
+      }
+      html.dark-mode .breadcrumb-item.active,
+      html.dark-mode .breadcrumb-item + .breadcrumb-item::before {
+        color: #94a3b8 !important;
+      }
+      html.dark-mode .card-header,
+      html.dark-mode .card-body,
+      html.dark-mode .card-footer {
+        background-color: #111827 !important;
+        color: #e2e8f0 !important;
+      }
+      html.dark-mode .dropdown-menu {
+        --bs-dropdown-bg: #0f172a;
+        --bs-dropdown-color: #e2e8f0;
+        --bs-dropdown-link-color: #e2e8f0;
+        --bs-dropdown-link-hover-color: #7dd3fc;
+        --bs-dropdown-link-hover-bg: rgba(125,211,252,0.08);
+        border-color: rgba(148,163,184,.24) !important;
+      }
+      html.dark-mode .plantilla-user-header,
+      html.dark-mode .plantilla-user-actions {
+        background: #0f172a !important;
+        color: #e2e8f0 !important;
+        border-color: rgba(148,163,184,.2) !important;
+      }
+      html.dark-mode .plantilla-user-name { color: #f8fafc !important; }
+      html.dark-mode .plantilla-user-email { color: #94a3b8 !important; }
+      html.dark-mode .plantilla-avatar-placeholder {
+        background: linear-gradient(180deg, #111827, #0b1220) !important;
+        color: #7dd3fc !important;
+        box-shadow: 0 8px 22px rgba(2, 6, 23, 0.45) !important;
+      }
+      html.dark-mode .plantilla-btn.btn-outline-primary {
+        border-color: rgba(125,211,252,.45) !important;
+        color: #7dd3fc !important;
+        background: rgba(125,211,252,.05) !important;
+      }
+      html.dark-mode .plantilla-btn.btn-outline-secondary,
+      html.dark-mode .plantilla-btn.btn-light {
+        border-color: rgba(148,163,184,.35) !important;
+        color: #cbd5e1 !important;
+        background: #111827 !important;
+      }
+      html.dark-mode .nav-link:hover,
+      html.dark-mode a:hover { color: #7dd3fc !important; }
+      html.dark-mode .custom-sidebar {
+        background: #0f172a !important;
+        border-right-color: rgba(148,163,184,.18) !important;
+      }
+      html.dark-mode .custom-sidebar .sidebar-brand {
+        background: #111827 !important;
+        border-bottom-color: rgba(148,163,184,.18) !important;
+      }
+      html.dark-mode .custom-sidebar .brand-text,
+      html.dark-mode .custom-sidebar .nav-link,
+      html.dark-mode .custom-sidebar .nav-link p,
+      html.dark-mode .custom-sidebar .nav-arrow {
+        color: #cbd5e1 !important;
+      }
+      html.dark-mode .custom-sidebar .nav-link .nav-icon {
+        color: #60a5fa !important;
+      }
+      html.dark-mode .custom-sidebar .nav-link:hover {
+        background: rgba(96,165,250,.12) !important;
+        color: #f8fafc !important;
+      }
+      html.dark-mode .custom-sidebar .nav-link.active,
+      html.dark-mode .custom-sidebar .nav-link.active:hover {
+        background: rgba(59,130,246,.24) !important;
+        color: #f8fafc !important;
+        font-weight: 600;
+      }
+      html.dark-mode .custom-sidebar .nav-treeview {
+        background-color: #0b1220 !important;
+      }
+      html.dark-mode .custom-sidebar .nav-treeview .nav-link.active {
+        background: rgba(14,165,233,.20) !important;
+      }
+      html.dark-mode .alert-success {
+        background-color: rgba(16, 185, 129, 0.12) !important;
+        border-color: rgba(16, 185, 129, 0.35) !important;
+        color: #a7f3d0 !important;
+      }
+      html.dark-mode .form-control,
+      html.dark-mode .form-select,
+      html.dark-mode textarea,
+      html.dark-mode input {
+        background-color: #0b1220 !important;
+        color: #e2e8f0 !important;
+        border-color: rgba(148,163,184,.28) !important;
+      }
+      html.dark-mode .table,
+      html.dark-mode .table td,
+      html.dark-mode .table th {
+        color: #e2e8f0 !important;
+        border-color: rgba(148,163,184,.24) !important;
+      }
+      html.dark-mode .table {
+        --bs-table-bg: #0f172a;
+        --bs-table-color: #e2e8f0;
+        --bs-table-border-color: rgba(148,163,184,.24);
+        --bs-table-striped-bg: #111827;
+        --bs-table-striped-color: #e2e8f0;
+        --bs-table-hover-bg: #1e293b;
+        --bs-table-hover-color: #f8fafc;
+      }
+      html.dark-mode .table thead th { background-color: #111827 !important; }
+      html.dark-mode .table tbody td { background-color: #0f172a !important; }
+      html.dark-mode .modal-content,
+      html.dark-mode .modal-header,
+      html.dark-mode .modal-footer {
+        background-color: #0f172a !important;
+        color: #e2e8f0 !important;
+        border-color: rgba(148,163,184,.24) !important;
+      }
+      html.dark-mode .btn-close {
+        filter: invert(1) grayscale(100%) brightness(180%);
+      }
+    </style>
     @stack('estilos')
   </head>
   <!--end::Head-->
@@ -173,6 +329,38 @@
       });
     </script>
     <!--end::OverlayScrollbars Configure-->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var button = document.getElementById('panelThemeToggleBtn');
+        if (!button) return;
+
+        var moon = button.querySelector('.panel-theme-icon-moon');
+        var sun = button.querySelector('.panel-theme-icon-sun');
+
+        function renderIcons() {
+          var isDark = root.classList.contains('dark-mode');
+          if (moon && sun) {
+            moon.classList.toggle('d-none', isDark);
+            sun.classList.toggle('d-none', !isDark);
+          }
+        }
+
+        function setTheme(theme) {
+          var isDark = theme === 'dark';
+          root.classList.toggle('dark-mode', isDark);
+          try { localStorage.setItem('theme', theme); } catch (e) {}
+          renderIcons();
+        }
+
+        renderIcons();
+
+        button.addEventListener('click', function () {
+          var nextTheme = root.classList.contains('dark-mode') ? 'light' : 'dark';
+          setTheme(nextTheme);
+        });
+      })();
+    </script>
     <!--end::Script-->
     @stack('scripts')
   </body>

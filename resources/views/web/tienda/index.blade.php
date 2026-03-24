@@ -15,7 +15,7 @@
     ->pluck('name');
 
   $empresasFiltro = \App\Models\Empresa::query()
-    ->where('estado', 'activo')
+    ->whereIn('estado', ['activo', 'aprobada'])
     ->whereHas('productos')
     ->orderBy('nombre')
     ->get(['id', 'nombre']);
@@ -28,7 +28,7 @@
   $productosQuery = \App\Models\Producto::with('empresa')
     ->whereNotNull('empresa_id')
     ->whereHas('empresa', function($q){
-      $q->where('estado', 'activo');
+      $q->whereIn('estado', ['activo', 'aprobada']);
     });
 
     if($selectedCategory){

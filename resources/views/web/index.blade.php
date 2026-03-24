@@ -45,7 +45,7 @@
                     </div>
                     @php
                         $empresasFiltro = \App\Models\Empresa::query()
-                            ->where('estado', 'activo')
+                            ->whereIn('estado', ['activo', 'aprobada'])
                             ->whereHas('productos')
                             ->orderBy('nombre')
                             ->get(['id','nombre']);
@@ -96,7 +96,7 @@
                     ->whereNotIn('id', $existingIds)
                     ->whereNotNull('empresa_id')
                     ->whereHas('empresa', function($q){
-                        $q->where('estado', 'activo');
+                        $q->whereIn('estado', ['activo', 'aprobada']);
                     })
                     ->latest()
                     ->take($needed)

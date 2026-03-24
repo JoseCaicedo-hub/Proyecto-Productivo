@@ -316,6 +316,13 @@ Route::middleware(['auth'])->group(function(){
     })->name('plantilla.profile');
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard/admin/bi', [DashboardController::class, 'adminBusinessIntelligence'])->name('dashboard.admin.bi');
+
+    Route::get('/dashboard/data/seller', [DashboardController::class, 'sellerData'])->name('dashboard.data.seller');
+    Route::get('/dashboard/data/admin', [DashboardController::class, 'adminData'])->name('dashboard.data.admin');
+    Route::get('/dashboard/data/admin-bi', [DashboardController::class, 'adminBusinessIntelligenceData'])->name('dashboard.data.admin.bi');
+
+    Route::get('/dashboard/reportes/export', [DashboardController::class, 'exportReport'])->name('dashboard.reports.export');
 
     // Rutas para solicitudes de compra mayorista
     Route::post('/solicitud-mayorista', [SolicitudCompraMayoristaController::class, 'store'])->name('mayorista.solicitud.store');

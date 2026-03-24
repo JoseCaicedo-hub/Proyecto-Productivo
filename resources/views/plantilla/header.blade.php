@@ -1,4 +1,29 @@
-<nav class="app-header navbar navbar-expand bg-body" style="background:linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);border-bottom:1px solid rgba(0,0,0,0.04);">
+<nav class="app-header navbar navbar-expand bg-body panel-header-surface">
+    <style>
+        .panel-header-surface{
+            background:linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);
+            border-bottom:1px solid rgba(0,0,0,0.04);
+        }
+        .panel-header-surface .nav-link{color:#4b5563;}
+        .panel-header-surface .nav-link:hover{color:#0b63d6;}
+        .panel-theme-toggle-btn{
+            width:40px;height:40px;border-radius:999px;border:1px solid rgba(11,99,214,0.12);
+            background:linear-gradient(180deg,#f8feff,#eef9ff);color:#0b63d6;
+            display:inline-flex;align-items:center;justify-content:center;
+            box-shadow:0 6px 16px rgba(47,128,182,0.08);transition:all .14s ease;
+        }
+        .panel-theme-toggle-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(47,128,182,0.12)}
+        html.dark-mode .panel-header-surface{
+            background:#0b1220 !important;
+            border-bottom-color:rgba(148,163,184,.18) !important;
+        }
+        html.dark-mode .panel-header-surface .nav-link{color:#cbd5e1 !important;}
+        html.dark-mode .panel-header-surface .nav-link:hover{color:#7dd3fc !important;}
+        html.dark-mode .panel-theme-toggle-btn{
+            background:#0b1220;color:#facc15;border-color:rgba(250,204,21,0.35);
+            box-shadow:0 8px 20px rgba(2,6,23,0.45);
+        }
+    </style>
     <!--begin::Container-->
     <div class="container-fluid">
         <!--begin::Start Navbar Links-->
@@ -17,14 +42,12 @@
         <!--end::Start Navbar Links-->
         <!--begin::End Navbar Links-->
         <ul class="navbar-nav ms-auto">
-            <!--begin::Fullscreen Toggle-->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-lte-toggle="fullscreen">
-                    <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i>
-                    <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none"></i>
-                </a>
+                <button type="button" class="panel-theme-toggle-btn nav-link border-0" id="panelThemeToggleBtn" aria-label="Cambiar tema" title="Cambiar tema">
+                    <i class="bi bi-moon-stars-fill panel-theme-icon-moon" aria-hidden="true"></i>
+                    <i class="bi bi-sun-fill panel-theme-icon-sun d-none" aria-hidden="true"></i>
+                </button>
             </li>
-            <!--end::Fullscreen Toggle-->
             <!--begin::User Menu Dropdown-->
             @if(Auth::check())
             <?php

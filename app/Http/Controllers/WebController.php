@@ -14,7 +14,7 @@ class WebController extends Controller
         $query = Producto::with('empresa')
             ->whereNotNull('empresa_id')
             ->whereHas('empresa', function ($q) {
-                $q->where('estado', 'activo');
+                $q->whereIn('estado', ['activo', 'aprobada']);
             });
         // Búsqueda por nombre
         if ($request->has('search') && $request->search) {
