@@ -105,19 +105,20 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
+                                    <label for="departamento" class="form-label">Departamento / Estado</label>
+                                    <select class="form-select @error('departamento') is-invalid @enderror" id="departamento" name="departamento" required>
+                                        <option value="">Selecciona un departamento/estado</option>
+                                    </select>
+                                     @error('departamento')
+                                        <small class="text-danger">{{$message}}</small>
+                                     @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
                                     <label for="municipio" class="form-label">Ciudad/Municipio</label>
                                     <select class="form-select @error('municipio') is-invalid @enderror" id="municipio" name="municipio" required>
                                         <option value="">Selecciona una ciudad</option>
                                     </select>
                                      @error('municipio')
-                                        <small class="text-danger">{{$message}}</small>
-                                     @enderror
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="departamento" class="form-label">Departamento / Estado</label>
-                                    <input type="text" class="form-control @error('departamento') is-invalid @enderror"
-                                     id="departamento" name="departamento" value="{{old('departamento', $registro->departamento ?? '')}}" required>
-                                     @error('departamento')
                                         <small class="text-danger">{{$message}}</small>
                                      @enderror
                                 </div>
@@ -172,7 +173,9 @@
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.0/build/js/intlTelInput.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.8.0/build/js/utils.js"></script>
 <script>
-    // Definir ciudades por país
+    const colombiaDataUrl = "{{ asset('data/colombia.min.json') }}";
+
+    // Fallback de ciudades por país (cuando no exista mapa por departamento)
     const ciudadesPorPais = {
         'Colombia': ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Santa Marta', 'Cúcuta', 'Bucaramanga', 'Pereira', 'Manizales', 'Huancayo'],
         'Argentina': ['Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza', 'La Plata', 'Mar del Plata', 'Tucumán', 'Salta', 'Corrientes', 'Misiones'],
@@ -191,41 +194,117 @@
         'Honduras': ['Tegucigalpa', 'San Pedro Sula', 'La Ceiba', 'Comayagüela', 'Choloma', 'Cortés', 'Choluteca', 'OlanChO', 'Danlí', 'Juticalpa']
     };
 
-    // Elemento select para municipio
+    // Mapa por departamento para Colombia (se rellena dinámicamente desde /public/data/colombia.min.json)
+    const ciudadesPorDepartamentoColombia = {};
+
+    const departamentosPorPais = {
+        'Colombia': ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada', 'Bogotá D.C.'],
+        'Argentina': ['Buenos Aires', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz', 'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán'],
+        'Brasil': ['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahía', 'Ceará', 'Distrito Federal', 'Espírito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul', 'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí', 'Rio de Janeiro', 'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia', 'Roraima', 'Santa Catarina', 'São Paulo', 'Sergipe', 'Tocantins'],
+        'Chile': ['Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo', 'Valparaíso', 'Metropolitana', 'O’Higgins', 'Maule', 'Ñuble', 'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'],
+        'Ecuador': ['Azuay', 'Bolívar', 'Cañar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El Oro', 'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los Ríos', 'Manabí', 'Morona Santiago', 'Napo', 'Orellana', 'Pastaza', 'Pichincha', 'Santa Elena', 'Santo Domingo de los Tsáchilas', 'Sucumbíos', 'Tungurahua', 'Zamora Chinchipe'],
+        'Perú': ['Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco', 'Huancavelica', 'Huánuco', 'Ica', 'Junín', 'La Libertad', 'Lambayeque', 'Lima', 'Loreto', 'Madre de Dios', 'Moquegua', 'Pasco', 'Piura', 'Puno', 'San Martín', 'Tacna', 'Tumbes', 'Ucayali'],
+        'Venezuela': ['Amazonas', 'Anzoátegui', 'Apure', 'Aragua', 'Barinas', 'Bolívar', 'Carabobo', 'Cojedes', 'Delta Amacuro', 'Falcón', 'Guárico', 'Lara', 'Mérida', 'Miranda', 'Monagas', 'Nueva Esparta', 'Portuguesa', 'Sucre', 'Táchira', 'Trujillo', 'Yaracuy', 'Zulia', 'Distrito Capital'],
+        'México': ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Estado de México', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'],
+        'Costa Rica': ['San José', 'Alajuela', 'Cartago', 'Heredia', 'Guanacaste', 'Puntarenas', 'Limón'],
+        'Panamá': ['Bocas del Toro', 'Coclé', 'Colón', 'Chiriquí', 'Darién', 'Herrera', 'Los Santos', 'Panamá', 'Veraguas', 'Panamá Oeste'],
+        'Uruguay': ['Artigas', 'Canelones', 'Cerro Largo', 'Colonia', 'Durazno', 'Flores', 'Florida', 'Lavalleja', 'Maldonado', 'Montevideo', 'Paysandú', 'Río Negro', 'Rivera', 'Rocha', 'Salto', 'San José', 'Soriano', 'Tacuarembó', 'Treinta y Tres'],
+        'Paraguay': ['Asunción', 'Concepción', 'San Pedro', 'Cordillera', 'Guairá', 'Caaguazú', 'Caazapá', 'Itapúa', 'Misiones', 'Paraguarí', 'Alto Paraná', 'Central', 'Ñeembucú', 'Amambay', 'Canindeyú', 'Presidente Hayes', 'Boquerón', 'Alto Paraguay'],
+        'Bolivia': ['La Paz', 'Cochabamba', 'Santa Cruz', 'Oruro', 'Potosí', 'Chuquisaca', 'Tarija', 'Beni', 'Pando'],
+        'Guatemala': ['Alta Verapaz', 'Baja Verapaz', 'Chimaltenango', 'Chiquimula', 'El Progreso', 'Escuintla', 'Guatemala', 'Huehuetenango', 'Izabal', 'Jalapa', 'Jutiapa', 'Petén', 'Quetzaltenango', 'Quiché', 'Retalhuleu', 'Sacatepéquez', 'San Marcos', 'Santa Rosa', 'Sololá', 'Suchitepéquez', 'Totonicapán', 'Zacapa'],
+        'Honduras': ['Atlántida', 'Choluteca', 'Colón', 'Comayagua', 'Copán', 'Cortés', 'El Paraíso', 'Francisco Morazán', 'Gracias a Dios', 'Intibucá', 'Islas de la Bahía', 'La Paz', 'Lempira', 'Ocotepeque', 'Olancho', 'Santa Bárbara', 'Valle', 'Yoro']
+    };
+
+    // Elementos select
     const municipioSelect = document.getElementById('municipio');
     const ciudadSelect = document.getElementById('ciudad');
+    const departamentoSelect = document.getElementById('departamento');
 
-    // Función para actualizar ciudades
-    function actualizarCiudades() {
-        const pais = ciudadSelect.value;
-        const ciudades = ciudadesPorPais[pais] || [];
+    function setSelectOptions(selectElement, items, placeholder, selectedValue = '') {
+        if (!selectElement) return;
+        selectElement.innerHTML = '';
 
-        // Limpiar opciones anteriores (excepto la primera)
-        while (municipioSelect.options.length > 1) {
-            municipioSelect.remove(1);
-        }
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.text = placeholder;
+        selectElement.appendChild(defaultOption);
 
-        // Agregar nuevas opciones
-        ciudades.forEach(ciudad => {
+        (items || []).forEach(item => {
             const option = document.createElement('option');
-            option.value = ciudad;
-            option.text = ciudad;
-            municipioSelect.appendChild(option);
+            option.value = item;
+            option.text = item;
+            if (selectedValue && selectedValue === item) {
+                option.selected = true;
+            }
+            selectElement.appendChild(option);
         });
+    }
 
-        // Si hay un municipio guardado previamente, seleccionarlo
-        const municipioActual = '{{ old("municipio", $registro->municipio ?? "") }}';
-        if (municipioActual && municipioSelect.querySelector(`option[value="${municipioActual}"]`)) {
-            municipioSelect.value = municipioActual;
+    function actualizarCiudades(selectedMunicipio = '') {
+        const pais = ciudadSelect.value;
+        const departamento = departamentoSelect.value;
+
+        if (!pais || !departamento) {
+            setSelectOptions(municipioSelect, [], 'Selecciona una ciudad', '');
+            return;
         }
+
+        let ciudades = [];
+        if (pais === 'Colombia' && ciudadesPorDepartamentoColombia[departamento]) {
+            ciudades = ciudadesPorDepartamentoColombia[departamento];
+        } else {
+            ciudades = ciudadesPorPais[pais] || [];
+        }
+
+        setSelectOptions(municipioSelect, ciudades, 'Selecciona una ciudad', selectedMunicipio);
+    }
+
+    function actualizarDepartamentos() {
+        const pais = ciudadSelect.value;
+        const departamentos = departamentosPorPais[pais] || [];
+        const departamentoActual = '{{ old("departamento", $registro->departamento ?? "") }}';
+        setSelectOptions(departamentoSelect, departamentos, 'Selecciona un departamento/estado', departamentoActual);
+
+        const municipioActual = '{{ old("municipio", $registro->municipio ?? "") }}';
+        actualizarCiudades(municipioActual);
     }
 
     // Event listener para cambios de país
-    ciudadSelect.addEventListener('change', actualizarCiudades);
+    ciudadSelect.addEventListener('change', function () {
+        actualizarDepartamentos();
+    });
+
+    departamentoSelect.addEventListener('change', function () {
+        actualizarCiudades('');
+    });
+
+    async function loadColombiaData() {
+        try {
+            const response = await fetch(colombiaDataUrl, { cache: 'no-store' });
+            if (!response.ok) return;
+            const data = await response.json();
+            const map = {};
+
+            (data || []).forEach(item => {
+                if (item?.departamento && Array.isArray(item?.ciudades)) {
+                    map[item.departamento] = item.ciudades;
+                }
+            });
+
+            if (Object.keys(map).length > 0) {
+                Object.keys(ciudadesPorDepartamentoColombia).forEach(key => delete ciudadesPorDepartamentoColombia[key]);
+                Object.assign(ciudadesPorDepartamentoColombia, map);
+            }
+        } catch (error) {
+            console.warn('No se pudo cargar data de Colombia para ciudades por departamento.', error);
+        }
+    }
 
     // Inicializar ciudades cuando carga la página
     document.addEventListener('DOMContentLoaded', function () {
-        actualizarCiudades();
+        loadColombiaData().finally(() => {
+            actualizarDepartamentos();
+        });
 
         const telefonoInput = document.getElementById('telefono');
         const telefonoWarning = document.getElementById('telefono-warning');

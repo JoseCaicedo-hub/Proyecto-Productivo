@@ -299,7 +299,7 @@ Route::middleware(['auth'])->group(function(){
         foreach ($recentOrders as $order) {
             $recentActivities[] = [
                 'title' => 'Pedido #' . $order->id,
-                'meta' => 'Estado: ' . ucfirst((string) $order->estado) . ' · Total: $' . number_format((float) $order->total, 2),
+                'meta' => 'Estado: ' . ucfirst((string) $order->estado) . ' · Total: ' . \App\Helpers\PriceHelper::formatCOP((int) $order->total),
             ];
         }
 

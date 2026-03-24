@@ -109,6 +109,20 @@
                 $emptyStars = 5 - $fullStars;
                 // Si existe una calificación real en el modelo, usarla; si no, derivar una calificación numérica
                 $rating = isset($profileUser->rating) ? floatval($profileUser->rating) : floatval($stars);
+
+                $roleNames = method_exists($profileUser, 'getRoleNames')
+                  ? $profileUser->getRoleNames()->map(fn($r) => strtolower((string) $r))->all()
+                  : [];
+
+                if (in_array('admin', $roleNames, true)) {
+                  $displayRole = 'Admin';
+                } elseif (in_array('vendedor', $roleNames, true)) {
+                  $displayRole = 'Vendedor';
+                } elseif (in_array('cliente', $roleNames, true)) {
+                  $displayRole = 'Cliente';
+                } else {
+                  $displayRole = 'Cliente';
+                }
                 @endphp
 
               <div class="mb-2" aria-label="Calificación del usuario">
@@ -138,7 +152,7 @@
           <p class="small-muted">Información pública del usuario y detalles de contacto.</p>
           <dl class="row mb-0 mt-3">
             <dt class="col-5">Rol</dt>
-            <dd class="col-7">{{ $user->role ?? 'Cliente' }}</dd>
+            <dd class="col-7">{{ $displayRole }}</dd>
             <dt class="col-5">Teléfono</dt>
             <dd class="col-7">{{ $user->telefono ?? '—' }}</dd>
             <dt class="col-5">Ubicación</dt>
@@ -158,7 +172,7 @@
               <div class="small-muted">Reseñas</div>
             </div>
             <div>
-              <div class="h4 mb-0">${{ number_format($spend ?? 0, 2) }}</div>
+              <div class="h4 mb-0">{{ \App\Helpers\PriceHelper::formatCOP($spend ?? 0) }}</div>
               <div class="small-muted">Gasto</div>
             </div>
           </div>

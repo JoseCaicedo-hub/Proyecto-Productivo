@@ -37,7 +37,7 @@ class UserRequest extends FormRequest
             'role' => 'nullable|exists:roles,name',
             'telefono' => 'nullable|regex:/^[0-9]+$/|digits_between:7,15',
             'pais' => 'nullable|string|max:100',
-            'departamento' => 'nullable|string|max:120',
+            'departamento' => ['nullable', 'string', 'max:120', 'regex:/^[\pL\s\-\'.]+$/u'],
             'direccion' => 'nullable|string|max:1000',
             'ciudad' => 'nullable|string|max:100',
             'municipio' => 'nullable|string|max:100',
@@ -53,14 +53,14 @@ class UserRequest extends FormRequest
                 $rules['role'] = 'required|exists:roles,name';
                 $rules['telefono'] = 'nullable|regex:/^[0-9]+$/|digits_between:7,15';
                 $rules['pais'] = 'nullable|string|max:100';
-                $rules['departamento'] = 'nullable|string|max:120';
+                $rules['departamento'] = ['nullable', 'string', 'max:120', 'regex:/^[\pL\s\-\'.]+$/u'];
                 $rules['direccion'] = 'nullable|string|max:1000';
                 $rules['ciudad'] = 'nullable|string|max:100';
                 $rules['municipio'] = 'nullable|string|max:100';
             } else {
                 $rules['telefono'] = 'required|regex:/^[0-9]+$/|digits_between:7,15';
                 $rules['pais'] = 'nullable|string|max:100';
-                $rules['departamento'] = 'required|string|max:120';
+                $rules['departamento'] = ['required', 'string', 'max:120', 'regex:/^[\pL\s\-\'.]+$/u'];
                 $rules['direccion'] = 'required|string|max:1000';
                 $rules['ciudad'] = 'required|string|max:100';
                 $rules['municipio'] = 'required|string|max:100';
@@ -88,6 +88,7 @@ class UserRequest extends FormRequest
             'ciudad.required' => 'El campo país es obligatorio.',
             'municipio.required' => 'El campo ciudad/municipio es obligatorio.',
             'departamento.required' => 'El campo departamento/estado es obligatorio.',
+            'departamento.regex' => 'El departamento/estado solo puede contener letras y espacios.',
             'direccion.required' => 'El campo dirección es obligatorio.',
 
             'password.required' => 'El campo contraseña es obligatorio.',
