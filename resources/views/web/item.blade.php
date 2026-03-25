@@ -122,7 +122,7 @@
                     </div>
 
                     {{-- Selector de talla para productos en la categoría Ropa --}}
-                    @if(isset($producto->categoria) && strtolower(trim($producto->categoria)) === 'ropa')
+                    @if(isset($producto->categoria) && in_array(strtolower(trim($producto->categoria)), ['ropa', 'moda'], true))
                         <div class="mb-4">
                             <label class="fw-semibold mb-2 d-block">Talla:</label>
                             <select name="talla" id="selectedSize" class="form-select" style="max-width:200px;">
@@ -423,7 +423,7 @@
             }
 
             // Validar talla si el producto es Ropa
-            @if(isset($producto->categoria) && strtolower(trim($producto->categoria)) === 'ropa')
+            @if(isset($producto->categoria) && in_array(strtolower(trim($producto->categoria)), ['ropa', 'moda'], true))
                 const sizeSelect = document.getElementById('selectedSize');
                 if(!sizeSelect || !sizeSelect.value) {
                     e.preventDefault();

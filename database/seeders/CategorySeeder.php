@@ -10,7 +10,10 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
+            ['name' => 'Hogar', 'description' => null],
+            ['name' => 'Accesorios', 'description' => null],
             ['name' => 'Electrónica', 'description' => null],
+            ['name' => 'Ropa', 'description' => null],
             ['name' => 'Moda', 'description' => null],
             ['name' => 'Hogar y Muebles', 'description' => null],
             ['name' => 'Belleza y Cuidado Personal', 'description' => null],

@@ -23,7 +23,18 @@ class WebController extends Controller
 
         // Filtrar por categoria si se pasa en la query string
         if ($request->has('category') && $request->category) {
-            $query->where('categoria', $request->category);
+            $category = trim((string) $request->category);
+            $normalized = mb_strtolower($category);
+
+            if (in_array($normalized, ['ropa', 'moda'], true)) {
+                $query->whereIn('categoria', ['Ropa', 'Moda']);
+            } elseif (in_array($normalized, ['hogar', 'hogar y muebles'], true)) {
+                $query->whereIn('categoria', ['Hogar', 'Hogar y Muebles']);
+            } elseif (in_array($normalized, ['electrónica', 'electronica'], true)) {
+                $query->whereIn('categoria', ['Electrónica', 'Electronica']);
+            } else {
+                $query->where('categoria', $category);
+            }
         }
 
         if ($request->filled('empresa')) {

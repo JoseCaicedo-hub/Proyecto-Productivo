@@ -17,9 +17,19 @@
     </style>
 </head>
 <body>
+    @php
+        $logoFilePath = public_path('images/Logo.png');
+        $logoSrc = file_exists($logoFilePath)
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoFilePath))
+            : null;
+    @endphp
     <div class="header">
         <div>
-            <img src="{{ public_path('images/Logo.png') }}" class="logo" alt="Logo">
+            @if($logoSrc)
+                <img src="{{ $logoSrc }}" class="logo" alt="Logo">
+            @else
+                <div class="small">Logo no disponible</div>
+            @endif
             <div style="margin-top:8px">
                 <strong>StartPlace S.A.S.</strong>
             </div>

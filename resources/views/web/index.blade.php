@@ -141,7 +141,7 @@
                         <div class="card-footer bg-transparent border-0 text-center pb-4 cssunique">
                             @php
                                 $categoria = $producto->categoria ?? '';
-                                $esRopa = is_string($categoria) && strtolower(trim($categoria)) === 'ropa';
+                                $esRopa = is_string($categoria) && in_array(strtolower(trim($categoria)), ['ropa', 'moda'], true);
                             @endphp
 
                             <div class="product-actions">
@@ -320,7 +320,7 @@
     <div class="container px-4 px-lg-5">
         <div class="row align-items-center gx-4">
             <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="img-fluid" style="max-width:600px;">
+                <img src="{{ asset('images/Logo.png') }}" alt="Logo" class="img-fluid" style="max-width:600px;">
             </div>
             <div class="col-md-8 cta-ps" style="padding-left:18rem;">
                 <h3 class="fw-bold">Empieza a vender con StartPlace</h3>

@@ -14,6 +14,15 @@
     ->orderBy('name')
     ->pluck('name');
 
+  $mandatoryCategories = collect(['Hogar', 'Accesorios', 'Electrónica', 'Ropa', 'Moda']);
+  $categorias = $categorias
+    ->merge($mandatoryCategories)
+    ->map(fn ($value) => trim((string) $value))
+    ->filter()
+    ->unique()
+    ->sort()
+    ->values();
+
   $empresasFiltro = \App\Models\Empresa::query()
     ->whereIn('estado', ['activo', 'aprobada'])
     ->whereHas('productos')
@@ -32,7 +41,22 @@
     });
 
     if($selectedCategory){
-      $productosQuery->where('categoria', $selectedCategory);
+      $selectedCategoryNorm = mb_strtolower(trim((string) $selectedCategory));
+
+      $categoryFamilies = [
+        'ropa' => ['Ropa', 'Moda'],
+        'moda' => ['Ropa', 'Moda'],
+        'hogar' => ['Hogar', 'Hogar y Muebles'],
+        'hogar y muebles' => ['Hogar', 'Hogar y Muebles'],
+        'electrónica' => ['Electrónica', 'Electronica'],
+        'electronica' => ['Electrónica', 'Electronica'],
+      ];
+
+      if (isset($categoryFamilies[$selectedCategoryNorm])) {
+        $productosQuery->whereIn('categoria', $categoryFamilies[$selectedCategoryNorm]);
+      } else {
+        $productosQuery->where('categoria', $selectedCategory);
+      }
     }
 
   if($selectedEmpresa){
@@ -150,7 +174,7 @@
               <div class="card-footer bg-transparent border-0 text-center pb-3">
                 @php
                     $categoria = $producto->categoria ?? '';
-                    $esRopa = is_string($categoria) && strtolower(trim($categoria)) === 'ropa';
+                  $esRopa = is_string($categoria) && in_array(strtolower(trim($categoria)), ['ropa', 'moda'], true);
                 @endphp
                 <div class="product-actions">
                   <form action="{{ route('carrito.agregar') }}" method="POST" class="{{ $esRopa ? 'add-with-size' : '' }}">
